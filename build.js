@@ -158,7 +158,10 @@ function renderBookmarkItems(items) {
       const inner = renderBookmarkItems(item.children);
       html += `<details>\n  <summary>${item.name}</summary>\n  <div class="bm-folder-body">${inner}</div>\n</details>\n`;
     } else {
-      html += `<div class="bm-link"><a href="${item.href}" target="_blank" rel="noopener noreferrer">${item.title || item.href}</a></div>\n`;
+      let domain = '';
+      try { domain = new URL(item.href).hostname.replace(/^www\./, ''); } catch {}
+      const label = (item.title || item.href) + (domain ? ` <span class="bm-domain">— ${domain}</span>` : '');
+      html += `<div class="bm-link"><a href="${item.href}" target="_blank" rel="noopener noreferrer">${label}</a></div>\n`;
     }
   }
   return html;
@@ -200,6 +203,7 @@ function linksPage(bodyHtml) {
     .bm-link { padding: 3px 0; }
     .bm-link a { color: #2563eb; text-decoration: none; font-size: 14px; }
     .bm-link a:hover { text-decoration: underline; }
+    .bm-domain { color: #888; font-size: 12px; font-weight: normal; }
   </style>
 </head>
 <body>
