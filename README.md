@@ -6,8 +6,9 @@ Converts study documents (`.docx` files and `.png` images) into a browsable stat
 
 - Two-panel layout: collapsible sidebar menu + content area
 - Two-level menu: topic folders → individual documents
-- Full-text search across all documents
+- Full-text search across all documents (sidebar search + in-document highlight with prev/next)
 - Collapse All button for the sidebar
+- Links page generated from a Firefox bookmarks export (folder structure preserved, all links open in a new tab)
 - Works via `file://` — just open `docs/index.html` in any browser
 
 ## Source Documents
@@ -45,8 +46,10 @@ Every build is clean — `docs/` is deleted and fully regenerated each run.
 1. `build.js` scans the source folder and converts each `.docx` to HTML using [mammoth](https://github.com/mwilliamson/mammoth.js)
 2. Embedded images in `.docx` files are inlined as base64 data URIs (no separate image files needed)
 3. Standalone `.png` files get simple image viewer pages
-4. A full-text search index is generated as `docs/assets/search_index.js`
-5. `docs/index.html` is generated with the sidebar and an iframe for content
+4. Plain-text URLs in documents are automatically converted to clickable links
+5. A Firefox bookmarks export (`BOOKMARKS_FILE` in `build.js`) is parsed and rendered as a collapsible links page
+6. A full-text search index is generated as `docs/assets/search_index.js`
+7. `docs/index.html` is generated with the sidebar and an iframe for content
 
 ## Output Structure
 
@@ -64,5 +67,18 @@ docs/
 ├── RxJS/
 ├── Questions/
 ├── Others/
-└── Pictures/
+├── Pictures/
+└── Links/
+    └── links.html
 ```
+
+## Configuration
+
+All paths are defined at the top of `build.js`:
+
+| Constant | Description |
+|----------|-------------|
+| `SOURCE_DIR` | Root folder containing the topic subfolders with `.docx` files |
+| `BOOKMARKS_FILE` | Path to the exported Firefox bookmarks HTML file (default: `bookmarks.html` inside `SOURCE_DIR`) |
+| `OUTPUT_DIR` | Output folder (default: `docs/` inside the project) |
+| `FOLDER_ORDER` | Controls the order of topic folders in the sidebar |
