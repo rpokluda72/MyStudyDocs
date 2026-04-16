@@ -92,6 +92,74 @@ function uniqueSlug(slug, used) {
   return candidate;
 }
 
+function isCodeLine(plain) {
+  const t = plain.trim();
+  if (!t) return false;
+  // Leading indentation — strongest signal in Word-authored code
+  if (/^ {2,}/.test(plain)) return true;
+  // Starts with common code keywords
+  if (/^(export |import |const |let |var |function |class |interface |type |enum |return\b|if\s*\(|for\s*\(|while\s*\(|async |await |@\w+|\/\/|\/\*|\.\w+[\s(])/.test(t)) return true;
+  // Arrow function
+  if (/=>/.test(t)) return true;
+  // Ends with { or ;
+  if (/[{;]$/.test(t)) return true;
+  // Starts with closing brace/bracket
+  if (/^[})\]]/.test(t)) return true;
+  return false;
+}
+
+function wrapCodeBlocks(html) {
+  const segments = [];
+  let lastIndex = 0;
+  const pRegex = /<p[^>]*>([\s\S]*?)<\/p>/gi;
+  let m;
+
+  while ((m = pRegex.exec(html)) !== null) {
+    if (m.index > lastIndex) {
+      segments.push({ type: 'raw', text: html.slice(lastIndex, m.index) });
+    }
+    // Convert <br> to newline so multi-line paragraphs render correctly in <pre>
+    const inner = m[1].replace(/<br\s*\/?>/gi, '\n');
+    const plain = inner.replace(/<[^>]+>/g, '');
+    segments.push({ type: 'p', inner, plain, full: m[0] });
+    lastIndex = m.index + m[0].length;
+  }
+  if (lastIndex < html.length) {
+    segments.push({ type: 'raw', text: html.slice(lastIndex) });
+  }
+
+  let result = '';
+  let buf = [];
+
+  function flush() {
+    if (!buf.length) return;
+    // Wrap as code block; single ambiguous lines fall back to <p>
+    const isDefinitelyCode = buf.length >= 2 ||
+      /[{;]$/.test(buf[0].replace(/<[^>]+>/g, '').trim()) ||
+      /^(export |import |const |let |var |function |class )/.test(buf[0].replace(/<[^>]+>/g, '').trim());
+    if (isDefinitelyCode) {
+      result += '<pre><code>' + buf.join('\n') + '</code></pre>\n';
+    } else {
+      result += '<p>' + buf[0] + '</p>\n';
+    }
+    buf = [];
+  }
+
+  for (const seg of segments) {
+    if (seg.type === 'raw') {
+      flush();
+      result += seg.text;
+    } else if (isCodeLine(seg.plain)) {
+      buf.push(seg.inner);
+    } else {
+      flush();
+      result += seg.full;
+    }
+  }
+  flush();
+  return result;
+}
+
 function rmrf(dir) {
   if (fs.existsSync(dir)) {
     fs.rmSync(dir, { recursive: true, force: true });
@@ -836,7 +904,7 @@ async function build() {
           { convertImage: mammoth.images.dataUri }
         );
 
-        writeFile(path.join(folderOut, htmlFile), contentPage(stem, fixExternalLinks(linkifyUrls(result.value))));
+        writeFile(path.join(folderOut, htmlFile), contentPage(stem, fixExternalLinks(linkifyUrls(wrapCodeBlocks(result.value)))));
 
         const href = `${folderName}/${htmlFile}`;
         searchIndex.push({

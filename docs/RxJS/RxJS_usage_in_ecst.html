@@ -8,7 +8,258 @@
 </head>
 <body>
   <h1>RxJS usage in ecst</h1>
-  <p><strong>export class ClassManagerService {</strong></p><p>  readonly appSpaceCntxfilter = signal(SHOW_ALL);</p><p>  public readonly appSpaceCntxList = signal&lt;string[]&gt;([]);</p><p>  protected init() {</p><p>    merge(toObservable(this.appSpaceCntxfilter),       </p><p>                  toObservable(this.appSpaceCntxList)</p><p>     ).subscribe(() =&gt; this.checkIfAppSpaceCntxFilterIsValid()</p><p>    );</p><p>  }</p><p>* * * * * * * * * * * *</p><p>export class <strong>CmeTableComponent</strong> extends Unsubscriber implements OnInit, OnChanges, OnDestroy {</p><p>@AsyncLoad()<br />async ngOnInit() {</p><p>…  <br />  this.classManagerService.dropDownSettingsLoaded<br />    .pipe(startWith(0))<br />    .pipe(unsubscribeOnDestroy(this))<br />    .subscribe(() =&gt; this.setDropdownOptions());</p><p><strong>export class ClassManagerService {</strong></p><p>  readonly dropDownSettingsLoaded = new BehaviorSubject(false);</p><p>  async loadDropDowns() {</p><p>    await this.dropDownService.dropDown();</p><p>    this.dropDownSettingsLoaded.next(true);</p><p>  }</p><p>  private async loadDropDownSettings() {</p><p>    if (this.isDropdownSettingsNotDefined()) {</p><p>      this.projectService.project.settings = JSON.parse(localStorage.getItem('dropdownSetting'));</p><p>    }</p><p>    if (this.isDropdownSettingsNotDefined()) {</p><p>      return new Promise&lt;void&gt;(resolve =&gt; {</p><p>        // load it from a file</p><p>        this.http.get('./assets/json/dropdown.json', { responseType: 'json' }).subscribe({</p><p>          next: file =&gt; {</p><p>…</p><p>          },</p><p>          error: err =&gt; console.error(err),</p><p>          complete: () =&gt; {</p><p>            this.dropDownSettingsLoaded.next(true); </p><p>            resolve();</p><p>          },</p><p>        });</p><p>      });</p><p>    }</p><p>  }</p><p>* * * * * * * * * * * *</p><p>export class <strong>ClassManagerComponent</strong> extends Unsubscriber implements OnInit, OnDestroy {</p><p>  async ngOnInit(): Promise&lt;void&gt; {</p><p>    this.projectService.projectLoadedEvent.pipe(unsubscribeOnDestroy(this)).subscribe(() =&gt; {</p><p>      this.classManagerService.setRecentFiles();</p><p>      this.filterSelectedClasses();</p><p>    });</p><p>export class <strong>CmeProjectService</strong> extends ProjectBaseService {</p><p>  projectLoadedEvent: EventEmitter&lt;void&gt;;</p><p>  loadProjectInternal = (project: CmeProject): void =&gt; {</p><p>    this.project = project;</p><p>    this.projectLoadedEvent.emit();</p><p>    this.refreshProject.emit();</p><p>  };</p><p>* * * * * * * * * * * *</p><p>export class <strong>PreviewDataCellComponent</strong> extends PreviewCellBase implements OnInit {</p><p>  ngOnInit() {</p><p>    this.previewService.refresh.pipe(unsubscribeOnDestroy(this)).subscribe(() =&gt; this.cls.set(this.getInputClasses()));</p><p>export class <strong>PreviewService</strong> {</p><p>  readonly refresh = new Subject&lt;void&gt;();</p><p>  refreshTable() {</p><p>    this.refresh.next();</p><p>  }</p><p>* * * * * * * * * * * *</p><p>export class <strong>ClassManagerSelectorComponent</strong> extends Unsubscriber implements OnInit, OnDestroy {</p><p>  private filterChange = new Subject&lt;void&gt;();</p><p>  ngOnInit(): void {</p><p>    this.filterChange</p><p>      .pipe(unsubscribeOnDestroy(this))</p><p>      .pipe(debounceTime(200))</p><p>      .subscribe(() =&gt; this.filterOptions());</p><p>    setTimeout(() =&gt; {</p><p>      // Necessary to wait for values to propagate into list box</p><p>      this.ready = true;</p><p>    });</p><p>  onFilteredDataChange() {</p><p>    this.filterChange.next();</p><p>  }</p><p>* * * * * * * * * * * *</p><p>export class <strong>PreviewDataCellComponent</strong> extends PreviewCellBase implements OnInit {</p><p>  ngOnInit() {</p><p>    this.previewService.refresh.pipe(unsubscribeOnDestroy(this)).subscribe(() =&gt; this.cls.set(this.getInputClasses()));</p><p>export class <strong>PreviewService</strong> {</p><p>  readonly refresh = new Subject&lt;void&gt;();</p><p>  refreshTable() {</p><p>    this.refresh.next();</p><p>  }</p><p>export function <strong>unsubscribeOnDestroy</strong>&lt;T&gt;(component: Unsubscriber) {</p><p>  return (source: Observable&lt;T&gt;) =&gt; {</p><p>    return source.pipe(takeUntil(component.$$onDestroy));</p><p>  };</p><p>}</p><p>* * * * * * * * * * * *</p><p>export class <strong>PreviewDataCellComponent</strong> extends PreviewCellBase implements OnInit {</p><p>  private valueChangeEmitter = new EventEmitter&lt;void&gt;();</p><p>  ngOnInit() {</p><p>    this.valueChangeEmitter</p><p>      .pipe(unsubscribeOnDestroy(this))</p><p>      .pipe(debounceTime(700))</p><p>      .subscribe(() =&gt; this.onPropertyChange(this.property, this.previewItem.fieldName));</p><p>  onValueChange() {</p><p>    if (this.selectValue === this.initialValue) return;</p><p>    this.valueChangeEmitter.emit();</p><p>  }</p><p>* * * * * * * * * * * *</p><p>export class <strong>BaseAppComponent</strong> extends Unsubscriber implements OnDestroy {</p><p>  constructor() {</p><p>    super();</p><p>    this.mainPanelService.panelVisibilityChanged$</p><p>      .pipe(unsubscribeOnDestroy(this))</p><p>      .subscribe(panelsSetting =&gt; this.onPanelVisibilityChange(panelsSetting));</p><p>export class <strong>AppComponent</strong> implements OnInit, OnDestroy {</p><p>constructor( …) {<br />  this.panelVisibilitySubscription = this.mainPanelService.panelVisibilityChanged$.subscribe(<br />    panelsSetting =&gt; (this.panelsSetting = panelsSetting)<br />  );</p><p>export class <strong>MainPanelBaseService</strong> {</p><p>  panelVisibilityChanged = new Subject&lt;PanelSettingModel&gt;();</p><p>  panelVisibilityChanged$ = this.panelVisibilityChanged.asObservable();</p><p>  public openConfiguration = () =&gt; {</p><p>    ...</p><p>    this.<strong>panelVisibilityChanged</strong>.next(this.panelsSetting);</p><p>  };</p><p>* * * * * * * * * * * *</p><p>export class <strong>AutocompleteCellComponent</strong> extends InputCellBase implements OnInit {</p><p>  rowRefresh = toSignal(</p><p>    this.tableService.rowRefresh.pipe(</p><p>      filter(ev =&gt; {</p><p>        return ev.appSpaceCntx === this.tableContext.selectedAppSpace() &amp;&amp; ev.rowIndex === this.rowIndex();</p><p>      })</p><p>    )</p><p>  );</p><p>export class <strong>CmeTableService</strong> extends Unsubscriber {</p><p>  readonly rowRefresh = new Subject&lt;TableRowRefreshEvent&gt;();</p><p>export class <strong>CmeTableCellComponent</strong> extends CmeTableCellBase implements OnInit, AfterViewInit, OnDestroy {</p><p>  ngAfterViewInit() {</p><p>    this.tableService.rowRefresh</p><p>      .pipe(tableRefreshRowEventFilter(this.selectedAppSpace, this.index()))</p><p>      .pipe(unsubscribeOnDestroy(this))</p><p>      .subscribe(async () =&gt; this.checkCellValidity());</p><p>  }</p><p>  onValueChange() {</p><p>    this.tableService.rowRefresh.next({</p><p>      rowIndex: this.index(),</p><p>      columnIndex: this.columnIndex(),</p><p>      appSpaceCntx: this.selectedAppSpace,</p><p>    });</p><p>  }</p><p>* * * * * * * * * * * *</p><p>export class <strong>DashboardComponent</strong> implements OnInit, OnDestroy {</p><p>  lastOpenedSubscription: Subscription;</p><p>  lastOpenedProjects: LastOpenedProject[] = [];</p><p>  ngOnInit(): void {</p><p>    this.lastOpenedSubscription = this.lastOpenService.lastOpenedChanged.subscribe(() =&gt; {</p><p>      this.lastOpenedProjects = this.lastOpenService.getLastOpened();</p><p>    });</p><p>  ngOnDestroy(): void {</p><p>    if (this.lastOpenedSubscription) {</p><p>      this.lastOpenedSubscription.unsubscribe();</p><p>    }</p><p>export class <strong>LastOpenService</strong> {</p><p>  lastOpenedChanged = new EventEmitter&lt;void&gt;();</p><p>  removeItem(item: LastOpenedProject) {</p><p>    this.lastOpenedChanged.emit();</p><p>  }</p><p>* * * * * * * * * * * *</p><p>export class <strong>TablePaginatorComponent</strong> extends Unsubscriber implements OnInit {</p><p>  private selectedRowObs = toObservable(this.tableService.selectedRow);</p><p>  </p><p>  ngOnInit() {</p><p>    this.selectedRowObs.pipe(unsubscribeOnDestroy(this)).subscribe(item =&gt; {</p><p>      if (!item || item === -1) return;</p><p>      const index = this.tableContext.currentItems().indexOf(item as MainTableRow);</p><p>      ...</p><p>    });</p><p>  }</p><p>export class <strong>CmeTableComponent</strong> extends Unsubscriber implements OnInit, OnChanges, OnDestroy {</p><p>  @AsyncLoad()</p><p>  async ngOnInit() {</p><p>    merge(this.classManagerService.refreshEvent,   this.tableService.refresh.pipe(tableRefreshEventFilter(this.selectedAppSpace)))</p><p>      .pipe(unsubscribeOnDestroy(this))</p><p>      .pipe(debounceTime(50))</p><p>      .subscribe(() =&gt; this.cd.markForCheck());</p><p>export class <strong>CmeTableService</strong> extends Unsubscriber {</p><p>  readonly selectedRow = signal&lt;TableRow | -1&gt;(null);</p><p>  readonly refresh = new Subject&lt;string | void&gt;();</p><p>  selectRow(item: TableRow | -1) {</p><p>    this.selectedRow.set(item);</p><p>    this.refresh.next(null);</p><p>  }</p><p>* * * * * * * * * * * *</p><p>export class <strong>ClassManagerComponent</strong> extends Unsubscriber implements OnInit, OnDestroy {</p><p>  private recentClassesObs = toObservable(this.classManagerService.recentClasses);</p><p>  async ngOnInit(): Promise&lt;void&gt; {</p><p>    this.recentClassesObs.pipe(unsubscribeOnDestroy(this)).subscribe(() =&gt; {</p><p>      this.classManagerService.setRecentFiles();</p><p>      this.filterSelectedClasses();</p><p>    });</p><p>export class <strong>ClassManagerService</strong> {</p><p>  public readonly recentClasses = signal&lt;ClassInfo[]&gt;([]);</p><p>  async initService(cleanRecent = false): Promise&lt;void&gt; {</p><p>    this.recentClasses.set([]);</p><p>    ... fill recentClasses</p><p>    this.recentClasses.set(recentClasses);</p><p>  addRecentClass(newClassInfo: ClassInfo) {</p><p>    this.recentClasses.set([...this.recentClasses(), newClassInfo]);</p><p>  }</p><p>  filterOutLoadedRecentClasses() {</p><p>    this.recentClasses.set(this.recentClasses().filter(rc =&gt; !rc.loaded));</p><p>  }</p><p>* * * * * * * * * * * *</p><p>const result = await firstValueFrom(propertyModal.content.closeEvent.pipe(take(1)).pipe(unsubscribeOnDestroy(this)));</p><p>const data = await firstValueFrom(validationModal.content.closeEvent.pipe(take(1)));</p><p>private refreshOnModalHide(modal: BsModalRef) {</p><p>    modal.onHide</p><p>      .pipe(take(1))</p><p>      .pipe(unsubscribeOnDestroy(this))</p><p>      .subscribe(() =&gt; this.refreshTable());</p><p>  }</p><p>refreshOnModalHide(modal: BsModalRef) {</p><p>    modal.onHide.pipe(take(1)).subscribe(() =&gt; this.refreshTable());</p><p>  }</p><p>const result = await firstValueFrom(propertyModal.content.closeEvent.pipe(take(1)).pipe(unsubscribeOnDestroy(this)));</p><p>propertyModal.content.closeEvent</p><p>        .pipe(unsubscribeOnDestroy(this))</p><p>        .pipe(take(1))</p><p>        .subscribe(data =&gt; resolve(data.remove));</p><p>    });</p><p>this.onGoingPopulations[sheet.name] <strong>= this.apiService.http</strong></p><p>          .post(this.apiService.baseUrl + url, sheet.metamap.serverSiteFilter, { headers: newHeader })</p><p>          .pipe(take(1))</p><p>          .subscribe({</p><p>            next: (response: RestClass) =&gt; {</p><p>              const classData = response.objects?.[sheet.metamap.originalClassName];</p><p>              this.doAfterPopulate(classData, sheet, cd);</p><p>            },</p><p>            error: async e =&gt; {</p><p>              console.error(e);</p><p>              this.loadingOverlayService.setIsLoading(false);</p><p>              sheet.metamap.sheetPopulating = false;</p><p>              await this.apiService.handleError(e);</p><p>            },</p><p>            complete: () =&gt; {</p><p>              this.loadingOverlayService.setIsLoading(false);</p><p>            },</p><p>          });</p><p>* * * * * * * * * * * *</p><p>export class <strong>CmeTableRowBtnsComponent</strong> extends CmeTableCellBase implements OnInit {</p><p>  this.rowForm.statusChanges</p><p>      .pipe(unsubscribeOnDestroy(this))</p><p>      .pipe(debounceTime(100))</p><p>      .subscribe(() =&gt; this.rowHasErrors.set(this.rowForm.invalid));</p><p>* * * * * * * * * * * *</p><p>export class <strong>DashboardComponent</strong> implements OnInit, OnDestroy {</p><p>    this.changeCurrentClass = this.projectService.nextClass.subscribe(async nextClass =&gt; {</p><p>      await this.projectService.blurActiveElement();</p><p>      this.router.navigate(['/dashboard/' + nextClass]);</p><p>    });</p><p>export class <strong>EcctProjectService</strong> extends ProjectBaseService {</p><p>  public selectNextClass = (currentSheet, reverse = 1) =&gt; {<br />  const currentIndex = this.project.sheets.indexOf(currentSheet);<br />  if (this.project.sheets[currentIndex + reverse]) {<br />    this.nextClass.emit(this.project.sheets[currentIndex + reverse].name);<br />  }<br />};</p>
+  <pre><code><strong>export class ClassManagerService {</strong>
+  readonly appSpaceCntxfilter = signal(SHOW_ALL);
+  public readonly appSpaceCntxList = signal&lt;string[]&gt;([]);
+  protected init() {
+    merge(toObservable(this.appSpaceCntxfilter),       
+                  toObservable(this.appSpaceCntxList)
+     ).subscribe(() =&gt; this.checkIfAppSpaceCntxFilterIsValid()
+    );
+  }</code></pre>
+<p>* * * * * * * * * * * *</p><pre><code>export class <strong>CmeTableComponent</strong> extends Unsubscriber implements OnInit, OnChanges, OnDestroy {
+@AsyncLoad()
+async ngOnInit() {
+…  
+  this.classManagerService.dropDownSettingsLoaded
+    .pipe(startWith(0))
+    .pipe(unsubscribeOnDestroy(this))
+    .subscribe(() =&gt; this.setDropdownOptions());
+<strong>export class ClassManagerService {</strong>
+  readonly dropDownSettingsLoaded = new BehaviorSubject(false);
+  async loadDropDowns() {
+    await this.dropDownService.dropDown();
+    this.dropDownSettingsLoaded.next(true);
+  }
+  private async loadDropDownSettings() {
+    if (this.isDropdownSettingsNotDefined()) {
+      this.projectService.project.settings = JSON.parse(localStorage.getItem('dropdownSetting'));
+    }
+    if (this.isDropdownSettingsNotDefined()) {
+      return new Promise&lt;void&gt;(resolve =&gt; {
+        // load it from a file
+        this.http.get('./assets/json/dropdown.json', { responseType: 'json' }).subscribe({
+          next: file =&gt; {</code></pre>
+<p>…</p><pre><code>          },
+          error: err =&gt; console.error(err),
+          complete: () =&gt; {
+            this.dropDownSettingsLoaded.next(true); 
+            resolve();
+          },
+        });
+      });
+    }
+  }</code></pre>
+<p>* * * * * * * * * * * *</p><pre><code>export class <strong>ClassManagerComponent</strong> extends Unsubscriber implements OnInit, OnDestroy {
+  async ngOnInit(): Promise&lt;void&gt; {
+    this.projectService.projectLoadedEvent.pipe(unsubscribeOnDestroy(this)).subscribe(() =&gt; {
+      this.classManagerService.setRecentFiles();
+      this.filterSelectedClasses();
+    });
+export class <strong>CmeProjectService</strong> extends ProjectBaseService {
+  projectLoadedEvent: EventEmitter&lt;void&gt;;
+  loadProjectInternal = (project: CmeProject): void =&gt; {
+    this.project = project;
+    this.projectLoadedEvent.emit();
+    this.refreshProject.emit();
+  };</code></pre>
+<p>* * * * * * * * * * * *</p><pre><code>export class <strong>PreviewDataCellComponent</strong> extends PreviewCellBase implements OnInit {
+  ngOnInit() {
+    this.previewService.refresh.pipe(unsubscribeOnDestroy(this)).subscribe(() =&gt; this.cls.set(this.getInputClasses()));
+export class <strong>PreviewService</strong> {
+  readonly refresh = new Subject&lt;void&gt;();
+  refreshTable() {
+    this.refresh.next();
+  }</code></pre>
+<p>* * * * * * * * * * * *</p><pre><code>export class <strong>ClassManagerSelectorComponent</strong> extends Unsubscriber implements OnInit, OnDestroy {
+  private filterChange = new Subject&lt;void&gt;();
+  ngOnInit(): void {
+    this.filterChange
+      .pipe(unsubscribeOnDestroy(this))
+      .pipe(debounceTime(200))
+      .subscribe(() =&gt; this.filterOptions());
+    setTimeout(() =&gt; {
+      // Necessary to wait for values to propagate into list box
+      this.ready = true;
+    });
+  onFilteredDataChange() {
+    this.filterChange.next();
+  }</code></pre>
+<p>* * * * * * * * * * * *</p><pre><code>export class <strong>PreviewDataCellComponent</strong> extends PreviewCellBase implements OnInit {
+  ngOnInit() {
+    this.previewService.refresh.pipe(unsubscribeOnDestroy(this)).subscribe(() =&gt; this.cls.set(this.getInputClasses()));
+export class <strong>PreviewService</strong> {
+  readonly refresh = new Subject&lt;void&gt;();
+  refreshTable() {
+    this.refresh.next();
+  }
+export function <strong>unsubscribeOnDestroy</strong>&lt;T&gt;(component: Unsubscriber) {
+  return (source: Observable&lt;T&gt;) =&gt; {
+    return source.pipe(takeUntil(component.$$onDestroy));
+  };
+}</code></pre>
+<p>* * * * * * * * * * * *</p><pre><code>export class <strong>PreviewDataCellComponent</strong> extends PreviewCellBase implements OnInit {
+  private valueChangeEmitter = new EventEmitter&lt;void&gt;();
+  ngOnInit() {
+    this.valueChangeEmitter
+      .pipe(unsubscribeOnDestroy(this))
+      .pipe(debounceTime(700))
+      .subscribe(() =&gt; this.onPropertyChange(this.property, this.previewItem.fieldName));
+  onValueChange() {
+    if (this.selectValue === this.initialValue) return;
+    this.valueChangeEmitter.emit();
+  }</code></pre>
+<p>* * * * * * * * * * * *</p><pre><code>export class <strong>BaseAppComponent</strong> extends Unsubscriber implements OnDestroy {
+  constructor() {
+    super();
+    this.mainPanelService.panelVisibilityChanged$
+      .pipe(unsubscribeOnDestroy(this))
+      .subscribe(panelsSetting =&gt; this.onPanelVisibilityChange(panelsSetting));
+export class <strong>AppComponent</strong> implements OnInit, OnDestroy {
+constructor( …) {
+  this.panelVisibilitySubscription = this.mainPanelService.panelVisibilityChanged$.subscribe(
+    panelsSetting =&gt; (this.panelsSetting = panelsSetting)
+  );
+export class <strong>MainPanelBaseService</strong> {
+  panelVisibilityChanged = new Subject&lt;PanelSettingModel&gt;();
+  panelVisibilityChanged$ = this.panelVisibilityChanged.asObservable();
+  public openConfiguration = () =&gt; {
+    ...
+    this.<strong>panelVisibilityChanged</strong>.next(this.panelsSetting);
+  };</code></pre>
+<p>* * * * * * * * * * * *</p><pre><code>export class <strong>AutocompleteCellComponent</strong> extends InputCellBase implements OnInit {
+  rowRefresh = toSignal(
+    this.tableService.rowRefresh.pipe(
+      filter(ev =&gt; {
+        return ev.appSpaceCntx === this.tableContext.selectedAppSpace() &amp;&amp; ev.rowIndex === this.rowIndex();
+      })
+    )
+  );
+export class <strong>CmeTableService</strong> extends Unsubscriber {
+  readonly rowRefresh = new Subject&lt;TableRowRefreshEvent&gt;();
+export class <strong>CmeTableCellComponent</strong> extends CmeTableCellBase implements OnInit, AfterViewInit, OnDestroy {
+  ngAfterViewInit() {
+    this.tableService.rowRefresh
+      .pipe(tableRefreshRowEventFilter(this.selectedAppSpace, this.index()))
+      .pipe(unsubscribeOnDestroy(this))
+      .subscribe(async () =&gt; this.checkCellValidity());
+  }
+  onValueChange() {
+    this.tableService.rowRefresh.next({
+      rowIndex: this.index(),
+      columnIndex: this.columnIndex(),
+      appSpaceCntx: this.selectedAppSpace,
+    });
+  }</code></pre>
+<p>* * * * * * * * * * * *</p><pre><code>export class <strong>DashboardComponent</strong> implements OnInit, OnDestroy {
+  lastOpenedSubscription: Subscription;
+  lastOpenedProjects: LastOpenedProject[] = [];
+  ngOnInit(): void {
+    this.lastOpenedSubscription = this.lastOpenService.lastOpenedChanged.subscribe(() =&gt; {
+      this.lastOpenedProjects = this.lastOpenService.getLastOpened();
+    });
+  ngOnDestroy(): void {
+    if (this.lastOpenedSubscription) {
+      this.lastOpenedSubscription.unsubscribe();
+    }
+export class <strong>LastOpenService</strong> {
+  lastOpenedChanged = new EventEmitter&lt;void&gt;();
+  removeItem(item: LastOpenedProject) {
+    this.lastOpenedChanged.emit();
+  }</code></pre>
+<p>* * * * * * * * * * * *</p><pre><code>export class <strong>TablePaginatorComponent</strong> extends Unsubscriber implements OnInit {
+  private selectedRowObs = toObservable(this.tableService.selectedRow);</code></pre>
+<p>  </p><pre><code>  ngOnInit() {
+    this.selectedRowObs.pipe(unsubscribeOnDestroy(this)).subscribe(item =&gt; {
+      if (!item || item === -1) return;
+      const index = this.tableContext.currentItems().indexOf(item as MainTableRow);
+      ...
+    });
+  }
+export class <strong>CmeTableComponent</strong> extends Unsubscriber implements OnInit, OnChanges, OnDestroy {
+  @AsyncLoad()
+  async ngOnInit() {
+    merge(this.classManagerService.refreshEvent,   this.tableService.refresh.pipe(tableRefreshEventFilter(this.selectedAppSpace)))
+      .pipe(unsubscribeOnDestroy(this))
+      .pipe(debounceTime(50))
+      .subscribe(() =&gt; this.cd.markForCheck());
+export class <strong>CmeTableService</strong> extends Unsubscriber {
+  readonly selectedRow = signal&lt;TableRow | -1&gt;(null);
+  readonly refresh = new Subject&lt;string | void&gt;();
+  selectRow(item: TableRow | -1) {
+    this.selectedRow.set(item);
+    this.refresh.next(null);
+  }</code></pre>
+<p>* * * * * * * * * * * *</p><pre><code>export class <strong>ClassManagerComponent</strong> extends Unsubscriber implements OnInit, OnDestroy {
+  private recentClassesObs = toObservable(this.classManagerService.recentClasses);
+  async ngOnInit(): Promise&lt;void&gt; {
+    this.recentClassesObs.pipe(unsubscribeOnDestroy(this)).subscribe(() =&gt; {
+      this.classManagerService.setRecentFiles();
+      this.filterSelectedClasses();
+    });
+export class <strong>ClassManagerService</strong> {
+  public readonly recentClasses = signal&lt;ClassInfo[]&gt;([]);
+  async initService(cleanRecent = false): Promise&lt;void&gt; {
+    this.recentClasses.set([]);
+    ... fill recentClasses
+    this.recentClasses.set(recentClasses);
+  addRecentClass(newClassInfo: ClassInfo) {
+    this.recentClasses.set([...this.recentClasses(), newClassInfo]);
+  }
+  filterOutLoadedRecentClasses() {
+    this.recentClasses.set(this.recentClasses().filter(rc =&gt; !rc.loaded));
+  }</code></pre>
+<p>* * * * * * * * * * * *</p><pre><code>const result = await firstValueFrom(propertyModal.content.closeEvent.pipe(take(1)).pipe(unsubscribeOnDestroy(this)));
+const data = await firstValueFrom(validationModal.content.closeEvent.pipe(take(1)));
+private refreshOnModalHide(modal: BsModalRef) {
+    modal.onHide
+      .pipe(take(1))
+      .pipe(unsubscribeOnDestroy(this))
+      .subscribe(() =&gt; this.refreshTable());
+  }
+refreshOnModalHide(modal: BsModalRef) {
+    modal.onHide.pipe(take(1)).subscribe(() =&gt; this.refreshTable());
+  }
+const result = await firstValueFrom(propertyModal.content.closeEvent.pipe(take(1)).pipe(unsubscribeOnDestroy(this)));</code></pre>
+<p>propertyModal.content.closeEvent</p><pre><code>        .pipe(unsubscribeOnDestroy(this))
+        .pipe(take(1))
+        .subscribe(data =&gt; resolve(data.remove));
+    });</code></pre>
+<p>this.onGoingPopulations[sheet.name] <strong>= this.apiService.http</strong></p><pre><code>          .post(this.apiService.baseUrl + url, sheet.metamap.serverSiteFilter, { headers: newHeader })
+          .pipe(take(1))
+          .subscribe({
+            next: (response: RestClass) =&gt; {
+              const classData = response.objects?.[sheet.metamap.originalClassName];
+              this.doAfterPopulate(classData, sheet, cd);
+            },
+            error: async e =&gt; {
+              console.error(e);
+              this.loadingOverlayService.setIsLoading(false);
+              sheet.metamap.sheetPopulating = false;
+              await this.apiService.handleError(e);
+            },
+            complete: () =&gt; {
+              this.loadingOverlayService.setIsLoading(false);
+            },
+          });</code></pre>
+<p>* * * * * * * * * * * *</p><pre><code>export class <strong>CmeTableRowBtnsComponent</strong> extends CmeTableCellBase implements OnInit {
+  this.rowForm.statusChanges
+      .pipe(unsubscribeOnDestroy(this))
+      .pipe(debounceTime(100))
+      .subscribe(() =&gt; this.rowHasErrors.set(this.rowForm.invalid));</code></pre>
+<p>* * * * * * * * * * * *</p><pre><code>export class <strong>DashboardComponent</strong> implements OnInit, OnDestroy {
+    this.changeCurrentClass = this.projectService.nextClass.subscribe(async nextClass =&gt; {
+      await this.projectService.blurActiveElement();
+      this.router.navigate(['/dashboard/' + nextClass]);
+    });
+export class <strong>EcctProjectService</strong> extends ProjectBaseService {
+  public selectNextClass = (currentSheet, reverse = 1) =&gt; {
+  const currentIndex = this.project.sheets.indexOf(currentSheet);
+  if (this.project.sheets[currentIndex + reverse]) {
+    this.nextClass.emit(this.project.sheets[currentIndex + reverse].name);
+  }
+};</code></pre>
+
   <script>(function () {
     var marks = [];
     var idx = -1;

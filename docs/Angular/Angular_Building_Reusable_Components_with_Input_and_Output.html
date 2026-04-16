@@ -8,7 +8,50 @@
 </head>
 <body>
   <h1>Angular-Building Reusable Components with Input and Output</h1>
-  <p><a href="https://medium.com/@ausaf.cs/building-reusable-components-with-input-and-output-in-angular-37593b482e53" target="_blank" rel="noopener noreferrer"><a href="https://medium.com/@ausaf.cs/building-reusable-components-with-input-and-output-in-angular-37593b482e53" target="_blank" rel="noopener noreferrer">https://medium.com/@ausaf.cs/building-reusable-components-with-input-and-output-in-angular-37593b482e53</a></a></p><p><strong>Building Reusable Components with Input and Output in Angular</strong></p><p><strong>Why Reusability Matters?</strong></p><p>When working on an Angular application, you often need to <strong>share data between components</strong>. Instead of duplicating logic, we can create <strong>reusable components</strong> that handle data dynamically using @Input() and @Output().</p><p><strong>Understanding @Input()</strong></p><p>The @Input() decorator allows a <strong>parent component</strong> to pass data <strong>to a child component</strong>.</p><p><strong>Example:</strong> Passing a user object to a child component.</p><p><strong><em>Parent Component (app.component.ts)</em></strong></p><p>@Component({<br />  selector: 'app-root',<br />  template: `&lt;app-user-card [user]="userData"&gt;&lt;/app-user-card&gt;`<br />})<br />export class AppComponent {<br />  userData = { name: 'John Doe', age: 30 };<br />}</p><p><strong><em>Child Component (user-card.component.ts)</em></strong></p><p>@Component({<br />  selector: 'app-user-card',<br />  template: `&lt;h3&gt;{{ user.name }}&lt;/h3&gt;&lt;p&gt;Age: {{ user.age }}&lt;/p&gt;`<br />})<br />export class UserCardComponent {<br />  @Input() user!: { name: string; age: number };<br />}</p><p>💡 <strong>Now, the UserCard component can be reused anywhere, receiving different user data!</strong></p><p><strong>Understanding @Output()</strong></p><p>The @Output() decorator allows a <strong>child component</strong> to emit events <strong>to its parent</strong> using an EventEmitter.</p><p><strong>Get Ausaf Ahmad’s stories in your inbox</strong></p><p>Join Medium for free to get updates from this writer.</p><p><strong>Example:</strong> Child component sending an event when a button is clicked.</p><p><strong><em>Child Component (user-card.component.ts)</em></strong></p><p>@Component({<br />  selector: 'app-user-card',<br />  template: `<br />    &lt;h3&gt;{{ user.name }}&lt;/h3&gt;<br />    &lt;p&gt;Age: {{ user.age }}&lt;/p&gt;<br />    &lt;button (click)="notifyParent()"&gt;Notify Parent&lt;/button&gt;<br />  `<br />})<br />export class UserCardComponent {<br />  @Input() user!: { name: string; age: number };<br />  @Output() userClicked = new EventEmitter&lt;string&gt;();<br /><br />  notifyParent() {<br />    this.userClicked.emit(this.user.name);<br />  }<br />}</p><p><strong><em>Parent Component (app.component.ts)</em></strong></p><p>@Component({<br />  selector: 'app-root',<br />  template: `<br />    &lt;app-user-card [user]="userData" (userClicked)="handleUserClick($event)"&gt;&lt;/app-user-card&gt;<br />  `<br />})<br />export class AppComponent {<br />  userData = { name: 'John Doe', age: 30 };<br /><br />  handleUserClick(userName: string) {<br />    console.log(userName + ' was clicked!');<br />  }<br />}</p><p>🔹 Now, when the button is clicked, the child component <strong>sends data to the parent</strong>, making communication seamless!</p><p><strong>Best Practices for Reusable Components</strong></p><p>✔ <strong>Keep them small &amp; focused</strong> — One component should serve a single responsibility.<br />✔ <strong>Use strong typing</strong> — Define @Input() and @Output() types properly.<br />✔ <strong>Avoid unnecessary @Input() props</strong> – Pass only what's needed.<br />✔ <strong>Follow a consistent naming pattern</strong> – Use meaningful names like @Output() userClicked instead of @Output() clickEvent.</p><p><strong>Conclusion</strong></p><p>Using @Input() and @Output(), you can create <strong>flexible, maintainable, and reusable components</strong> that make your Angular app cleaner and more efficient.</p>
+  <p><a href="https://medium.com/@ausaf.cs/building-reusable-components-with-input-and-output-in-angular-37593b482e53" target="_blank" rel="noopener noreferrer"><a href="https://medium.com/@ausaf.cs/building-reusable-components-with-input-and-output-in-angular-37593b482e53" target="_blank" rel="noopener noreferrer">https://medium.com/@ausaf.cs/building-reusable-components-with-input-and-output-in-angular-37593b482e53</a></a></p><p><strong>Building Reusable Components with Input and Output in Angular</strong></p><p><strong>Why Reusability Matters?</strong></p><p>When working on an Angular application, you often need to <strong>share data between components</strong>. Instead of duplicating logic, we can create <strong>reusable components</strong> that handle data dynamically using @Input() and @Output().</p><p><strong>Understanding @Input()</strong></p><p>The @Input() decorator allows a <strong>parent component</strong> to pass data <strong>to a child component</strong>.</p><p><strong>Example:</strong> Passing a user object to a child component.</p><p><strong><em>Parent Component (app.component.ts)</em></strong></p><p>@Component({
+  selector: 'app-root',
+  template: `&lt;app-user-card [user]="userData"&gt;&lt;/app-user-card&gt;`
+})
+export class AppComponent {
+  userData = { name: 'John Doe', age: 30 };
+}</p>
+<p><strong><em>Child Component (user-card.component.ts)</em></strong></p><p>@Component({
+  selector: 'app-user-card',
+  template: `&lt;h3&gt;{{ user.name }}&lt;/h3&gt;&lt;p&gt;Age: {{ user.age }}&lt;/p&gt;`
+})
+export class UserCardComponent {
+  @Input() user!: { name: string; age: number };
+}</p>
+<p>💡 <strong>Now, the UserCard component can be reused anywhere, receiving different user data!</strong></p><p><strong>Understanding @Output()</strong></p><p>The @Output() decorator allows a <strong>child component</strong> to emit events <strong>to its parent</strong> using an EventEmitter.</p><p><strong>Get Ausaf Ahmad’s stories in your inbox</strong></p><p>Join Medium for free to get updates from this writer.</p><p><strong>Example:</strong> Child component sending an event when a button is clicked.</p><p><strong><em>Child Component (user-card.component.ts)</em></strong></p><p>@Component({
+  selector: 'app-user-card',
+  template: `
+    &lt;h3&gt;{{ user.name }}&lt;/h3&gt;
+    &lt;p&gt;Age: {{ user.age }}&lt;/p&gt;
+    &lt;button (click)="notifyParent()"&gt;Notify Parent&lt;/button&gt;
+  `
+})
+export class UserCardComponent {
+  @Input() user!: { name: string; age: number };
+  @Output() userClicked = new EventEmitter&lt;string&gt;();
+
+  notifyParent() {
+    this.userClicked.emit(this.user.name);
+  }
+}</p>
+<p><strong><em>Parent Component (app.component.ts)</em></strong></p><p>@Component({
+  selector: 'app-root',
+  template: `
+    &lt;app-user-card [user]="userData" (userClicked)="handleUserClick($event)"&gt;&lt;/app-user-card&gt;
+  `
+})
+export class AppComponent {
+  userData = { name: 'John Doe', age: 30 };
+
+  handleUserClick(userName: string) {
+    console.log(userName + ' was clicked!');
+  }
+}</p>
+<p>🔹 Now, when the button is clicked, the child component <strong>sends data to the parent</strong>, making communication seamless!</p><p><strong>Best Practices for Reusable Components</strong></p><p>✔ <strong>Keep them small &amp; focused</strong> — One component should serve a single responsibility.<br />✔ <strong>Use strong typing</strong> — Define @Input() and @Output() types properly.<br />✔ <strong>Avoid unnecessary @Input() props</strong> – Pass only what's needed.<br />✔ <strong>Follow a consistent naming pattern</strong> – Use meaningful names like @Output() userClicked instead of @Output() clickEvent.</p><p><strong>Conclusion</strong></p><p>Using @Input() and @Output(), you can create <strong>flexible, maintainable, and reusable components</strong> that make your Angular app cleaner and more efficient.</p>
   <script>(function () {
     var marks = [];
     var idx = -1;
