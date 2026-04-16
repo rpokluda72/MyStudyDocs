@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>25 otazek NodeJs</title>
+  <link rel="stylesheet" href="../assets/content.css">
+</head>
+<body>
+  <h1>25 otazek NodeJs</h1>
+  <p><strong>25 nejčastějších otázek a odpovědí k rozhovoru s Node.js</strong></p><p>1) Co je node.js?</p><p>Node.js je skriptování na straně serveru, které se používá k vytváření škálovatelných programů. Jeho četné výhody oproti jiným jazykům na straně serveru, z nichž nejvýznamnější je neblokování I/O.</p><p>2) Jak funguje node.js?</p><p>Node.js pracuje na prostředí v8, je to virtuální stroj, který využívá JavaSkript jako jeho skriptovací jazyk a dosahuje vysokého výkonu prostřednictvím neblokujících I/O a smyčky událostí s jedním vláknem.</p><p>3) Co rozumíte pod pojmem I/O?</p><p>I/O je zkratka pro vstup a výstup a bude mít přístup k čemukoli mimo vaši aplikaci. Jakmile je aplikace spuštěna, bude načten do paměti stroje pro spuštění programu.</p><p>4) Co znamená programování řízené událostmi?</p><p>V počítačovém programování je událostmi řízené programování programovací paradigma, ve kterém je tok programu určován událostmi, jako jsou zprávy z jiných programů nebo vláken. Jedná se o techniku ​​aplikační architektury rozdělenou do dvou částí 1) Výběr událostí 2) Zpracování událostí.</p><p>5) Kde můžeme použít node.js?</p><p>Node.js lze použít pro následující účely.</p><p>    Webové aplikace (zejména webové aplikace v reálném čase)</p><p>    Síťové aplikace</p><p>    Distribuované systémy</p><p>    Univerzální aplikace</p><p>6) Jaká je výhoda použití node.js?</p><ul><li>Poskytuje snadný způsob, jak vytvářet škálovatelné síťové programy</li><li>Obecně rychle</li><li>Velká souběh</li><li>Vše asynchronní</li><li>Téměř nikdy neblokuje</li></ul><p>7) Jaké jsou dva typy funkcí API v Node.js?</p><p>Dva typy funkcí API v Node.js jsou</p><ul><li>Asynchronní, neblokující funkce</li><li>Synchroní, blokující funkce</li></ul><p>8) Co je funkce řídicího toku?</p><p>Obecná část kódu, která běží mezi několika voláními asynchronních funkcí, je známá jako funkce řídicího toku.</p><p>9) Vysvětlete kroky, jak „Control Flow“ ovládá volání funkcí?</p><ul><li>Kontrolujte pořadí provádění</li><li>Sbírat data</li><li>Omezit souběžnost</li><li>Vyvolejte další krok v programu</li></ul><p>10) Proč je Node.js jednovláknový?</p><p>Pro asynchronní zpracování byl Node.js vytvořen výslovně jako experiment. Má se za to, že většího výkonu a škálovatelnosti lze dosáhnout prováděním asynchronního zpracování na jednom vlákně při typickém zatížení webu než u typické implementace založené na vláknech.</p><p><strong>Otázky a odpovědi na pohovor Node js pro zkušené profesionály</strong></p><p>11) Běží Node js na Windows?</p><p>Ano. Stáhněte si instalační program MSI z https://nodejs.org/download/</p><p>12) Máte přístup k DOM v uzlu?</p><p>Ne, nemáte přístup k DOM v uzlu.</p><p>13) Pomocí smyčky událostí, jaké jsou úkoly, které by měly být provedeny asynchronně?</p><ul><li>I/O operace</li><li>Těžké počítání</li><li>Vše, co vyžaduje blokování</li></ul><p>14) Proč si node.js rychle získává pozornost programátorů JAVA?</p><p>Node.js si rychle získává pozornost, protože se jedná o server založený na smyčce JavaSkript. Node.js dává uživateli možnost psát JavaSkript na serveru, který má přístup k věcem, jako je zásobník HTTP, I/O souboru, TCP a databáze.</p><p>15) Jaké jsou dva argumenty, které async.queue používá?</p><p>Dva argumenty, které async.queue přebírá</p><ul><li>Funkce úkolu</li><li>Hodnota souběžnosti</li></ul><p>16) Co je smyčka událostí v Node.js?</p><p>Ke zpracování a zpracování externích událostí a jejich převodu na vyvolání zpětného volání se používá smyčka událostí. Takže při I/O voláních může node.js přepínat z jednoho požadavku na druhý.</p><p>17) Uveďte kroky, kterými můžete asynchronizovat v Node.js?</p><p>Pomocí následujících kroků můžete asynchronizovat Node.js</p><ul><li>Prvotřídní funkce</li><li>Funkční složení</li><li>Čítače zpětného volání</li><li>Smyčky událostí</li></ul><p>18) Jaké jsou výhody a nevýhody Node.js?</p><p>Klady:</p><p>    Pokud vaše aplikace nemá žádné procesorově náročné výpočty, můžete ji zabudovat Javascript shora dolů, dokonce až na úroveň databáze, pokud používáte JSON storage object DB jako MongoDB.</p><p>    Prohledávače obdrží plně vykreslenou odpověď HTML, která je mnohem přívětivější pro SEO než aplikace s jednou stránkou nebo aplikace websockets spuštěné nad Node.js.</p><p>Nevýhody:</p><p>    Jakýkoli intenzivní výpočet CPU bude blokovat odezvu node.js, takže platforma s vlákny je lepší přístup.</p><p>    Použití relační databáze s Node.js je považováno za méně příznivé.</p><p>19) Jak Node.js překonává problém blokování I/O operací?</p><p>Node.js řeší tento problém tím, že do jádra vkládá model založený na událostech a místo vláken používá smyčku událostí.</p><p>20) Jaký je rozdíl mezi Node.js vs Ajax?</p><p>Rozdíl mezi Node.js a Ajaxem je ten, Ajax (zkratka pro Asynchronous JavaScénář a XML) je technologie na straně klienta, která se často používá k aktualizaci obsahu stránky bez jejího obnovování. Zatímco Node.js je na straně serveru Javascript, který se používá pro vývoj serverového softwaru. Node.js se nespouští v prohlížeči, ale na serveru.</p><p><strong>Otázky k pohovoru Node js pro více než 5 let zkušeností</strong></p><p>21) Jaké jsou výzvy s Node.js?</p><p>S důrazem na technickou stránku je v Node.js trochu problém mít jeden proces s jedním vláknem pro škálování na vícejádrovém serveru.</p><p>22) Co znamená „neblokování“ v node.js?</p><p>V node.js „neblokování“ znamená, že jeho IO je neblokující. Uzel používá „libuv“ ke zpracování svých IO způsobem agnostickým pro platformu. Na Windows používá dokončovací porty pro unix, používá epoll nebo kqueue atd. Takže udělá neblokující požadavek a na požádání jej zařadí do fronty do smyčky událostí, která volá JavaSkriptujte 'zpětné volání' na hlavní JavaVlákno skriptu.</p><p>23) Jaký je příkaz, který se používá v node.js k importu externích knihoven?</p><p>Příkaz „require“ se používá pro import externích knihoven, například „var http=require („http“). Tím se načte knihovna http a jeden exportovaný objekt prostřednictvím proměnné http.</p><p>24) Zmínit framework nejčastěji používaný v node.js?</p><p>„Express“ je nejběžnější rámec používaný v node.js.</p><p>Express - Fast, unopinionated, minimalist web framework for Node.js</p><p>Express.js (or simply Express) is the most popular Node.js web application framework, designed for building web applications and APIs.</p><p>It's often called the de facto standard server framework for Node.js.</p><p><strong>Key Characteristics:</strong></p><ul><li>Minimal and flexible</li><li>Unopinionated (you decide how to structure your app)</li><li>Lightweight and fast</li><li>Extensible through middleware</li><li>Huge ecosystem of plugins and extensions</li></ul><p>25) Co je to „zpětné volání“ v node.js?</p><p>Funkce zpětného volání se používá v node.js k řešení více požadavků na server. Jako pokud máte velký soubor, jehož čtení serveru bude trvat dlouho, a pokud nechcete, aby se server zabýval čtením tohoto velkého souboru při vyřizování jiných požadavků, použije se funkce zpětného volání. Funkce zpětného volání umožňuje serveru nejprve se vypořádat s čekajícím požadavkem a po jeho dokončení zavolat funkci.</p>
+  <script>(function () {
+    var marks = [];
+    var idx = -1;
+
+    function clearMarks() {
+        marks.forEach(function (m) {
+            var p = m.parentNode;
+            if (p) { p.replaceChild(document.createTextNode(m.textContent), m); p.normalize(); }
+        });
+        marks = [];
+        idx = -1;
+    }
+
+    function markText(query) {
+        var results = [];
+        var lower = query.toLowerCase();
+        var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null);
+        var nodes = [];
+        var n;
+        while ((n = walker.nextNode())) {
+            if (n.nodeValue.toLowerCase().includes(lower)) nodes.push(n);
+        }
+        nodes.forEach(function (textNode) {
+            var text  = textNode.nodeValue;
+            var ltext = text.toLowerCase();
+            var par   = textNode.parentNode;
+            if (!par) return;
+            var frag = document.createDocumentFragment();
+            var last = 0, i;
+            while ((i = ltext.indexOf(lower, last)) !== -1) {
+                if (i > last) frag.appendChild(document.createTextNode(text.slice(last, i)));
+                var m = document.createElement('mark');
+                m.className = 'dsm';
+                m.style.cssText = 'background:#ffe066;color:inherit;border-radius:2px;';
+                m.textContent = text.slice(i, i + query.length);
+                frag.appendChild(m);
+                results.push(m);
+                last = i + query.length;
+            }
+            if (last < text.length) frag.appendChild(document.createTextNode(text.slice(last)));
+            par.replaceChild(frag, textNode);
+        });
+        return results;
+    }
+
+    function highlight() {
+        marks.forEach(function (m, i) {
+            m.style.background = i === idx ? '#ff9900' : '#ffe066';
+            m.style.outline    = i === idx ? '2px solid #e65c00' : 'none';
+        });
+        if (marks[idx]) marks[idx].scrollIntoView({ block: 'center' });
+    }
+
+    function reply(src) {
+        src.postMessage({ type: 'searchResult', count: marks.length, current: idx }, '*');
+    }
+
+    window.addEventListener('message', function (e) {
+        var d = e.data;
+        if (!d || !d.type) return;
+        if (d.type === 'search') {
+            clearMarks();
+            if (d.query) {
+                marks = markText(d.query);
+                if (marks.length) idx = 0;
+                highlight();
+            }
+            reply(e.source);
+        } else if (d.type === 'searchNav') {
+            if (!marks.length) return;
+            idx = d.dir === 'next'
+                ? (idx + 1) % marks.length
+                : (idx - 1 + marks.length) % marks.length;
+            highlight();
+            reply(e.source);
+        } else if (d.type === 'searchClear') {
+            clearMarks();
+        }
+    });
+})();</script>
+</body>
+</html>

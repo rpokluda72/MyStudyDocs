@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Type Safety in TypeScript - Unknown vs Any</title>
+  <link rel="stylesheet" href="../assets/content.css">
+</head>
+<body>
+  <h1>Type Safety in TypeScript - Unknown vs Any</h1>
+  <p><strong>Type Safety in TypeScript - Unknown vs Any </strong></p><p>https://dev.to/sachinchaurasiya/type-safety-in-typescript-unknown-vs-any-55c0</p><p><strong>TypeScript</strong> is very popular because it adds static typing to <strong>JavaScript</strong>. This makes the code safer and better quality, which JavaScript developers like. In TypeScript, two types that are often used are <strong>unknown</strong> and <strong>any</strong>. They might look the same at first, but they are used for different things. In this article, we will look at <strong>unknown</strong> and <strong>any</strong> in more detail and show how they are used with examples.</p><p><a id="exploring-unknown"></a><strong>Exploring unknown </strong></p><p>The <strong>unknown</strong> type is a safer choice than <strong>any</strong>. When a variable is of type <strong>unknown</strong>, TypeScript makes you check the type before you can use that variable. This makes developers clearly state their assumptions, which helps to avoid errors when the code is running.</p><p>Think about a situation where you're using data from an API, and you are not sure what the data looks like. Using the <strong>unknown</strong> helps you deal with this uncertainty in a safe way.</p><p>function processData(data: unknown): string {</p><p>  if (typeof data === 'string') {</p><p>    return data.toUpperCase();</p><p>  } else {</p><p>    // Handle other cases appropriately</p><p>    return "Invalid data";</p><p>  }</p><p>}</p><p>// No compilation error</p><p>const result = processData("Hello, TypeScript!");</p><p>In simpler terms, using <strong>unknown</strong> makes sure you double-check what kind of data you have before you do anything with it. This helps prevent mistakes that could happen while the program is running.</p><p><a id="exploring-any"></a><strong>Exploring any </strong></p><p>On the other hand, <strong>any</strong> is the most easy-going type in TypeScript. It skips type checking, letting variables of this type to be set to anything without making the code fail to compile. While this freedom can be handy, it means you lose the advantages of static typing.</p><p>Think about a situation where you want as much flexibility as possible, and you're sure that your code is type-safe</p><p>function processDynamicData(data: any): string {</p><p>  // No compilation error</p><p>  return data.toUpperCase(); </p><p>}</p><p>// No compilation error, works as expected</p><p>const result1 = processDynamicData("Hello, TypeScript!"); </p><p>console.log(result1); // Outputs: "HELLO, TYPESCRIPT!"</p><p>// No compilation error, but will cause a runtime error</p><p>const result2 = processDynamicData(12345); </p><p>console.log(result2); // Error: data.toUpperCase is not a function</p><p>In simpler terms, using <strong>any</strong> means you don't have to check the type of data, but it can cause problems if the data type is not what you expected.</p><p><a id="when-to-use-unknown"></a><strong>When to use unknown </strong></p><p>Use <strong>unknown</strong> when you're not sure what kinda variable is, and you want to make sure it's the right kind before you do something with it. This makes your code safer and easier to understand, especially when you're working with data from outside or inputs that can change.</p><p><a id="when-to-use-any"></a><strong>When to use any </strong></p><p>Consider using <strong>any</strong> when you need maximum flexibility and are confident that type of safety won't be compromised. However, use <strong>any</strong> sparingly, as its overuse can lead to a loss of the benefits provided by TypeScript's static typing.</p><p><a id="conclusion"></a><strong>Conclusion </strong></p><p>When using TypeScript, you can use <strong>unknown</strong> when you want to be very careful with your code and make sure everything is the right type. <strong>any</strong> is used when you want to be more flexible, but this can make your code less safe. You should think carefully about which one to use, depending on what your code needs and how confident you are about the types and safety of your code.</p><p>That's all for this topic. Thank you for reading! If you found this article helpful, please consider liking, commenting, and sharing it with others.</p>
+  <script>(function () {
+    var marks = [];
+    var idx = -1;
+
+    function clearMarks() {
+        marks.forEach(function (m) {
+            var p = m.parentNode;
+            if (p) { p.replaceChild(document.createTextNode(m.textContent), m); p.normalize(); }
+        });
+        marks = [];
+        idx = -1;
+    }
+
+    function markText(query) {
+        var results = [];
+        var lower = query.toLowerCase();
+        var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null);
+        var nodes = [];
+        var n;
+        while ((n = walker.nextNode())) {
+            if (n.nodeValue.toLowerCase().includes(lower)) nodes.push(n);
+        }
+        nodes.forEach(function (textNode) {
+            var text  = textNode.nodeValue;
+            var ltext = text.toLowerCase();
+            var par   = textNode.parentNode;
+            if (!par) return;
+            var frag = document.createDocumentFragment();
+            var last = 0, i;
+            while ((i = ltext.indexOf(lower, last)) !== -1) {
+                if (i > last) frag.appendChild(document.createTextNode(text.slice(last, i)));
+                var m = document.createElement('mark');
+                m.className = 'dsm';
+                m.style.cssText = 'background:#ffe066;color:inherit;border-radius:2px;';
+                m.textContent = text.slice(i, i + query.length);
+                frag.appendChild(m);
+                results.push(m);
+                last = i + query.length;
+            }
+            if (last < text.length) frag.appendChild(document.createTextNode(text.slice(last)));
+            par.replaceChild(frag, textNode);
+        });
+        return results;
+    }
+
+    function highlight() {
+        marks.forEach(function (m, i) {
+            m.style.background = i === idx ? '#ff9900' : '#ffe066';
+            m.style.outline    = i === idx ? '2px solid #e65c00' : 'none';
+        });
+        if (marks[idx]) marks[idx].scrollIntoView({ block: 'center' });
+    }
+
+    function reply(src) {
+        src.postMessage({ type: 'searchResult', count: marks.length, current: idx }, '*');
+    }
+
+    window.addEventListener('message', function (e) {
+        var d = e.data;
+        if (!d || !d.type) return;
+        if (d.type === 'search') {
+            clearMarks();
+            if (d.query) {
+                marks = markText(d.query);
+                if (marks.length) idx = 0;
+                highlight();
+            }
+            reply(e.source);
+        } else if (d.type === 'searchNav') {
+            if (!marks.length) return;
+            idx = d.dir === 'next'
+                ? (idx + 1) % marks.length
+                : (idx - 1 + marks.length) % marks.length;
+            highlight();
+            reply(e.source);
+        } else if (d.type === 'searchClear') {
+            clearMarks();
+        }
+    });
+})();</script>
+</body>
+</html>

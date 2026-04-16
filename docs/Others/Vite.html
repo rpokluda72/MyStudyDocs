@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Vite</title>
+  <link rel="stylesheet" href="../assets/content.css">
+</head>
+<body>
+  <h1>Vite</h1>
+  <p><strong>Vite</strong></p><p> is a blazing fast frontend build tool powering the next generation of web applications.</p><p>Vite (French word for "quick", pronounced /vit/, like "veet") is a build tool that aims to provide a faster and leaner development experience for modern web projects. It consists of two major parts:</p><ul><li>A dev server that provides <a href="https://vite.dev/guide/features">rich feature enhancements</a> over <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules" target="_blank">native ES modules</a>, for example extremely fast <a href="https://vite.dev/guide/features#hot-module-replacement">Hot Module Replacement (HMR)</a>.</li><li>A build command that bundles your code with <a href="https://rollupjs.org" target="_blank">Rollup</a>, pre-configured to output highly optimized static assets for production.</li></ul><p>Vite is opinionated and comes with sensible defaults out of the box. Read about what's possible in the <a href="https://vite.dev/guide/features">Features Guide</a>. Support for frameworks or integration with other tools is possible through <a href="https://vite.dev/guide/using-plugins">Plugins</a>. The <a href="https://vite.dev/config/">Config Section</a> explains how to adapt Vite to your project if needed.</p><p>Vite is also highly extensible via its <a href="https://vite.dev/guide/api-plugin">Plugin API</a> and <a href="https://vite.dev/guide/api-javascript">JavaScript API</a> with full typing support.</p><p>npm create vite@latest</p><p><strong>Compatibility Note:</strong></p><p>Vite requires <a href="https://nodejs.org/en/" target="_blank">Node.js</a> version 20.19+, 22.12+. However, some templates require a higher Node.js version to work, please upgrade if your package manager warns about it.</p><p><strong>Vite</strong> is a modern build tool designed for speed and efficiency, particularly when working with JavaScript frameworks like React. Developed by Evan You, the creator of Vue.js, Vite stands out due to its ability to deliver a fast and streamlined development experience.</p><p><strong>Key Features of Vite</strong></p><ol><li><strong>Instant Server Start</strong>: Vite serves files via native ES modules, allowing the development server to start almost instantly, even for large projects.</li><li><strong>Fast Hot Module Replacement (HMR)</strong>: Vite’s HMR is extremely quick, enabling near-instant updates to your React components as you develop.</li><li><strong>Optimized Builds</strong>: Vite uses Rollup for production builds, ensuring efficient bundling with features like code splitting and tree-shaking.</li><li><strong>Modern JavaScript Support</strong>: Vite comes with built-in support for the latest JavaScript features, including TypeScript, JSX, and CSS preprocessors like Sass.</li></ol><p><strong>Initializing a New Vite Project</strong></p><p>With Node.js and npm ready, you can now create a new React project using Vite. Vite provides a straightforward command to set up a new project quickly. Open your terminal and run the following commands:</p><p>npm create vite@latest my-react-app --template react</p><p>cd my-react-app</p><p>npm install</p><ul><li>npm create vite@latest my-react-app --template react: This command initializes a new Vite project with a React template. Replace my-react-app with your desired project name.</li><li>cd my-react-app: Navigate into your newly created project directory.</li><li>npm install: Install the necessary dependencies for your React project.</li></ul><p><strong>Running the Development Server for Vite React</strong></p><p>Once your project is set up and dependencies are installed, you can start the development server. Vite's server is fast, and you'll see how quickly it starts:</p><p>npm run  dev</p><p>Running this command starts the Vite server, opens your React app in the browser, and reloads changes instantly with Vite's fast HMR.</p><p><a id="_Hlk225943267"></a><strong>Next.js or Vite.js: Which Framework is Better, and When?</strong></p><p>They’re both popular, both fast, and both backed by strong communities. But they take very different approaches to building modern websites. </p><p><strong>Next.js</strong> is a React framework specialized in server-side rendering (SSR), static site generation (SSG), and hybrid applications. It provides features like file-based routing and image optimization, making it particularly suited for projects where SEO and fast initial load times are priorities. </p><p><strong>Vite.js</strong>, in contrast, is a lightweight build tool that supports various frameworks including React, Vue, and Svelte. It focuses on client-side rendering, offering lightning-fast development startup and hot module replacement (HMR). Vite is ideal for projects where rapid iteration and reduced server complexity are key. </p><p>Both tools are evolving quickly — with major performance and DX upgrades in the latest releases — so let’s dive into what makes each one shine, where they differ, and how to choose the right fit for your next project. </p><p><strong>What makes Vite.js remarkable?</strong></p><p>Vite.js is a build tool that provides a <strong>fast and lean</strong> development experience for modern web apps. It was created by Evan You (of Vue.js fame) and has quickly become popular for its simplicity and speed. Key features of Vite include: </p><ol><li><strong>Instant Dev Server &amp; HMR:</strong> Vite serves your source files via native ES modules during development, <strong>without bundling</strong>. This leads to near-instant server startup and updates. It supports <a href="https://vite.dev/guide/features#hot-module-replacement">Hot Module Replacement</a>, so you see changes in real time <strong>without a full page reload</strong>. Only the edited module is updated, making the feedback loop extremely fast.</li><li><strong>Code Splitting by Default:</strong> Because Vite leverages ESM, it naturally supports code splitting. You can split your code into smaller chunks (and even use dynamic import() calls) that load on demand. This reduces initial bundle size and improves load times for users.</li><li><strong>Plugin Ecosystem:</strong> Vite has a rich <a href="https://vite.dev/guide/using-plugins">plugin system</a> to extend its functionality. You can integrate tools like TypeScript, JSX, Vue, Svelte, CSS preprocessors, GraphQL, and more via official and community plugins. The plugin API works for both dev and build, giving you flexibility to customize as needed.</li><li><strong>Optimized Production Build:</strong> When you run a production build, Vite switches to using <a href="https://v3.vitejs.dev/guide/build.html">Rollup</a> under the hood to bundle and optimize your assets. It generates highly optimized output, with features like tree-shaking, minification, and CSS code splitting, ensuring your app is as performant as possible for deployment.</li><li><strong>Framework-Agnostic and Widely Adopted:</strong> Unlike Next.js (which is React-only), Vite is framework agnostic. It works with React, Vue, Svelte, Preact, or even plain HTML/JS projects. In fact, many modern frameworks use Vite under the hood – for example, SvelteKit, Astro, Nuxt 3, and even some React meta-frameworks have embraced Vite as their build system. This broad adoption means Vite’s performance and features benefit a wide range of projects.</li><li><strong>Continuous Innovation in Speed:</strong> Vite’s focus is performance. Its dev server was already very fast, but the project continues to push the envelope. The team has been working on a next-gen Rust-based bundler (codenamed <a href="https://vite.dev/guide/rolldown">Rolldown</a>) to eventually replace the current Rollup/esbuild pipeline. Early experiments show even faster build times, especially on large codebases, and this will further narrow any gap between Vite and custom bundlers in the future.</li></ol>
+  <script>(function () {
+    var marks = [];
+    var idx = -1;
+
+    function clearMarks() {
+        marks.forEach(function (m) {
+            var p = m.parentNode;
+            if (p) { p.replaceChild(document.createTextNode(m.textContent), m); p.normalize(); }
+        });
+        marks = [];
+        idx = -1;
+    }
+
+    function markText(query) {
+        var results = [];
+        var lower = query.toLowerCase();
+        var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null);
+        var nodes = [];
+        var n;
+        while ((n = walker.nextNode())) {
+            if (n.nodeValue.toLowerCase().includes(lower)) nodes.push(n);
+        }
+        nodes.forEach(function (textNode) {
+            var text  = textNode.nodeValue;
+            var ltext = text.toLowerCase();
+            var par   = textNode.parentNode;
+            if (!par) return;
+            var frag = document.createDocumentFragment();
+            var last = 0, i;
+            while ((i = ltext.indexOf(lower, last)) !== -1) {
+                if (i > last) frag.appendChild(document.createTextNode(text.slice(last, i)));
+                var m = document.createElement('mark');
+                m.className = 'dsm';
+                m.style.cssText = 'background:#ffe066;color:inherit;border-radius:2px;';
+                m.textContent = text.slice(i, i + query.length);
+                frag.appendChild(m);
+                results.push(m);
+                last = i + query.length;
+            }
+            if (last < text.length) frag.appendChild(document.createTextNode(text.slice(last)));
+            par.replaceChild(frag, textNode);
+        });
+        return results;
+    }
+
+    function highlight() {
+        marks.forEach(function (m, i) {
+            m.style.background = i === idx ? '#ff9900' : '#ffe066';
+            m.style.outline    = i === idx ? '2px solid #e65c00' : 'none';
+        });
+        if (marks[idx]) marks[idx].scrollIntoView({ block: 'center' });
+    }
+
+    function reply(src) {
+        src.postMessage({ type: 'searchResult', count: marks.length, current: idx }, '*');
+    }
+
+    window.addEventListener('message', function (e) {
+        var d = e.data;
+        if (!d || !d.type) return;
+        if (d.type === 'search') {
+            clearMarks();
+            if (d.query) {
+                marks = markText(d.query);
+                if (marks.length) idx = 0;
+                highlight();
+            }
+            reply(e.source);
+        } else if (d.type === 'searchNav') {
+            if (!marks.length) return;
+            idx = d.dir === 'next'
+                ? (idx + 1) % marks.length
+                : (idx - 1 + marks.length) % marks.length;
+            highlight();
+            reply(e.source);
+        } else if (d.type === 'searchClear') {
+            clearMarks();
+        }
+    });
+})();</script>
+</body>
+</html>

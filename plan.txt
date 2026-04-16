@@ -1,0 +1,4 @@
+Last few weeks I was studying some topics for developers. I collected informations and created documents for that. Documents are stored in main folder C:\Users\roman\Work\pohovor\study\Claude. There several subfolders (topic folders) by the concrete topic. Documents contain structured text with pictures, tables, etc.. There are one folder "Pictures" with png files.
+Could you create static html pages which will contain informations from documents. Main html page will have left menu panel and main panel. Menu panel will contains menu items related to topics/subfolder names. Menu items on the first level should be group menu items for each topic folder. Each topic group menu item will contains menu items related to documents or pictures included in topic folder. 
+Add search text functionality. Add collapse all button in menu panel to hihe all group-menus.
+I would like browse those pages from the browser by html link only.

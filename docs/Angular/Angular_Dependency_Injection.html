@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Angular-Dependency Injection</title>
+  <link rel="stylesheet" href="../assets/content.css">
+</head>
+<body>
+  <h1>Angular-Dependency Injection</h1>
+  <p><a href="https://medium.com/@ausaf.cs/mastering-dependency-injection-di-in-angular-aa3344af31ea">https://medium.com/@ausaf.cs/mastering-dependency-injection-di-in-angular-aa3344af31ea</a></p><p><strong>Mastering Dependency Injection (DI) in Angular</strong></p><p>In the world of <strong>modern web development</strong>, <strong><em>Angular</em></strong> has emerged as a powerful framework that streamlines the process of building dynamic, single-page applications.</p><p>One of its core features is <em>Dependency Injection (DI)</em>, a design pattern that plays a crucial role in enhancing the modularity and maintainability of your code. DI is heavily used in Angular.</p><p><strong>🔹 What is Dependency Injection (DI)?</strong></p><p><strong><em>Dependency Injection (DI)</em></strong> is a design pattern that aims to manage component dependencies by injecting them from external sources rather than creating them within the component itself. It is use to improved testability, make Components loose coupling.</p><p>DI allows you to inject services into components, directives, or other services rather than hard-coding them. This not only promotes better code organization but also facilitates easier testing and maintenance.</p><p>By default, Angular’s DI system creates singleton instances of services and shares them throughout the application. In AngularJs, function params are used for DI, From Angular 2, constructor param is used for DI.</p><p><strong>In Angular, DI helps:</strong><br />✅ Reduce code duplication<br />✅ Improve testability<br />✅ Make the application more modular and scalable</p><p>So, Instead of manually creating instances, Angular’s <strong>built-in injector</strong> provides and manages dependencies for you.</p><p><strong>🔹 Why Do We Need DI in Angular?</strong></p><p>Imagine you’re running a coffee shop. Your coffee maker is a crucial piece of equipment that needs to be supplied with various ingredients: coffee beans, water, and filters. If you were to handle these ingredients directly every time you brewed coffee, it would be cumbersome and error-prone. Instead, you have a supply system that provides these ingredients to the coffee maker as needed.</p><p>In this analogy:</p><ul><li><strong><em>Coffee Maker</em></strong> represents your Angular component.</li><li><strong><em>Ingredients</em></strong> are the dependencies (services) required by the component.</li><li><strong><em>Supply System</em></strong> is the Dependency Injection mechanism that provides the ingredients to the coffee maker.</li></ul><p>🚀 <strong>In Angular Development imagine you have a UserService fetching user data.</strong><br />Without DI, you might manually instantiate it inside multiple components:</p><p>export class UserProfileComponent {<br />  userService = new UserService();<br />}</p><p>❌ <strong>Problem:</strong> Each component has to manually create an instance. If UserService has dependencies, this gets complicated.</p><p>✅ <strong>Solution:</strong> Use Angular’s DI to inject UserService:</p><p>export class UserProfileComponent {<br />  constructor(private userService: UserService) {}<br />}</p><p>Now, Angular automatically provides an instance — <strong>reducing redundant code</strong> and improving efficiency.</p><p><strong>🔹 How DI Works in Angular</strong></p><p>Angular’s DI framework is built on the concept of an Injector, which is responsible for creating and managing instances of services and injecting them into components or other services.</p><p><strong>Get Ausaf Ahmad’s stories in your inbox</strong></p><p>Join Medium for free to get updates from this writer.</p><p>Angular’s DI system relies on three main parts:<br />1️. <strong>Provider</strong>: Defines how to create the dependency<br />2️. <strong>Injector</strong>: Delivers the dependency where needed<br />3️. <strong>Dependency Consumer</strong>: The component/service using the dependency</p><p><strong>🔹 Creating &amp; Injecting a Service in Angular</strong></p><p><strong>Step 1: Create a Service</strong></p><p>Generate a new service using the CLI:</p><p>ng generate service user</p><p>This creates user.service.ts:</p><p>import { Injectable } from '@angular/core';<br /><br />@Injectable({<br />  providedIn: 'root' // Makes it available globally<br />})<br />export class UserService {<br />  getUser() {<br />    return { name: 'John Doe', age: 30 };<br />  }<br />}</p><p><strong>Step 2: Inject the Service in a Component</strong></p><p>import { Component } from '@angular/core';<br />import { UserService } from './user.service';<br /><br />@Component({<br />  selector: 'app-profile',<br />  template: `&lt;p&gt;User: {{ user?.name }}&lt;/p&gt;`<br />})<br />export class ProfileComponent {<br />  user: any;<br /><br />  constructor(private userService: UserService) {   //Like This<br />    this.user = this.userService.getUser();<br />  }<br />}</p><p>Here, <strong>Angular automatically provides an instance of UserService</strong> inside ProfileComponent!</p><p><strong>🔹 Providing Services at Different Levels</strong></p><p>Angular services can be provided:<br />🔹 <strong>Globally</strong> (providedIn: 'root' in the service file)<br />🔹 <strong>Module level</strong> (inside providers in an NgModule)<br />🔹 <strong>Component level</strong> (inside providers in a @Component)</p><p>🔍 <strong>Example: Providing a service at the component level</strong></p><p>@Component({<br />  selector: 'app-dashboard',<br />  templateUrl: './dashboard.component.html',<br />  providers: [UserService] // New instance for this component only<br />})<br />export class DashboardComponent {}</p><p>🔹 This creates a separate instance of UserService for DashboardComponent, rather than sharing a single instance.</p><p><strong>🔹 When to Use Component-Level vs. Global Services?</strong></p><p>✅ <strong>Use Global (providedIn: 'root') Services When:</strong></p><ul><li><em>The service is needed across multiple components.</em></li><li><em>Example: Authentication (AuthService), API calls (HttpService).</em></li><li><em>Provides a single shared instance, improving performance and consistency.</em></li></ul><p>✅ <strong>Use Component-Level (providers inside a Component) Services When:</strong></p><ul><li><em>You need an isolated instance for each component.</em></li><li><em>Example: Local state management within a component.</em></li><li><em>Prevents unwanted data sharing across components.</em></li></ul><p><strong>🔹 Conclusion</strong></p><p>Dependency Injection makes Angular apps <strong>more efficient, scalable, and maintainable.</strong></p><p>🔹 <strong>Use DI to avoid tight coupling and repetitive code.</strong><br />🔹 <strong>Inject services instead of manually creating instances.</strong><br />🔹 <strong>Choose the right scope (root, module, or component) based on your needs.</strong></p>
+  <script>(function () {
+    var marks = [];
+    var idx = -1;
+
+    function clearMarks() {
+        marks.forEach(function (m) {
+            var p = m.parentNode;
+            if (p) { p.replaceChild(document.createTextNode(m.textContent), m); p.normalize(); }
+        });
+        marks = [];
+        idx = -1;
+    }
+
+    function markText(query) {
+        var results = [];
+        var lower = query.toLowerCase();
+        var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null);
+        var nodes = [];
+        var n;
+        while ((n = walker.nextNode())) {
+            if (n.nodeValue.toLowerCase().includes(lower)) nodes.push(n);
+        }
+        nodes.forEach(function (textNode) {
+            var text  = textNode.nodeValue;
+            var ltext = text.toLowerCase();
+            var par   = textNode.parentNode;
+            if (!par) return;
+            var frag = document.createDocumentFragment();
+            var last = 0, i;
+            while ((i = ltext.indexOf(lower, last)) !== -1) {
+                if (i > last) frag.appendChild(document.createTextNode(text.slice(last, i)));
+                var m = document.createElement('mark');
+                m.className = 'dsm';
+                m.style.cssText = 'background:#ffe066;color:inherit;border-radius:2px;';
+                m.textContent = text.slice(i, i + query.length);
+                frag.appendChild(m);
+                results.push(m);
+                last = i + query.length;
+            }
+            if (last < text.length) frag.appendChild(document.createTextNode(text.slice(last)));
+            par.replaceChild(frag, textNode);
+        });
+        return results;
+    }
+
+    function highlight() {
+        marks.forEach(function (m, i) {
+            m.style.background = i === idx ? '#ff9900' : '#ffe066';
+            m.style.outline    = i === idx ? '2px solid #e65c00' : 'none';
+        });
+        if (marks[idx]) marks[idx].scrollIntoView({ block: 'center' });
+    }
+
+    function reply(src) {
+        src.postMessage({ type: 'searchResult', count: marks.length, current: idx }, '*');
+    }
+
+    window.addEventListener('message', function (e) {
+        var d = e.data;
+        if (!d || !d.type) return;
+        if (d.type === 'search') {
+            clearMarks();
+            if (d.query) {
+                marks = markText(d.query);
+                if (marks.length) idx = 0;
+                highlight();
+            }
+            reply(e.source);
+        } else if (d.type === 'searchNav') {
+            if (!marks.length) return;
+            idx = d.dir === 'next'
+                ? (idx + 1) % marks.length
+                : (idx - 1 + marks.length) % marks.length;
+            highlight();
+            reply(e.source);
+        } else if (d.type === 'searchClear') {
+            clearMarks();
+        }
+    });
+})();</script>
+</body>
+</html>

@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find /c/Users/roman/Work/pohovor/study/Claude -type f -exec ls -lh {})",
+      "Bash(sort -k2)",
+      "Bash(python3 -c \"import mammoth; print\\(''mammoth ok''\\)\")",
+      "Bash(python -c \"import mammoth; print\\(''mammoth ok''\\)\")",
+      "Bash(python3 -c \"import pip; print\\(''pip ok''\\)\")",
+      "Bash(python3 -m pip --version)",
+      "Bash(python3:*)",
+      "Bash(py -3 --version)",
+      "Bash(py -3 -c \"import zipfile, json, os, re, shutil, pathlib; print\\(''stdlib ok''\\)\")",
+      "Bash(py -3 -m pip --version)",
+      "Bash(py -3 -c \"import mammoth; print\\(''mammoth ok''\\)\")",
+      "Bash(py -3 -m pip show mammoth)",
+      "Bash(py -3 -m pip list)",
+      "Bash(py:*)"
+    ]
+  }
+}

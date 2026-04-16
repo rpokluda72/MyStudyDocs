@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>RxJS usage in ecst</title>
+  <link rel="stylesheet" href="../assets/content.css">
+</head>
+<body>
+  <h1>RxJS usage in ecst</h1>
+  <p><strong>export class ClassManagerService {</strong></p><p>  readonly appSpaceCntxfilter = signal(SHOW_ALL);</p><p>  public readonly appSpaceCntxList = signal&lt;string[]&gt;([]);</p><p>  protected init() {</p><p>    merge(toObservable(this.appSpaceCntxfilter),       </p><p>                  toObservable(this.appSpaceCntxList)</p><p>     ).subscribe(() =&gt; this.checkIfAppSpaceCntxFilterIsValid()</p><p>    );</p><p>  }</p><p>* * * * * * * * * * * *</p><p>export class <strong>CmeTableComponent</strong> extends Unsubscriber implements OnInit, OnChanges, OnDestroy {</p><p>@AsyncLoad()<br />async ngOnInit() {</p><p>…  <br />  this.classManagerService.dropDownSettingsLoaded<br />    .pipe(startWith(0))<br />    .pipe(unsubscribeOnDestroy(this))<br />    .subscribe(() =&gt; this.setDropdownOptions());</p><p><strong>export class ClassManagerService {</strong></p><p>  readonly dropDownSettingsLoaded = new BehaviorSubject(false);</p><p>  async loadDropDowns() {</p><p>    await this.dropDownService.dropDown();</p><p>    this.dropDownSettingsLoaded.next(true);</p><p>  }</p><p>  private async loadDropDownSettings() {</p><p>    if (this.isDropdownSettingsNotDefined()) {</p><p>      this.projectService.project.settings = JSON.parse(localStorage.getItem('dropdownSetting'));</p><p>    }</p><p>    if (this.isDropdownSettingsNotDefined()) {</p><p>      return new Promise&lt;void&gt;(resolve =&gt; {</p><p>        // load it from a file</p><p>        this.http.get('./assets/json/dropdown.json', { responseType: 'json' }).subscribe({</p><p>          next: file =&gt; {</p><p>…</p><p>          },</p><p>          error: err =&gt; console.error(err),</p><p>          complete: () =&gt; {</p><p>            this.dropDownSettingsLoaded.next(true); </p><p>            resolve();</p><p>          },</p><p>        });</p><p>      });</p><p>    }</p><p>  }</p><p>* * * * * * * * * * * *</p><p>export class <strong>ClassManagerComponent</strong> extends Unsubscriber implements OnInit, OnDestroy {</p><p>  async ngOnInit(): Promise&lt;void&gt; {</p><p>    this.projectService.projectLoadedEvent.pipe(unsubscribeOnDestroy(this)).subscribe(() =&gt; {</p><p>      this.classManagerService.setRecentFiles();</p><p>      this.filterSelectedClasses();</p><p>    });</p><p>export class <strong>CmeProjectService</strong> extends ProjectBaseService {</p><p>  projectLoadedEvent: EventEmitter&lt;void&gt;;</p><p>  loadProjectInternal = (project: CmeProject): void =&gt; {</p><p>    this.project = project;</p><p>    this.projectLoadedEvent.emit();</p><p>    this.refreshProject.emit();</p><p>  };</p><p>* * * * * * * * * * * *</p><p>export class <strong>PreviewDataCellComponent</strong> extends PreviewCellBase implements OnInit {</p><p>  ngOnInit() {</p><p>    this.previewService.refresh.pipe(unsubscribeOnDestroy(this)).subscribe(() =&gt; this.cls.set(this.getInputClasses()));</p><p>export class <strong>PreviewService</strong> {</p><p>  readonly refresh = new Subject&lt;void&gt;();</p><p>  refreshTable() {</p><p>    this.refresh.next();</p><p>  }</p><p>* * * * * * * * * * * *</p><p>export class <strong>ClassManagerSelectorComponent</strong> extends Unsubscriber implements OnInit, OnDestroy {</p><p>  private filterChange = new Subject&lt;void&gt;();</p><p>  ngOnInit(): void {</p><p>    this.filterChange</p><p>      .pipe(unsubscribeOnDestroy(this))</p><p>      .pipe(debounceTime(200))</p><p>      .subscribe(() =&gt; this.filterOptions());</p><p>    setTimeout(() =&gt; {</p><p>      // Necessary to wait for values to propagate into list box</p><p>      this.ready = true;</p><p>    });</p><p>  onFilteredDataChange() {</p><p>    this.filterChange.next();</p><p>  }</p><p>* * * * * * * * * * * *</p><p>export class <strong>PreviewDataCellComponent</strong> extends PreviewCellBase implements OnInit {</p><p>  ngOnInit() {</p><p>    this.previewService.refresh.pipe(unsubscribeOnDestroy(this)).subscribe(() =&gt; this.cls.set(this.getInputClasses()));</p><p>export class <strong>PreviewService</strong> {</p><p>  readonly refresh = new Subject&lt;void&gt;();</p><p>  refreshTable() {</p><p>    this.refresh.next();</p><p>  }</p><p>export function <strong>unsubscribeOnDestroy</strong>&lt;T&gt;(component: Unsubscriber) {</p><p>  return (source: Observable&lt;T&gt;) =&gt; {</p><p>    return source.pipe(takeUntil(component.$$onDestroy));</p><p>  };</p><p>}</p><p>* * * * * * * * * * * *</p><p>export class <strong>PreviewDataCellComponent</strong> extends PreviewCellBase implements OnInit {</p><p>  private valueChangeEmitter = new EventEmitter&lt;void&gt;();</p><p>  ngOnInit() {</p><p>    this.valueChangeEmitter</p><p>      .pipe(unsubscribeOnDestroy(this))</p><p>      .pipe(debounceTime(700))</p><p>      .subscribe(() =&gt; this.onPropertyChange(this.property, this.previewItem.fieldName));</p><p>  onValueChange() {</p><p>    if (this.selectValue === this.initialValue) return;</p><p>    this.valueChangeEmitter.emit();</p><p>  }</p><p>* * * * * * * * * * * *</p><p>export class <strong>BaseAppComponent</strong> extends Unsubscriber implements OnDestroy {</p><p>  constructor() {</p><p>    super();</p><p>    this.mainPanelService.panelVisibilityChanged$</p><p>      .pipe(unsubscribeOnDestroy(this))</p><p>      .subscribe(panelsSetting =&gt; this.onPanelVisibilityChange(panelsSetting));</p><p>export class <strong>AppComponent</strong> implements OnInit, OnDestroy {</p><p>constructor( …) {<br />  this.panelVisibilitySubscription = this.mainPanelService.panelVisibilityChanged$.subscribe(<br />    panelsSetting =&gt; (this.panelsSetting = panelsSetting)<br />  );</p><p>export class <strong>MainPanelBaseService</strong> {</p><p>  panelVisibilityChanged = new Subject&lt;PanelSettingModel&gt;();</p><p>  panelVisibilityChanged$ = this.panelVisibilityChanged.asObservable();</p><p>  public openConfiguration = () =&gt; {</p><p>    ...</p><p>    this.<strong>panelVisibilityChanged</strong>.next(this.panelsSetting);</p><p>  };</p><p>* * * * * * * * * * * *</p><p>export class <strong>AutocompleteCellComponent</strong> extends InputCellBase implements OnInit {</p><p>  rowRefresh = toSignal(</p><p>    this.tableService.rowRefresh.pipe(</p><p>      filter(ev =&gt; {</p><p>        return ev.appSpaceCntx === this.tableContext.selectedAppSpace() &amp;&amp; ev.rowIndex === this.rowIndex();</p><p>      })</p><p>    )</p><p>  );</p><p>export class <strong>CmeTableService</strong> extends Unsubscriber {</p><p>  readonly rowRefresh = new Subject&lt;TableRowRefreshEvent&gt;();</p><p>export class <strong>CmeTableCellComponent</strong> extends CmeTableCellBase implements OnInit, AfterViewInit, OnDestroy {</p><p>  ngAfterViewInit() {</p><p>    this.tableService.rowRefresh</p><p>      .pipe(tableRefreshRowEventFilter(this.selectedAppSpace, this.index()))</p><p>      .pipe(unsubscribeOnDestroy(this))</p><p>      .subscribe(async () =&gt; this.checkCellValidity());</p><p>  }</p><p>  onValueChange() {</p><p>    this.tableService.rowRefresh.next({</p><p>      rowIndex: this.index(),</p><p>      columnIndex: this.columnIndex(),</p><p>      appSpaceCntx: this.selectedAppSpace,</p><p>    });</p><p>  }</p><p>* * * * * * * * * * * *</p><p>export class <strong>DashboardComponent</strong> implements OnInit, OnDestroy {</p><p>  lastOpenedSubscription: Subscription;</p><p>  lastOpenedProjects: LastOpenedProject[] = [];</p><p>  ngOnInit(): void {</p><p>    this.lastOpenedSubscription = this.lastOpenService.lastOpenedChanged.subscribe(() =&gt; {</p><p>      this.lastOpenedProjects = this.lastOpenService.getLastOpened();</p><p>    });</p><p>  ngOnDestroy(): void {</p><p>    if (this.lastOpenedSubscription) {</p><p>      this.lastOpenedSubscription.unsubscribe();</p><p>    }</p><p>export class <strong>LastOpenService</strong> {</p><p>  lastOpenedChanged = new EventEmitter&lt;void&gt;();</p><p>  removeItem(item: LastOpenedProject) {</p><p>    this.lastOpenedChanged.emit();</p><p>  }</p><p>* * * * * * * * * * * *</p><p>export class <strong>TablePaginatorComponent</strong> extends Unsubscriber implements OnInit {</p><p>  private selectedRowObs = toObservable(this.tableService.selectedRow);</p><p>  </p><p>  ngOnInit() {</p><p>    this.selectedRowObs.pipe(unsubscribeOnDestroy(this)).subscribe(item =&gt; {</p><p>      if (!item || item === -1) return;</p><p>      const index = this.tableContext.currentItems().indexOf(item as MainTableRow);</p><p>      ...</p><p>    });</p><p>  }</p><p>export class <strong>CmeTableComponent</strong> extends Unsubscriber implements OnInit, OnChanges, OnDestroy {</p><p>  @AsyncLoad()</p><p>  async ngOnInit() {</p><p>    merge(this.classManagerService.refreshEvent,   this.tableService.refresh.pipe(tableRefreshEventFilter(this.selectedAppSpace)))</p><p>      .pipe(unsubscribeOnDestroy(this))</p><p>      .pipe(debounceTime(50))</p><p>      .subscribe(() =&gt; this.cd.markForCheck());</p><p>export class <strong>CmeTableService</strong> extends Unsubscriber {</p><p>  readonly selectedRow = signal&lt;TableRow | -1&gt;(null);</p><p>  readonly refresh = new Subject&lt;string | void&gt;();</p><p>  selectRow(item: TableRow | -1) {</p><p>    this.selectedRow.set(item);</p><p>    this.refresh.next(null);</p><p>  }</p><p>* * * * * * * * * * * *</p><p>export class <strong>ClassManagerComponent</strong> extends Unsubscriber implements OnInit, OnDestroy {</p><p>  private recentClassesObs = toObservable(this.classManagerService.recentClasses);</p><p>  async ngOnInit(): Promise&lt;void&gt; {</p><p>    this.recentClassesObs.pipe(unsubscribeOnDestroy(this)).subscribe(() =&gt; {</p><p>      this.classManagerService.setRecentFiles();</p><p>      this.filterSelectedClasses();</p><p>    });</p><p>export class <strong>ClassManagerService</strong> {</p><p>  public readonly recentClasses = signal&lt;ClassInfo[]&gt;([]);</p><p>  async initService(cleanRecent = false): Promise&lt;void&gt; {</p><p>    this.recentClasses.set([]);</p><p>    ... fill recentClasses</p><p>    this.recentClasses.set(recentClasses);</p><p>  addRecentClass(newClassInfo: ClassInfo) {</p><p>    this.recentClasses.set([...this.recentClasses(), newClassInfo]);</p><p>  }</p><p>  filterOutLoadedRecentClasses() {</p><p>    this.recentClasses.set(this.recentClasses().filter(rc =&gt; !rc.loaded));</p><p>  }</p><p>* * * * * * * * * * * *</p><p>const result = await firstValueFrom(propertyModal.content.closeEvent.pipe(take(1)).pipe(unsubscribeOnDestroy(this)));</p><p>const data = await firstValueFrom(validationModal.content.closeEvent.pipe(take(1)));</p><p>private refreshOnModalHide(modal: BsModalRef) {</p><p>    modal.onHide</p><p>      .pipe(take(1))</p><p>      .pipe(unsubscribeOnDestroy(this))</p><p>      .subscribe(() =&gt; this.refreshTable());</p><p>  }</p><p>refreshOnModalHide(modal: BsModalRef) {</p><p>    modal.onHide.pipe(take(1)).subscribe(() =&gt; this.refreshTable());</p><p>  }</p><p>const result = await firstValueFrom(propertyModal.content.closeEvent.pipe(take(1)).pipe(unsubscribeOnDestroy(this)));</p><p>propertyModal.content.closeEvent</p><p>        .pipe(unsubscribeOnDestroy(this))</p><p>        .pipe(take(1))</p><p>        .subscribe(data =&gt; resolve(data.remove));</p><p>    });</p><p>this.onGoingPopulations[sheet.name] <strong>= this.apiService.http</strong></p><p>          .post(this.apiService.baseUrl + url, sheet.metamap.serverSiteFilter, { headers: newHeader })</p><p>          .pipe(take(1))</p><p>          .subscribe({</p><p>            next: (response: RestClass) =&gt; {</p><p>              const classData = response.objects?.[sheet.metamap.originalClassName];</p><p>              this.doAfterPopulate(classData, sheet, cd);</p><p>            },</p><p>            error: async e =&gt; {</p><p>              console.error(e);</p><p>              this.loadingOverlayService.setIsLoading(false);</p><p>              sheet.metamap.sheetPopulating = false;</p><p>              await this.apiService.handleError(e);</p><p>            },</p><p>            complete: () =&gt; {</p><p>              this.loadingOverlayService.setIsLoading(false);</p><p>            },</p><p>          });</p><p>* * * * * * * * * * * *</p><p>export class <strong>CmeTableRowBtnsComponent</strong> extends CmeTableCellBase implements OnInit {</p><p>  this.rowForm.statusChanges</p><p>      .pipe(unsubscribeOnDestroy(this))</p><p>      .pipe(debounceTime(100))</p><p>      .subscribe(() =&gt; this.rowHasErrors.set(this.rowForm.invalid));</p><p>* * * * * * * * * * * *</p><p>export class <strong>DashboardComponent</strong> implements OnInit, OnDestroy {</p><p>    this.changeCurrentClass = this.projectService.nextClass.subscribe(async nextClass =&gt; {</p><p>      await this.projectService.blurActiveElement();</p><p>      this.router.navigate(['/dashboard/' + nextClass]);</p><p>    });</p><p>export class <strong>EcctProjectService</strong> extends ProjectBaseService {</p><p>  public selectNextClass = (currentSheet, reverse = 1) =&gt; {<br />  const currentIndex = this.project.sheets.indexOf(currentSheet);<br />  if (this.project.sheets[currentIndex + reverse]) {<br />    this.nextClass.emit(this.project.sheets[currentIndex + reverse].name);<br />  }<br />};</p>
+  <script>(function () {
+    var marks = [];
+    var idx = -1;
+
+    function clearMarks() {
+        marks.forEach(function (m) {
+            var p = m.parentNode;
+            if (p) { p.replaceChild(document.createTextNode(m.textContent), m); p.normalize(); }
+        });
+        marks = [];
+        idx = -1;
+    }
+
+    function markText(query) {
+        var results = [];
+        var lower = query.toLowerCase();
+        var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null);
+        var nodes = [];
+        var n;
+        while ((n = walker.nextNode())) {
+            if (n.nodeValue.toLowerCase().includes(lower)) nodes.push(n);
+        }
+        nodes.forEach(function (textNode) {
+            var text  = textNode.nodeValue;
+            var ltext = text.toLowerCase();
+            var par   = textNode.parentNode;
+            if (!par) return;
+            var frag = document.createDocumentFragment();
+            var last = 0, i;
+            while ((i = ltext.indexOf(lower, last)) !== -1) {
+                if (i > last) frag.appendChild(document.createTextNode(text.slice(last, i)));
+                var m = document.createElement('mark');
+                m.className = 'dsm';
+                m.style.cssText = 'background:#ffe066;color:inherit;border-radius:2px;';
+                m.textContent = text.slice(i, i + query.length);
+                frag.appendChild(m);
+                results.push(m);
+                last = i + query.length;
+            }
+            if (last < text.length) frag.appendChild(document.createTextNode(text.slice(last)));
+            par.replaceChild(frag, textNode);
+        });
+        return results;
+    }
+
+    function highlight() {
+        marks.forEach(function (m, i) {
+            m.style.background = i === idx ? '#ff9900' : '#ffe066';
+            m.style.outline    = i === idx ? '2px solid #e65c00' : 'none';
+        });
+        if (marks[idx]) marks[idx].scrollIntoView({ block: 'center' });
+    }
+
+    function reply(src) {
+        src.postMessage({ type: 'searchResult', count: marks.length, current: idx }, '*');
+    }
+
+    window.addEventListener('message', function (e) {
+        var d = e.data;
+        if (!d || !d.type) return;
+        if (d.type === 'search') {
+            clearMarks();
+            if (d.query) {
+                marks = markText(d.query);
+                if (marks.length) idx = 0;
+                highlight();
+            }
+            reply(e.source);
+        } else if (d.type === 'searchNav') {
+            if (!marks.length) return;
+            idx = d.dir === 'next'
+                ? (idx + 1) % marks.length
+                : (idx - 1 + marks.length) % marks.length;
+            highlight();
+            reply(e.source);
+        } else if (d.type === 'searchClear') {
+            clearMarks();
+        }
+    });
+})();</script>
+</body>
+</html>
