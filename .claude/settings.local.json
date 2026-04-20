@@ -14,7 +14,8 @@
       "Bash(py -3 -c \"import mammoth; print\\(''mammoth ok''\\)\")",
       "Bash(py -3 -m pip show mammoth)",
       "Bash(py -3 -m pip list)",
-      "Bash(py:*)"
+      "Bash(py:*)",
+      "Bash(node build.js)"
     ]
   }
 }

@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Angular -Vytvoření projektu</title>
   <link rel="stylesheet" href="../assets/content.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
 </head>
 <body>
   <h1>Angular -Vytvoření projektu</h1>
@@ -43,6 +44,11 @@
   }
 }</code></pre>
 <p>Nyní, kdykoliv budeme chtít otestovat komunikaci našeho klienta a serveru, stačí zavolat příkaz <em>npm start</em> v kořenovém adresáři projektu, který automaticky spustí obě komunikující strany současně.</p><p><strong>Bootstrap </strong></p><p>V rámci tutoriálu se nebudeme zdržovat psaním vlastního CSS. Protože ale chceme, aby naše aplikace nějak vypadala, využijeme CSS třídy front-end frameworku Bootstrap. Proto ještě než začneme s psaním našich komponent, přesuneme se do složky client/ a nainstalujeme tento framework příkazem:</p><p><em>npm i bootstrap</em></p><p>Zbývá ještě importovat Bootstrap framework do naší Angular aplikace. Nabízí se nám dva způsoby:</p><p>- upravení angular.json</p><p>- import přímo do styles.css</p><p>...</p><p><strong>Basic Project Setup Example (Express)</strong></p><p># Create a new project directory<br />mkdir my-express-app<br />cd my-express-app<br /><br /># Initialize npm and install Express<br />npm init -y<br />npm install express<br /><br /># Create main application file (app.js)<br />touch app.js </p>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>
+    document.querySelectorAll('pre code').forEach(function(el){if(!el.className)el.classList.add('language-typescript');});
+    document.querySelectorAll('pre code').forEach(function(el){ hljs.highlightElement(el); });
+  </script>
   <script>(function () {
     var marks = [];
     var idx = -1;

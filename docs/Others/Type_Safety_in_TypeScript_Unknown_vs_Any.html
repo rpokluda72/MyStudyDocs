@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Type Safety in TypeScript - Unknown vs Any</title>
   <link rel="stylesheet" href="../assets/content.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
 </head>
 <body>
   <h1>Type Safety in TypeScript - Unknown vs Any</h1>
@@ -23,10 +24,17 @@ const result = processData("Hello, TypeScript!");</code></pre>
   return data.toUpperCase(); 
 }
 // No compilation error, works as expected
-const result1 = processDynamicData("Hello, TypeScript!"); </code></pre>
-<p>console.log(result1); // Outputs: "HELLO, TYPESCRIPT!"</p><pre><code>// No compilation error, but will cause a runtime error
-const result2 = processDynamicData(12345); </code></pre>
-<p>console.log(result2); // Error: data.toUpperCase is not a function</p><p>In simpler terms, using <strong>any</strong> means you don't have to check the type of data, but it can cause problems if the data type is not what you expected.</p><p><a id="when-to-use-unknown"></a><strong>When to use unknown </strong></p><p>Use <strong>unknown</strong> when you're not sure what kinda variable is, and you want to make sure it's the right kind before you do something with it. This makes your code safer and easier to understand, especially when you're working with data from outside or inputs that can change.</p><p><a id="when-to-use-any"></a><strong>When to use any </strong></p><p>Consider using <strong>any</strong> when you need maximum flexibility and are confident that type of safety won't be compromised. However, use <strong>any</strong> sparingly, as its overuse can lead to a loss of the benefits provided by TypeScript's static typing.</p><p><a id="conclusion"></a><strong>Conclusion </strong></p><p>When using TypeScript, you can use <strong>unknown</strong> when you want to be very careful with your code and make sure everything is the right type. <strong>any</strong> is used when you want to be more flexible, but this can make your code less safe. You should think carefully about which one to use, depending on what your code needs and how confident you are about the types and safety of your code.</p><p>That's all for this topic. Thank you for reading! If you found this article helpful, please consider liking, commenting, and sharing it with others.</p>
+const result1 = processDynamicData("Hello, TypeScript!"); 
+console.log(result1); // Outputs: "HELLO, TYPESCRIPT!"
+// No compilation error, but will cause a runtime error
+const result2 = processDynamicData(12345); 
+console.log(result2); // Error: data.toUpperCase is not a function</code></pre>
+<p>In simpler terms, using <strong>any</strong> means you don't have to check the type of data, but it can cause problems if the data type is not what you expected.</p><p><a id="when-to-use-unknown"></a><strong>When to use unknown </strong></p><p>Use <strong>unknown</strong> when you're not sure what kinda variable is, and you want to make sure it's the right kind before you do something with it. This makes your code safer and easier to understand, especially when you're working with data from outside or inputs that can change.</p><p><a id="when-to-use-any"></a><strong>When to use any </strong></p><p>Consider using <strong>any</strong> when you need maximum flexibility and are confident that type of safety won't be compromised. However, use <strong>any</strong> sparingly, as its overuse can lead to a loss of the benefits provided by TypeScript's static typing.</p><p><a id="conclusion"></a><strong>Conclusion </strong></p><p>When using TypeScript, you can use <strong>unknown</strong> when you want to be very careful with your code and make sure everything is the right type. <strong>any</strong> is used when you want to be more flexible, but this can make your code less safe. You should think carefully about which one to use, depending on what your code needs and how confident you are about the types and safety of your code.</p><p>That's all for this topic. Thank you for reading! If you found this article helpful, please consider liking, commenting, and sharing it with others.</p>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>
+    
+    document.querySelectorAll('pre code').forEach(function(el){ hljs.highlightElement(el); });
+  </script>
   <script>(function () {
     var marks = [];
     var idx = -1;

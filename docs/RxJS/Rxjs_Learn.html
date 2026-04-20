@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Rxjs Learn</title>
   <link rel="stylesheet" href="../assets/content.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
 </head>
 <body>
   <h1>Rxjs Learn</h1>
@@ -2970,6 +2971,11 @@ export class App implements OnInit {
 }
 bootstrapApplication(App);</code></pre>
 <p><a href="https://stackblitz.com/edit/stackblitz-starters-q7mksx?file=src%2Fmain.ts" target="_blank" rel="noopener noreferrer">Stackblitz Example Link</a></p>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>
+    document.querySelectorAll('pre code').forEach(function(el){if(!el.className)el.classList.add('language-typescript');});
+    document.querySelectorAll('pre code').forEach(function(el){ hljs.highlightElement(el); });
+  </script>
   <script>(function () {
     var marks = [];
     var idx = -1;

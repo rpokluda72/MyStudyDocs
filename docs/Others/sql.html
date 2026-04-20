@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>sql</title>
   <link rel="stylesheet" href="../assets/content.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
 </head>
 <body>
   <h1>sql</h1>
@@ -23,6 +24,11 @@ AI-generated content may be incorrect." src="data:image/png;base64,iVBORw0KGgoAA
 <p>Marie Kovářová 	| Data Analytics Pass</p><p> Jan Novák      		| Úvod do řízení projektů</p><p> Petr Svoboda   	| (bez objednávky)</p><p>-- Všechny záznamy z levé i pravé tabulky</p><p>SELECT COALESCE(z.jmeno, '(chybí)') AS jmeno, COALESCE(o.nazev, '(chybí)') AS nazev</p><p>FROM ZAKAZNICI z</p><p>FULL JOIN OBJEDNAVKY o</p><pre><code>  ON z.ID = o.zakaznik_id;
      jmeno      	|          nazev          </code></pre>
 <p> Jan Novák      	| Python - základy</p><p> Marie Kovářová 	| Data Analytics Pass</p><p> Jan Novák     	| Úvod do řízení projektů</p><p> (chybí)        	| SQL pro každý den</p><p> Petr Svoboda   | (chybí)</p>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>
+    
+    document.querySelectorAll('pre code').forEach(function(el){ hljs.highlightElement(el); });
+  </script>
   <script>(function () {
     var marks = [];
     var idx = -1;

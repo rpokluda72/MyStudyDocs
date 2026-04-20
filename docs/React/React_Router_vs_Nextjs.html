@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>React Router vs Nextjs</title>
   <link rel="stylesheet" href="../assets/content.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
 </head>
 <body>
   <h1>React Router vs Nextjs</h1>
@@ -39,6 +40,11 @@ const BlogPost = () =&gt; {
 
 export default BlogPost;</code></pre>
 <p>In this example, the [id].tsx file automatically creates a dynamic route. When a user navigates to /blog/123, the id parameter will be available inside the component.</p><p><strong>When to Use React Router</strong></p><p>React Router is ideal when:<br />✅ You are building a <strong>Single Page Application (SPA)</strong>.<br />✅ You want full control over client-side routing behavior.<br />✅ You are not concerned about server-side rendering or SEO.<br />✅ You prefer a more component-based approach to routing.</p><p><strong>When to Use Next.js Router</strong></p><p>Next.js Router is the better choice when:<br />✅ You need <strong>server-side rendering</strong> or <strong>static site generation</strong>.<br />✅ You care about <strong>SEO</strong> and fast load times.<br />✅ You prefer a <strong>file-based</strong> routing system for better organization.<br />✅ You want to leverage features like <strong>incremental static regeneration</strong> (ISR) and <strong>API routes</strong>.</p><p><strong>Final Thoughts</strong></p><p>React Router and Next.js Router are both powerful tools for building React applications, but they serve different purposes. React Router is a flexible, client-side routing solution ideal for SPAs, while Next.js Router offers built-in server-side rendering and SEO benefits, making it perfect for content-heavy or performance-focused websites.</p>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>
+    document.querySelectorAll('pre code').forEach(function(el){if(!el.className)el.classList.add('language-typescript');});
+    document.querySelectorAll('pre code').forEach(function(el){ hljs.highlightElement(el); });
+  </script>
   <script>(function () {
     var marks = [];
     var idx = -1;

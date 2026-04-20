@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>25 otazek NodeJs</title>
   <link rel="stylesheet" href="../assets/content.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
 </head>
 <body>
   <h1>25 otazek NodeJs</h1>
@@ -17,6 +18,11 @@
 <p>Nevýhody:</p><pre><code>    Jakýkoli intenzivní výpočet CPU bude blokovat odezvu node.js, takže platforma s vlákny je lepší přístup.
     Použití relační databáze s Node.js je považováno za méně příznivé.</code></pre>
 <p>19) Jak Node.js překonává problém blokování I/O operací?</p><p>Node.js řeší tento problém tím, že do jádra vkládá model založený na událostech a místo vláken používá smyčku událostí.</p><p>20) Jaký je rozdíl mezi Node.js vs Ajax?</p><p>Rozdíl mezi Node.js a Ajaxem je ten, Ajax (zkratka pro Asynchronous JavaScénář a XML) je technologie na straně klienta, která se často používá k aktualizaci obsahu stránky bez jejího obnovování. Zatímco Node.js je na straně serveru Javascript, který se používá pro vývoj serverového softwaru. Node.js se nespouští v prohlížeči, ale na serveru.</p><p><strong>Otázky k pohovoru Node js pro více než 5 let zkušeností</strong></p><p>21) Jaké jsou výzvy s Node.js?</p><p>S důrazem na technickou stránku je v Node.js trochu problém mít jeden proces s jedním vláknem pro škálování na vícejádrovém serveru.</p><p>22) Co znamená „neblokování“ v node.js?</p><p>V node.js „neblokování“ znamená, že jeho IO je neblokující. Uzel používá „libuv“ ke zpracování svých IO způsobem agnostickým pro platformu. Na Windows používá dokončovací porty pro unix, používá epoll nebo kqueue atd. Takže udělá neblokující požadavek a na požádání jej zařadí do fronty do smyčky událostí, která volá JavaSkriptujte 'zpětné volání' na hlavní JavaVlákno skriptu.</p><p>23) Jaký je příkaz, který se používá v node.js k importu externích knihoven?</p><p>Příkaz „require“ se používá pro import externích knihoven, například „var http=require („http“). Tím se načte knihovna http a jeden exportovaný objekt prostřednictvím proměnné http.</p><p>24) Zmínit framework nejčastěji používaný v node.js?</p><p>„Express“ je nejběžnější rámec používaný v node.js.</p><p>Express - Fast, unopinionated, minimalist web framework for Node.js</p><p>Express.js (or simply Express) is the most popular Node.js web application framework, designed for building web applications and APIs.</p><p>It's often called the de facto standard server framework for Node.js.</p><p><strong>Key Characteristics:</strong></p><ul><li>Minimal and flexible</li><li>Unopinionated (you decide how to structure your app)</li><li>Lightweight and fast</li><li>Extensible through middleware</li><li>Huge ecosystem of plugins and extensions</li></ul><p>25) Co je to „zpětné volání“ v node.js?</p><p>Funkce zpětného volání se používá v node.js k řešení více požadavků na server. Jako pokud máte velký soubor, jehož čtení serveru bude trvat dlouho, a pokud nechcete, aby se server zabýval čtením tohoto velkého souboru při vyřizování jiných požadavků, použije se funkce zpětného volání. Funkce zpětného volání umožňuje serveru nejprve se vypořádat s čekajícím požadavkem a po jeho dokončení zavolat funkci.</p>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>
+    
+    document.querySelectorAll('pre code').forEach(function(el){ hljs.highlightElement(el); });
+  </script>
   <script>(function () {
     var marks = [];
     var idx = -1;

@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Angular-Dependency Injection</title>
   <link rel="stylesheet" href="../assets/content.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
 </head>
 <body>
   <h1>Angular-Dependency Injection</h1>
@@ -38,13 +39,18 @@ export class ProfileComponent {
     this.user = this.userService.getUser();
   }
 }</code></pre>
-<p>Here, <strong>Angular automatically provides an instance of UserService</strong> inside ProfileComponent!</p><p><strong>🔹 Providing Services at Different Levels</strong></p><p>Angular services can be provided:<br />🔹 <strong>Globally</strong> (providedIn: 'root' in the service file)<br />🔹 <strong>Module level</strong> (inside providers in an NgModule)<br />🔹 <strong>Component level</strong> (inside providers in a @Component)</p><p>🔍 <strong>Example: Providing a service at the component level</strong></p><p>@Component({
+<p>Here, <strong>Angular automatically provides an instance of UserService</strong> inside ProfileComponent!</p><p><strong>🔹 Providing Services at Different Levels</strong></p><p>Angular services can be provided:<br />🔹 <strong>Globally</strong> (providedIn: 'root' in the service file)<br />🔹 <strong>Module level</strong> (inside providers in an NgModule)<br />🔹 <strong>Component level</strong> (inside providers in a @Component)</p><p>🔍 <strong>Example: Providing a service at the component level</strong></p><pre><code>@Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
   providers: [UserService] // New instance for this component only
 })
-export class DashboardComponent {}</p>
+export class DashboardComponent {}</code></pre>
 <p>🔹 This creates a separate instance of UserService for DashboardComponent, rather than sharing a single instance.</p><p><strong>🔹 When to Use Component-Level vs. Global Services?</strong></p><p>✅ <strong>Use Global (providedIn: 'root') Services When:</strong></p><ul><li><em>The service is needed across multiple components.</em></li><li><em>Example: Authentication (AuthService), API calls (HttpService).</em></li><li><em>Provides a single shared instance, improving performance and consistency.</em></li></ul><p>✅ <strong>Use Component-Level (providers inside a Component) Services When:</strong></p><ul><li><em>You need an isolated instance for each component.</em></li><li><em>Example: Local state management within a component.</em></li><li><em>Prevents unwanted data sharing across components.</em></li></ul><p><strong>🔹 Conclusion</strong></p><p>Dependency Injection makes Angular apps <strong>more efficient, scalable, and maintainable.</strong></p><p>🔹 <strong>Use DI to avoid tight coupling and repetitive code.</strong><br />🔹 <strong>Inject services instead of manually creating instances.</strong><br />🔹 <strong>Choose the right scope (root, module, or component) based on your needs.</strong></p>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>
+    document.querySelectorAll('pre code').forEach(function(el){if(!el.className)el.classList.add('language-typescript');});
+    document.querySelectorAll('pre code').forEach(function(el){ hljs.highlightElement(el); });
+  </script>
   <script>(function () {
     var marks = [];
     var idx = -1;

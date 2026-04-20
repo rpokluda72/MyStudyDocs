@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>React Hooks</title>
   <link rel="stylesheet" href="../assets/content.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
 </head>
 <body>
   <h1>React Hooks</h1>
@@ -36,7 +37,7 @@ setState({ users, loading: false, error: null });</code></pre>
    // volá se při zavedení do DOMu a přerenderování, ale pouze pokud se změní props.value
 }, [props.myValue]);</code></pre>
 <p>Nebo můžeme chtít použít useState čistě jen při zavedení komponenty do DOMu. Pak stačí toto pole předat prázdné. Pro přehlednost si můžete useEffect zabalit do vlastního Hooku, který příhodně pojmenujete useMount.</p><pre><code>function useMount(effect) {</code></pre>
-<p>   useEffect(effect, [])</p><p>}</p>
+<p>   useEffect(effect, [])</p><pre><code>}</code></pre>
 <p>Dobré je si uvědomit, že useEffect probíhá až po vykreslení přerenderované komponenty v prohlížeči. Tedy ve chvíli, když uživatel vidí změny. Až poté se useEffect volá, aby zbytečně neblokoval fázi vykreslení. Většinou nám tento fakt nevadí, ale v případech, kdy chceme provést nějakou akci, která povede k dalšímu přerenderování komponenty a nechceme, aby uživatel viděl „probliknutí“ přerenderované komponenty, měli bychom použít obdobný Hook useLayout. Ten funguje úplně stejně, jen se volá ve stejnou chvíli, jako metody componentDidMount a componentDidUpdate v komponentách vytvořených pomocí třídy. Tyto metody se volají po zavedení změn po přerenderování komponenty do reálného DOMu, ale ještě před vykreslením těchto změn v prohlížeči.</p><pre><code>  const [userInfo, setUserInfo] = useState&lt;UserTableTypes[]&gt;([]);
   useEffect(() =&gt; {
     getAllUserInfo();
@@ -70,12 +71,10 @@ setState({ users, loading: false, error: null });</code></pre>
   const inputEl = React.useRef(null);
   const onButtonClick = () =&gt; {</code></pre>
 <p>    console.log(inputEl.current.value)</p><pre><code>  };
-  return (
-    &lt;div&gt;
-      &lt;input ref={inputEl} type="text" /&gt;
-      &lt;button onClick={onButtonClick}&gt;Get Input Value&lt;/button&gt;
-    &lt;/div&gt;
-  );
+  return (</code></pre>
+<p>    &lt;div&gt;</p><pre><code>      &lt;input ref={inputEl} type="text" /&gt;
+      &lt;button onClick={onButtonClick}&gt;Get Input Value&lt;/button&gt;</code></pre>
+<p>    &lt;/div&gt;</p><pre><code>  );
 }</code></pre>
 <p>Navíc lze useRef použít k persistování nějaké hodnoty mezi přerenderováním komponenty. Můžeme například získat předchozí hodnotu props. Napíšeme si na to opět vlastní Hook.</p><pre><code>function CounterDisplay(props) {
   const prevProps = usePrevious(props);
@@ -89,6 +88,11 @@ function usePrevious(value) {
   return ref.current;
 }</code></pre>
 <p><strong>…a řada dalších Hooks</strong></p><p>React nabízí řadu vestavěných Hooks, které můžou být velmi užitečné. Například useContext pro snadné použití kontextu, useReduce pro sofistikovanou správu stavu na způsob Reduxu a další.</p><p>Jak si můžeme všimnou, Hooks jsou v zásadě jednoduché funkce, které nám navíc umožňují abstrahovat logiku mimo komponentu, a tak ji snadno sdílet a testovat.</p>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>
+    document.querySelectorAll('pre code').forEach(function(el){if(!el.className)el.classList.add('language-typescript');});
+    document.querySelectorAll('pre code').forEach(function(el){ hljs.highlightElement(el); });
+  </script>
   <script>(function () {
     var marks = [];
     var idx = -1;

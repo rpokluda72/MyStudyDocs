@@ -97,14 +97,23 @@ function isCodeLine(plain) {
   if (!t) return false;
   // Leading indentation — strongest signal in Word-authored code
   if (/^ {2,}/.test(plain)) return true;
-  // Starts with common code keywords
-  if (/^(export |import |const |let |var |function |class |interface |type |enum |return\b|if\s*\(|for\s*\(|while\s*\(|async |await |@\w+|\/\/|\/\*|\.\w+[\s(])/.test(t)) return true;
-  // Arrow function
-  if (/=>/.test(t)) return true;
-  // Ends with { or ;
-  if (/[{;]$/.test(t)) return true;
+  // Starts with common code keywords (JS/TS and Java)
+  if (/^(export |import |const |let |var |function |class |interface |type |enum |return\b|if\s*\(|for\s*\(|while\s*\(|async |await |@\w+|\/\/|\/\*|\.\w+[\s(]|System\.|new |public |private |protected |static |final |void |throw\b|try\b|catch\s*\()/.test(t)) return true;
+  // Arrow function (JS/TS => or Java -> / HTML-encoded -&gt;)
+  // Exclude lines ending with '.' to avoid matching prose descriptions of -> syntax
+  if (/=>|-&gt;/.test(t) && !/\.\s*$/.test(t)) return true;
+  // Java/JS method reference (::)
+  if (/::/.test(t)) return true;
+  // Strip HTML entities (e.g. &lt; &gt; contain ';') before semicolon check
+  const tStripped = t.replace(/&[a-z]+;/gi, '');
+  // Contains semicolon (Java/JS/TS statement terminator, even mid-line before comments)
+  if (/;/.test(tStripped)) return true;
+  // Ends with {
+  if (/\{$/.test(tStripped)) return true;
   // Starts with closing brace/bracket
   if (/^[})\]]/.test(t)) return true;
+  // Java generic type declaration with assignment (e.g. List<String> result = ...)
+  if (/&lt;/.test(t) && /=/.test(tStripped)) return true;
   return false;
 }
 
@@ -133,15 +142,7 @@ function wrapCodeBlocks(html) {
 
   function flush() {
     if (!buf.length) return;
-    // Wrap as code block; single ambiguous lines fall back to <p>
-    const isDefinitelyCode = buf.length >= 2 ||
-      /[{;]$/.test(buf[0].replace(/<[^>]+>/g, '').trim()) ||
-      /^(export |import |const |let |var |function |class )/.test(buf[0].replace(/<[^>]+>/g, '').trim());
-    if (isDefinitelyCode) {
-      result += '<pre><code>' + buf.join('\n') + '</code></pre>\n';
-    } else {
-      result += '<p>' + buf[0] + '</p>\n';
-    }
+    result += '<pre><code>' + buf.join('\n') + '</code></pre>\n';
     buf = [];
   }
 
@@ -499,19 +500,34 @@ p { margin: 0.6em 0; }
 
 pre, code {
     font-family: "Cascadia Code", "Fira Code", Consolas, monospace;
-    background: #f4f4f4;
-    border-radius: 3px;
+    border-radius: 4px;
 }
 
-code { padding: 1px 4px; font-size: 0.9em; }
+code {
+    background: #f0f0f0;
+    padding: 1px 4px;
+    font-size: 0.9em;
+}
 
 pre {
-    padding: 12px 16px;
     overflow-x: auto;
-    border: 1px solid #e0e0e0;
+    /* no background/border/padding — hljs atom-one-dark handles that */
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 0.8em 0;
 }
 
-pre code { background: none; padding: 0; }
+/* hljs overrides for sizing */
+pre code.hljs {
+    font-size: 13.5px;
+    line-height: 1.5;
+    padding: 14px 16px !important;
+    border-radius: 5px;
+}
+
+/* inline code should not inherit hljs dark bg */
+:not(pre) > code { background: #f0f0f0; color: inherit; }
 
 table {
     border-collapse: collapse;
@@ -773,7 +789,10 @@ const IN_PAGE_SEARCH_JS = `(function () {
     });
 })();`;
 
-function contentPage(title, body) {
+function contentPage(title, body, lang = null) {
+  const addLangClass = lang
+    ? `document.querySelectorAll('pre code').forEach(function(el){if(!el.className)el.classList.add('language-${lang}');});`
+    : '';
   return `<!DOCTYPE html>
 <html lang="cs">
 <head>
@@ -781,10 +800,16 @@ function contentPage(title, body) {
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>${title}</title>
   <link rel="stylesheet" href="../assets/content.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
 </head>
 <body>
   <h1>${title}</h1>
   ${body}
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"><\/script>
+  <script>
+    ${addLangClass}
+    document.querySelectorAll('pre code').forEach(function(el){ hljs.highlightElement(el); });
+  <\/script>
   <script>${IN_PAGE_SEARCH_JS}<\/script>
 </body>
 </html>`;
@@ -889,7 +914,7 @@ async function build() {
       }
     } else {
       const docxFiles = fs.readdirSync(folderSrc)
-        .filter(f => f.toLowerCase().endsWith('.docx'))
+        .filter(f => f.toLowerCase().endsWith('.docx') && !f.startsWith('~$'))
         .sort();
 
       for (const docxFile of docxFiles) {
@@ -904,7 +929,8 @@ async function build() {
           { convertImage: mammoth.images.dataUri }
         );
 
-        writeFile(path.join(folderOut, htmlFile), contentPage(stem, fixExternalLinks(linkifyUrls(wrapCodeBlocks(result.value)))));
+        const lang = { Java: 'java', Angular: 'typescript', React: 'typescript', RxJS: 'typescript' }[folderName] || null;
+        writeFile(path.join(folderOut, htmlFile), contentPage(stem, fixExternalLinks(linkifyUrls(wrapCodeBlocks(result.value))), lang));
 
         const href = `${folderName}/${htmlFile}`;
         searchIndex.push({

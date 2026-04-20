@@ -2,3 +2,17 @@ Last few weeks I was studying some topics for developers. I collected informatio
 Could you create static html pages which will contain informations from documents. Main html page will have left menu panel and main panel. Menu panel will contains menu items related to topics/subfolder names. Menu items on the first level should be group menu items for each topic folder. Each topic group menu item will contains menu items related to documents or pictures included in topic folder. 
 Add search text functionality. Add collapse all button in menu panel to hihe all group-menus.
 I would like browse those pages from the browser by html link only.
+
+
+
+C:\Users\roman\Work\claude\projects\MyStudyDocs\docs\Java\java_features_from_8_to_25.html : Java code examples are "not equal" to original document.
+For example - page 2 - part 1. Lambda Expressions - has three parts of java code :
+- Before Java 8:
+- Java 8+:
+- Lambda shapes:
+, but html page for this part 1. Lambda Expressions looks different:
+- Before Java 8: is ok - in html as one code part
+- Java 8+: wrong - separated to two parts. Second part ("System.out.println(names); // [Alice, Bob, Charlie]") looks like normal text, no dark mode,... should be in code part with previous part. Finally should have 5 rows.
+- Lambda shapes: document has code part with 7 rows, but the same code on html page separated to the 5 parts. Like in previous case rows ("Consumer<String> c = s -> System.out.println(s); // one arg, no braces", "Comparator<String> cmp = (a, b) -> { // block body
+") looks like normal text. Part "Lambda shapes:" should contains one dark block with code (7 rows like in doc).
+I can see many similar problems on this page, so check whole page - java_features_from_8_to_25.html.
