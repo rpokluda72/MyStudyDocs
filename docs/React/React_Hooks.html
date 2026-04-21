@@ -36,8 +36,9 @@ setState({ users, loading: false, error: null });</code></pre>
 <p>Určitě nastane situace, ve které nechceme, aby useEffect volal předaný callback pokaždé, ale pouze při změně nějakého parametru. Toho dosáhneme předáním pole parametrů, které pak useEffect kontroluje mezi přerenderováním komponenty a volá callback jen tehdy, pokud se hodnota změní.</p><pre><code>useEffect(() =&gt; {
    // volá se při zavedení do DOMu a přerenderování, ale pouze pokud se změní props.value
 }, [props.myValue]);</code></pre>
-<p>Nebo můžeme chtít použít useState čistě jen při zavedení komponenty do DOMu. Pak stačí toto pole předat prázdné. Pro přehlednost si můžete useEffect zabalit do vlastního Hooku, který příhodně pojmenujete useMount.</p><pre><code>function useMount(effect) {</code></pre>
-<p>   useEffect(effect, [])</p><pre><code>}</code></pre>
+<p>Nebo můžeme chtít použít useState čistě jen při zavedení komponenty do DOMu. Pak stačí toto pole předat prázdné. Pro přehlednost si můžete useEffect zabalit do vlastního Hooku, který příhodně pojmenujete useMount.</p><pre><code>function useMount(effect) {
+   useEffect(effect, [])
+}</code></pre>
 <p>Dobré je si uvědomit, že useEffect probíhá až po vykreslení přerenderované komponenty v prohlížeči. Tedy ve chvíli, když uživatel vidí změny. Až poté se useEffect volá, aby zbytečně neblokoval fázi vykreslení. Většinou nám tento fakt nevadí, ale v případech, kdy chceme provést nějakou akci, která povede k dalšímu přerenderování komponenty a nechceme, aby uživatel viděl „probliknutí“ přerenderované komponenty, měli bychom použít obdobný Hook useLayout. Ten funguje úplně stejně, jen se volá ve stejnou chvíli, jako metody componentDidMount a componentDidUpdate v komponentách vytvořených pomocí třídy. Tyto metody se volají po zavedení změn po přerenderování komponenty do reálného DOMu, ale ještě před vykreslením těchto změn v prohlížeči.</p><pre><code>  const [userInfo, setUserInfo] = useState&lt;UserTableTypes[]&gt;([]);
   useEffect(() =&gt; {
     getAllUserInfo();
@@ -69,8 +70,9 @@ setState({ users, loading: false, error: null });</code></pre>
     };</code></pre>
 <p><strong>Přístup k DOM elementům pomocí useRef</strong></p><p>Občas potřebujeme nějaký ten rychlý a jednoduchý způsob přístupu k DOM elementu, a to nám právě umožňuje Hook useRef, který vrací objekt se členem „current“. Přes ten se dostaneme například k hodnotě inputu ve formuláři.</p><pre><code>function TextInputWithButton() {
   const inputEl = React.useRef(null);
-  const onButtonClick = () =&gt; {</code></pre>
-<p>    console.log(inputEl.current.value)</p><pre><code>  };
+  const onButtonClick = () =&gt; {
+    console.log(inputEl.current.value)
+  };
   return (</code></pre>
 <p>    &lt;div&gt;</p><pre><code>      &lt;input ref={inputEl} type="text" /&gt;
       &lt;button onClick={onButtonClick}&gt;Get Input Value&lt;/button&gt;</code></pre>

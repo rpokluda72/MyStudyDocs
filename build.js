@@ -22,8 +22,19 @@ function ensureMammoth() {
   }
 }
 
+function ensureAdmZip() {
+  try {
+    require.resolve('adm-zip');
+  } catch {
+    console.log('Installing adm-zip...');
+    execSync('npm install adm-zip', { stdio: 'inherit' });
+  }
+}
+
 ensureMammoth();
+ensureAdmZip();
 const mammoth = require('mammoth');
+const AdmZip = require('adm-zip');
 
 // ---------------------------------------------------------------------------
 // Configuration
@@ -114,10 +125,84 @@ function isCodeLine(plain) {
   if (/^[})\]]/.test(t)) return true;
   // Java generic type declaration with assignment (e.g. List<String> result = ...)
   if (/&lt;/.test(t) && /=/.test(tStripped)) return true;
+  // Ends with open parenthesis — method call continuation across lines
+  if (/\($/.test(t)) return true;
+  // Starts with identifier (possibly dotted) followed by '(' — direct or chained method call
+  // e.g. findUserName(42), client.sendAsync(...)
+  if (/^\w[\w.]*\(/.test(t)) return true;
+  // String literal immediately followed by method call — e.g. "text".lines()
+  if (/^"[^"]*"\.\w+/.test(t)) return true;
   return false;
 }
 
-function wrapCodeBlocks(html) {
+/**
+ * Parse a .docx file and return the plain-text content of every paragraph
+ * that has a background colour applied at paragraph level (w:pPr/w:shd).
+ * Also catches paragraphs whose named style carries such shading.
+ * Returns a Set<string> (decoded, trimmed text) used as the primary code
+ * signal in wrapCodeBlocks().
+ */
+function getCodeParagraphTexts(docxPath) {
+  try {
+    const zip = new AdmZip(docxPath);
+
+    // ---- 1. Find style IDs whose paragraph definition includes shading ----
+    const codeStyleIds = new Set();
+    const stylesEntry = zip.getEntry('word/styles.xml');
+    if (stylesEntry) {
+      const stylesXml = zip.readAsText(stylesEntry);
+      const styleRe = /<w:style\b[^>]*>([\s\S]*?)<\/w:style>/g;
+      let sm;
+      while ((sm = styleRe.exec(stylesXml)) !== null) {
+        const s = sm[0];
+        const pPrM = s.match(/<w:pPr>([\s\S]*?)<\/w:pPr>/);
+        if (pPrM && /<w:shd\b/.test(pPrM[1])) {
+          const idM = s.match(/w:styleId="([^"]+)"/);
+          if (idM) codeStyleIds.add(idM[1]);
+        }
+      }
+    }
+
+    // ---- 2. Scan document.xml for paragraphs with direct shading or code style ----
+    const docXml = zip.readAsText('word/document.xml');
+    const codeTexts = new Set();
+
+    const paraRe = /<w:p[\s>]([\s\S]*?)<\/w:p>/g;
+    let pm;
+    while ((pm = paraRe.exec(docXml)) !== null) {
+      const para = pm[0];
+      const pPrM = para.match(/<w:pPr>([\s\S]*?)<\/w:pPr>/);
+      let isCode = false;
+      if (pPrM) {
+        const pPr = pPrM[1];
+        // Direct paragraph background shading
+        if (/<w:shd\b/.test(pPr)) isCode = true;
+        // Paragraph uses a style that has shading
+        if (!isCode && codeStyleIds.size > 0) {
+          const styleM = pPr.match(/<w:pStyle\b[^>]*w:val="([^"]+)"/);
+          if (styleM && codeStyleIds.has(styleM[1])) isCode = true;
+        }
+      }
+      if (!isCode) continue;
+
+      // Extract text, preserving <w:br/> as newline
+      const parts = [];
+      const tokRe = /<w:t[^>]*>([^<]*)<\/w:t>|<w:br\b/g;
+      let tm;
+      while ((tm = tokRe.exec(para)) !== null) {
+        parts.push(tm[0].startsWith('<w:br') ? '\n' : tm[1]);
+      }
+      const text = decodeHtml(parts.join('').trim());
+      if (text) codeTexts.add(text);
+    }
+    return codeTexts;
+  } catch (e) {
+    console.warn(`  [warn] could not parse docx XML for ${path.basename(docxPath)}: ${e.message}`);
+    return new Set();
+  }
+}
+
+function wrapCodeBlocks(html, codeTexts = null) {
   const segments = [];
   let lastIndex = 0;
   const pRegex = /<p[^>]*>([\s\S]*?)<\/p>/gi;
@@ -150,7 +235,7 @@ function wrapCodeBlocks(html) {
     if (seg.type === 'raw') {
       flush();
       result += seg.text;
-    } else if (isCodeLine(seg.plain)) {
+    } else if (isCodeLine(seg.plain) || (codeTexts && codeTexts.has(decodeHtml(seg.plain.trim())))) {
       buf.push(seg.inner);
     } else {
       flush();
@@ -930,7 +1015,8 @@ async function build() {
         );
 
         const lang = { Java: 'java', Angular: 'typescript', React: 'typescript', RxJS: 'typescript' }[folderName] || null;
-        writeFile(path.join(folderOut, htmlFile), contentPage(stem, fixExternalLinks(linkifyUrls(wrapCodeBlocks(result.value))), lang));
+        const codeTexts = getCodeParagraphTexts(path.join(folderSrc, docxFile));
+        writeFile(path.join(folderOut, htmlFile), contentPage(stem, fixExternalLinks(linkifyUrls(wrapCodeBlocks(result.value, codeTexts))), lang));
 
         const href = `${folderName}/${htmlFile}`;
         searchIndex.push({

@@ -100,8 +100,9 @@ System.out.println(flat); // [1, 2, 3, 4, 5]</code></pre>
 <strong>public</strong> Optional&lt;String&gt; findUserName(<strong>int</strong> id) {
     <strong>return</strong> Optional.ofNullable(db.find(id)).map(User::getName);
 }
-// At the call site</code></pre>
-<p>findUserName(42)</p><pre><code>    .ifPresent(name -&gt; System.out.println("Found: " + name));
+// At the call site
+findUserName(42)
+    .ifPresent(name -&gt; System.out.println("Found: " + name));
 String name = findUserName(99).orElse("Unknown");
 System.out.println(name); // Unknown
 String upper = findUserName(42).map(String::toUpperCase).orElse("NONE");
@@ -182,7 +183,15 @@ System.out.println(combined.join()); // Alice ordered Pizza</code></pre>
     <strong>exports</strong> com.example.myapp.api;   // only this package is visible to others
     // com.example.myapp.internal is NOT accessible from outside
 }</code></pre>
-<p><em>Most developers encounter modules when a library stops working after upgrading — usually because it accessed JDK internals that are now encapsulated. Check if </em>--add-opens<em> flags are needed as a temporary workaround.</em></p><h3><strong>2. JShell (REPL)</strong></h3><p>An interactive Java shell for quick experiments — no need to write a full class.</p><p>$ jshell</p><p>jshell&gt; <strong>int</strong> x = 10</p><p>x ==&gt; 10</p><p>jshell&gt; x * x</p><p>$2 ==&gt; 100</p><p>jshell&gt; "hello".toUpperCase()</p><p>$3 ==&gt; "HELLO"</p><p>jshell&gt; /exit</p><h3><strong>3. Collection Factory Methods</strong></h3><p>Concise, unmodifiable collection literals.</p><p><strong>Before Java 9:</strong></p><pre><code>List&lt;String&gt; list = <strong>new</strong> ArrayList&lt;&gt;(Arrays.asList("a", "b", "c"));
+<p><em>Most developers encounter modules when a library stops working after upgrading — usually because it accessed JDK internals that are now encapsulated. Check if </em>--add-opens<em> flags are needed as a temporary workaround.</em></p><h3><strong>2. JShell (REPL)</strong></h3><p>An interactive Java shell for quick experiments — no need to write a full class.</p><pre><code>$ jshell
+jshell&gt; <strong>int</strong> x = 10
+x ==&gt; 10
+jshell&gt; x * x
+$2 ==&gt; 100
+jshell&gt; "hello".toUpperCase()
+$3 ==&gt; "HELLO"
+jshell&gt; /exit</code></pre>
+<h3><strong>3. Collection Factory Methods</strong></h3><p>Concise, unmodifiable collection literals.</p><p><strong>Before Java 9:</strong></p><pre><code>List&lt;String&gt; list = <strong>new</strong> ArrayList&lt;&gt;(Arrays.asList("a", "b", "c"));
 Set&lt;Integer&gt; set  = <strong>new</strong> HashSet&lt;&gt;(Arrays.asList(1, 2, 3));
 Map&lt;String, Integer&gt; map = <strong>new</strong> HashMap&lt;&gt;();
 map.put("x", 1); map.put("y", 2);</code></pre>
@@ -211,8 +220,9 @@ Stream.iterate(0, n -&gt; n &lt; 10, n -&gt; n + 2).forEach(System.out::println)
 <p><strong>`Stream.ofNullable`</strong> — avoids NPE when wrapping a possibly-null value:</p><pre><code>String <strong>value</strong> = <strong>null</strong>;
 Stream.ofNullable(<strong>value</strong>).forEach(System.out::println); // prints nothing, no NPE</code></pre>
 <h3><strong>5. Optional Improvements</strong></h3><pre><code>Optional&lt;String&gt; opt = Optional.empty();
-// ifPresentOrElse — handle both cases in one call</code></pre>
-<p>opt.ifPresentOrElse(</p><pre><code>    v -&gt; System.out.println("found: " + v),
+// ifPresentOrElse — handle both cases in one call
+opt.ifPresentOrElse(
+    v -&gt; System.out.println("found: " + v),
     () -&gt; System.out.println("not found")
 );
 // Output: not found
@@ -258,8 +268,9 @@ System.out.println(s.stripLeading()); // "Hello World  "
 System.out.println(s.stripTrailing()); // "  Hello World"
 System.out.println("".isBlank());     // true
 System.out.println("  ".isBlank());   // true
-System.out.println("ha".repeat(3));   // hahaha</code></pre>
-<p>"line1\nline2\nline3".lines()</p><pre><code>    .forEach(System.out::println);
+System.out.println("ha".repeat(3));   // hahaha
+"line1\nline2\nline3".lines()
+    .forEach(System.out::println);
 // line1
 // line2
 // line3</code></pre>
@@ -283,12 +294,14 @@ String body = sb.toString();</code></pre>
 HttpResponse&lt;String&gt; response = client.send(request, HttpResponse.BodyHandlers.ofString());
 System.out.println(response.statusCode()); // 200
 System.out.println(response.body());       // response body
-// Asynchronous</code></pre>
-<p>client.sendAsync(request, HttpResponse.BodyHandlers.ofString())</p><pre><code>    .thenApply(HttpResponse::body)
+// Asynchronous
+client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
+    .thenApply(HttpResponse::body)
     .thenAccept(System.out::println);</code></pre>
 <h3><strong>3. `var` in Lambda Parameters</strong></h3><p>Allows annotations on lambda parameters (the main practical use case).</p><pre><code>// Java 11 — needed for annotating lambda params
-<strong>var</strong> list = List.of("a", "bb", "ccc");</code></pre>
-<p>list.stream()</p><pre><code>    .filter((@NonNull <strong>var</strong> s) -&gt; !s.isEmpty())
+<strong>var</strong> list = List.of("a", "bb", "ccc");
+list.stream()
+    .filter((@NonNull <strong>var</strong> s) -&gt; !s.isEmpty())
     .forEach(System.out::println);</code></pre>
 <h3><strong>4. Files Helpers</strong></h3><pre><code><strong>import</strong> java.nio.file.*;
 // Write a string to a file
@@ -297,7 +310,11 @@ Files.writeString(file, "Hello, Java 11!");
 // Read it back
 String content = Files.readString(file);
 System.out.println(content); // Hello, Java 11!</code></pre>
-<h3><strong>5. Running Java Files Directly</strong></h3><p>No need to compile separately for single-file programs:</p><p># Before Java 11</p><p>javac Hello.java &amp;&amp; java Hello</p><p># Java 11+</p><p>java Hello.java   # compiles and runs in one step</p><h2><strong>Java 12</strong></h2><h3><strong>1. Switch Expressions *(Preview)*</strong></h3><p>switch can now return a value and uses -&gt; arrow syntax — no more fall-through bugs.</p><p><strong>Before Java 12 — statement switch with fall-through risk:</strong></p><pre><code><strong>int</strong> day = 3;
+<h3><strong>5. Running Java Files Directly</strong></h3><p>No need to compile separately for single-file programs:</p><pre><code># Before Java 11
+javac Hello.java &amp;&amp; java Hello
+# Java 11+
+java Hello.java   # compiles and runs in one step</code></pre>
+<h2><strong>Java 12</strong></h2><h3><strong>1. Switch Expressions *(Preview)*</strong></h3><p>switch can now return a value and uses -&gt; arrow syntax — no more fall-through bugs.</p><p><strong>Before Java 12 — statement switch with fall-through risk:</strong></p><pre><code><strong>int</strong> day = 3;
 String name;
 <strong>switch</strong> (day) {
     <strong>case</strong> 1: name = "Monday"; <strong>break</strong>;
@@ -329,7 +346,8 @@ System.out.println(stats); // sum=15 avg=3</code></pre>
 <h2><strong>Java 13</strong></h2><h3><strong>1. Text Blocks *(Preview)*</strong></h3><p>Multi-line strings without escape sequences — finalized in Java 15.</p><p><strong>Before:</strong></p><pre><code>String html = "&lt;html&gt;\n" +
               "  &lt;body&gt;Hello&lt;/body&gt;\n" +
               "&lt;/html&gt;";</code></pre>
-<p><strong>Java 13+ (preview):</strong></p><p>String html = """</p><pre><code>        &lt;html&gt;
+<p><strong>Java 13+ (preview):</strong></p><pre><code>String html = """
+        &lt;html&gt;
           &lt;body&gt;Hello&lt;/body&gt;
         &lt;/html&gt;
         """;
@@ -346,25 +364,30 @@ System.out.println(html);
     }
 };
 System.out.println(result); // -1 (if input is unknown)</code></pre>
-<h3><strong>2. Helpful NullPointerExceptions *(JEP 358)*</strong></h3><p>The JVM now tells you exactly which variable was null, not just the line.</p><p><strong>Before Java 14:</strong></p><p>Exception in thread "main" java.lang.NullPointerException</p><pre><code>    at Example.main(Example.java:5)</code></pre>
-<p><strong>Java 14+:</strong></p><p>Exception in thread "main" java.lang.NullPointerException:</p><pre><code>    Cannot invoke "String.length()" because "str" is <strong>null</strong>
+<h3><strong>2. Helpful NullPointerExceptions *(JEP 358)*</strong></h3><p>The JVM now tells you exactly which variable was null, not just the line.</p><p><strong>Before Java 14:</strong></p><pre><code>Exception in thread "main" java.lang.NullPointerException
+    at Example.main(Example.java:5)</code></pre>
+<p><strong>Java 14+:</strong></p><pre><code>Exception in thread "main" java.lang.NullPointerException:
+    Cannot invoke "String.length()" because "str" is <strong>null</strong>
     at Example.main(Example.java:5)
 String str = <strong>null</strong>;
 <strong>int</strong> len = str.length(); // now says: "str" is null — no guessing!</code></pre>
 <p>For chained calls, it's even more specific:</p><pre><code>user.getAddress().getCity().toUpperCase();
 // "Cannot invoke String.toUpperCase() because getCity() returned null"</code></pre>
-<h2><strong>Java 15</strong></h2><h3><strong>1. Text Blocks *(Final — JEP 378)*</strong></h3><p>Text blocks are now stable. Common in tests, SQL, JSON, and config:</p><p>String sql = """</p><pre><code>        SELECT u.name, u.email
+<h2><strong>Java 15</strong></h2><h3><strong>1. Text Blocks *(Final — JEP 378)*</strong></h3><p>Text blocks are now stable. Common in tests, SQL, JSON, and config:</p><pre><code>String sql = """
+        SELECT u.name, u.email
         FROM users u
         WHERE u.active = <strong>true</strong>
         ORDER BY u.name
-        """;</code></pre>
-<p>String json = """</p><pre><code>        {
+        """;
+String json = """
+        {
           "status": "ok",
           "count": 3
         }
         """;</code></pre>
-<p>String methods added to work with text blocks:</p><pre><code>// formatted() — like String.format but as an instance method</code></pre>
-<p>String msg = """</p><pre><code>        Hello, %s! You have %d messages.
+<p>String methods added to work with text blocks:</p><pre><code>// formatted() — like String.format but as an instance method
+String msg = """
+        Hello, %s! You have %d messages.
         """.formatted("Alice", 5);
 System.out.println(msg);
 // Hello, Alice! You have 5 messages.</code></pre>
@@ -435,10 +458,12 @@ System.out.println(filtered); // [Alice]
     <strong>case</strong> Triangle t  -&gt; 0.5 * t.base() * t.height();
 };
 System.out.println(area); // depends on shape</code></pre>
-<h3><strong>2. Text Blocks</strong></h3><p>*(Finalized in Java 15, but Java 17 is the LTS baseline where most teams first adopted it.)*</p><p>Multi-line string literals without escape sequences. Leading whitespace is automatically stripped based on the closing """ position.</p><p><strong>Before:</strong></p><p>String json = "{\n" +</p><pre><code>    "  \"name\": \"Alice\",\n" +
+<h3><strong>2. Text Blocks</strong></h3><p>*(Finalized in Java 15, but Java 17 is the LTS baseline where most teams first adopted it.)*</p><p>Multi-line string literals without escape sequences. Leading whitespace is automatically stripped based on the closing """ position.</p><p><strong>Before:</strong></p><pre><code>String json = "{\n" +
+    "  \"name\": \"Alice\",\n" +
     "  \"age\": 30\n" +
     "}";</code></pre>
-<p><strong>Java 15+ (standard in 17 LTS):</strong></p><p>String json = """</p><pre><code>        {
+<p><strong>Java 15+ (standard in 17 LTS):</strong></p><pre><code>String json = """
+        {
           "name": "Alice",
           "age": 30
         }
@@ -452,7 +477,11 @@ System.out.println(json);
 <p>Useful for SQL, HTML, JSON, and YAML in tests and configs.</p><h3><strong>3. Strong Encapsulation of JDK Internals</strong></h3><p><strong>What changed:</strong> Access to internal JDK APIs (e.g., sun.misc.Unsafe via reflection) is now blocked by default. Code relying on --add-opens flags or internal packages will break.</p><p><strong>Action:</strong> Replace uses of sun.* / com.sun.* with official APIs. Libraries like Apache Commons and Spring were updated — upgrade your dependencies.</p><h2><strong>Java 18</strong></h2><h3><strong>1. UTF-8 by Default</strong></h3><p>Before Java 18, the default charset depended on the OS locale (e.g., Windows-1252 on some Windows systems). This caused subtle bugs when moving apps between environments.</p><p><strong>Before Java 18:</strong></p><pre><code>// Could print different things depending on OS locale
 System.out.println(Charset.defaultCharset()); // e.g., windows-1252</code></pre>
 <p><strong>Java 18+:</strong></p><pre><code>System.out.println(Charset.defaultCharset()); // UTF-8 (always)</code></pre>
-<p>If your app explicitly uses StandardCharsets.UTF_8 everywhere, this change has no impact. If it relied on the implicit default, files and streams may now read/write differently.</p><h3><strong>2. Simple Web Server</strong></h3><p>A minimal HTTP file server for development, testing, and prototyping — no frameworks needed.</p><p><strong>CLI usage:</strong></p><p># Serve current directory on port 8080</p><p>jwebserver</p><p># Custom port and directory</p><p>jwebserver -p 9000 -d /tmp/my-site</p><p><strong>Programmatic usage:</strong></p><pre><code><strong>import</strong> com.sun.net.httpserver.*;
+<p>If your app explicitly uses StandardCharsets.UTF_8 everywhere, this change has no impact. If it relied on the implicit default, files and streams may now read/write differently.</p><h3><strong>2. Simple Web Server</strong></h3><p>A minimal HTTP file server for development, testing, and prototyping — no frameworks needed.</p><p><strong>CLI usage:</strong></p><pre><code># Serve current directory on port 8080
+jwebserver
+# Custom port and directory
+jwebserver -p 9000 -d /tmp/my-site</code></pre>
+<p><strong>Programmatic usage:</strong></p><pre><code><strong>import</strong> com.sun.net.httpserver.*;
 <strong>import</strong> java.net.InetSocketAddress;
 <strong>import</strong> java.nio.file.Path;
 <strong>var</strong> server = SimpleFileServer.createFileServer(
@@ -501,7 +530,8 @@ vt.join();
     System.out.println(x + ", " + y); // x and y bound directly
 }
 // Output: 3, 5  (if obj = new Point(3, 5))</code></pre>
-<p>Nested records also work:</p><p><strong>record</strong> Segment(Point start, Point end) {}</p><pre><code><strong>if</strong> (shape <strong>instanceof</strong> Segment(Point(<strong>int</strong> x1, <strong>int</strong> y1), Point(<strong>int</strong> x2, <strong>int</strong> y2))) {
+<p>Nested records also work:</p><pre><code><strong>record</strong> Segment(Point start, Point end) {}
+<strong>if</strong> (shape <strong>instanceof</strong> Segment(Point(<strong>int</strong> x1, <strong>int</strong> y1), Point(<strong>int</strong> x2, <strong>int</strong> y2))) {
     System.out.println("from " + x1 + "," + y1 + " to " + x2 + "," + y2);
 }</code></pre>
 <h3><strong>2. Scoped Values *(Incubator — JEP 429)*</strong></h3><p>A safer, more efficient alternative to ThreadLocal, designed for virtual threads. A scoped value is set once, immutably, and is visible only within a bounded scope.</p><p><strong>ThreadLocal problem:</strong> mutable, inheritable, leaks memory in thread pools.</p><p><strong>Scoped Values:</strong></p><pre><code><strong>import</strong> jdk.incubator.concurrent.ScopedValue;
@@ -512,7 +542,8 @@ ScopedValue.where(CURRENT_USER, "alice").run(() -&gt; {
     processRequest();  // can also read CURRENT_USER.get() here
 });
 // CURRENT_USER.get() outside the run() block → NoSuchElementException</code></pre>
-<h2><strong>Java 21</strong></h2><p>*(Long-Term Support — current recommended LTS)*</p><h3><strong>1. Virtual Threads *(Final — JEP 444)*</strong></h3><p>Virtual threads are now production-ready with no feature flags. Enable in Spring Boot with one property:</p><p>spring.threads.virtual.enabled=<strong>true</strong></p><p>Or in plain Java:</p><pre><code><strong>try</strong> (<strong>var</strong> executor = Executors.newVirtualThreadPerTaskExecutor()) {
+<h2><strong>Java 21</strong></h2><p>*(Long-Term Support — current recommended LTS)*</p><h3><strong>1. Virtual Threads *(Final — JEP 444)*</strong></h3><p>Virtual threads are now production-ready with no feature flags. Enable in Spring Boot with one property:</p><pre><code>spring.threads.virtual.enabled=<strong>true</strong></code></pre>
+<p>Or in plain Java:</p><pre><code><strong>try</strong> (<strong>var</strong> executor = Executors.newVirtualThreadPerTaskExecutor()) {
     IntStream.range(0, 100_000).forEach(i -&gt;
         executor.submit(() -&gt; {
             Thread.sleep(Duration.ofMillis(100));
@@ -557,7 +588,8 @@ System.out.println(format("hi"));    // string: hi</code></pre>
     <strong>case</strong> Integer i             -&gt; "positive int: " + i;
     <strong>default</strong>                    -&gt; "other";
 };</code></pre>
-<h3><strong>4. Record Patterns *(Final — JEP 440)*</strong></h3><p>Now stable — destructure records inline in switch and instanceof:</p><p><strong>record</strong> Point(<strong>int</strong> x, <strong>int</strong> y) {}</p><pre><code>Object obj = <strong>new</strong> Point(0, 5);
+<h3><strong>4. Record Patterns *(Final — JEP 440)*</strong></h3><p>Now stable — destructure records inline in switch and instanceof:</p><pre><code><strong>record</strong> Point(<strong>int</strong> x, <strong>int</strong> y) {}
+Object obj = <strong>new</strong> Point(0, 5);
 String desc = <strong>switch</strong> (obj) {
     <strong>case</strong> Point(<strong>int</strong> x, <strong>int</strong> y) <strong>when</strong> x == 0 -&gt; "on Y-axis at y=" + y;
     <strong>case</strong> Point(<strong>int</strong> x, <strong>int</strong> y)             -&gt; "at (" + x + "," + y + ")";
@@ -603,8 +635,9 @@ System.out.println("count: " + count);</code></pre>
 <h2><strong>Java 23</strong></h2><h3><strong>1. Primitive Types in Patterns *(Preview — JEP 455)*</strong></h3><p>Extends pattern matching to work with primitive types in switch and instanceof, unifying the type system further.</p><p><strong>Before Java 23:</strong></p><pre><code>// Primitives couldn't be used as switch patterns — required boxing
 Object obj = 42;
 <strong>if</strong> (obj <strong>instanceof</strong> Integer i &amp;&amp; i &gt; 0) { ... }</code></pre>
-<p><strong>Java 23+ (preview):</strong></p><pre><code>// Primitives directly in switch (no boxing required)</code></pre>
-<p><strong>switch</strong> (<strong>value</strong>) {  // value is int or long</p><pre><code>    <strong>case</strong> <strong>int</strong> i <strong>when</strong> i &lt; 0    -&gt; System.out.println("negative");
+<p><strong>Java 23+ (preview):</strong></p><pre><code>// Primitives directly in switch (no boxing required)
+<strong>switch</strong> (<strong>value</strong>) {  // value is int or long
+    <strong>case</strong> <strong>int</strong> i <strong>when</strong> i &lt; 0    -&gt; System.out.println("negative");
     <strong>case</strong> <strong>int</strong> i <strong>when</strong> i == 0   -&gt; System.out.println("zero");
     <strong>case</strong> <strong>int</strong> i               -&gt; System.out.println("positive: " + i);
 }
@@ -613,15 +646,25 @@ Object obj = 42;
 <strong>if</strong> (n <strong>instanceof</strong> <strong>int</strong> i &amp;&amp; i &gt; 10) {
     System.out.println("big int: " + i); // big int: 42
 }</code></pre>
-<h3><strong>2. Markdown Documentation Comments *(JEP 467)*</strong></h3><p>Write Javadoc using Markdown (/// comments) instead of HTML tags. More readable in source, same rendered output.</p><p><strong>Before Java 23:</strong></p><pre><code>/**</code></pre>
-<p> * Returns the {@code name} of <strong>this</strong> user.</p><p> * &lt;p&gt;</p><p> * The name is &lt;b&gt;never&lt;/b&gt; {@code <strong>null</strong>}.</p><p> * &lt;/p&gt;</p><p> * @<strong>return</strong> the user's name</p><p> */</p><pre><code><strong>public</strong> String getName() { ... }</code></pre>
+<h3><strong>2. Markdown Documentation Comments *(JEP 467)*</strong></h3><p>Write Javadoc using Markdown (/// comments) instead of HTML tags. More readable in source, same rendered output.</p><p><strong>Before Java 23:</strong></p><pre><code>/**
+ * Returns the {@code name} of <strong>this</strong> user.
+ * &lt;p&gt;
+ * The name is &lt;b&gt;never&lt;/b&gt; {@code <strong>null</strong>}.
+ * &lt;/p&gt;
+ * @<strong>return</strong> the user's name
+ */
+<strong>public</strong> String getName() { ... }</code></pre>
 <p><strong>Java 23+:</strong></p><pre><code>/// Returns the `name` of this user.
 ///
 /// The name is **never** `null`.
 ///
 /// @return the user's name
 <strong>public</strong> String getName() { ... }</code></pre>
-<h3><strong>3. ZGC: Generational Mode Default</strong></h3><p>The Z Garbage Collector now defaults to <strong>generational mode</strong>, improving throughput and reducing pause times for most applications with no code changes required.</p><p># Before Java 23 — had to opt in</p><p>java -XX:+UseZGC -XX:+ZGenerational -jar app.jar</p><p># Java 23+ — generational is default when ZGC is selected</p><p>java -XX:+UseZGC -jar app.jar</p><h2><strong>Java 24</strong></h2><h3><strong>1. Stream Gatherers *(Final — JEP 485)*</strong></h3><pre><code>Custom intermediate Stream operations via Stream.gather(Gatherer). The built-in Gatherers class provides common ones; you can also write your own.</code></pre>
+<h3><strong>3. ZGC: Generational Mode Default</strong></h3><p>The Z Garbage Collector now defaults to <strong>generational mode</strong>, improving throughput and reducing pause times for most applications with no code changes required.</p><pre><code># Before Java 23 — had to opt in
+java -XX:+UseZGC -XX:+ZGenerational -jar app.jar
+# Java 23+ — generational is default when ZGC is selected
+java -XX:+UseZGC -jar app.jar</code></pre>
+<h2><strong>Java 24</strong></h2><h3><strong>1. Stream Gatherers *(Final — JEP 485)*</strong></h3><pre><code>Custom intermediate Stream operations via Stream.gather(Gatherer). The built-in Gatherers class provides common ones; you can also write your own.</code></pre>
 <p><strong>Before Java 24 — no clean way to do sliding windows:</strong></p><pre><code>// Had to collect to list first, then manually slice
 List&lt;Integer&gt; nums = List.of(1, 2, 3, 4, 5);
 List&lt;List&lt;Integer&gt;&gt; windows = <strong>new</strong> ArrayList&lt;&gt;();
@@ -660,8 +703,9 @@ List&lt;Integer&gt; result = Stream.of(2, 5, 8, 12, 3)
 System.out.println(result); // [2, 5, 8]</code></pre>
 <h3><strong>2. Class-File API *(Final — JEP 484)*</strong></h3><p>A standard API for reading, writing, and transforming Java .class files. Replaces third-party libraries like ASM and Javassist for many use cases.</p><pre><code><strong>import</strong> java.lang.classfile.*;
 <strong>import</strong> java.lang.constant.*;
-// Build a class programmatically</code></pre>
-<p><strong>byte</strong>[] bytes = ClassFile.of().build(</p><pre><code>    ClassDesc.of("com.example.Hello"),
+// Build a class programmatically
+<strong>byte</strong>[] bytes = ClassFile.of().build(
+    ClassDesc.of("com.example.Hello"),
     classBuilder -&gt; classBuilder
         .withMethod("greet", MethodTypeDesc.of(CD_void), ACC_PUBLIC,
             methodBuilder -&gt; methodBuilder.withCode(code -&gt; code
@@ -673,7 +717,12 @@ System.out.println(result); // [2, 5, 8]</code></pre>
             ))
 );
 // bytes can be loaded via ClassLoader.defineClass(...)</code></pre>
-<h3><strong>3. Ahead-of-Time Class Loading &amp; Linking *(JEP 483)*</strong></h3><p>Caches the result of class loading and linking across JVM runs, reducing startup time without code changes.</p><p># Step 1: training run — JVM records what it loads</p><p>java -XX:AOTMode=<strong>record</strong> -XX:AOTConfiguration=app.aotconf -jar app.jar</p><p># Step 2: use cached data on subsequent runs</p><p>java -XX:AOTMode=on -XX:AOTConfiguration=app.aotconf -jar app.jar</p><p># Noticeably faster startup on second run</p><h2><strong>Java 25</strong></h2><p>*(Long-Term Support — September 2025)*</p><h3><strong>1. Module Import Declarations *(Final — JEP 494)*</strong></h3><p>Import all packages exported by a module in one line — no need to list each package separately.</p><p><strong>Before Java 25:</strong></p><pre><code><strong>import</strong> java.util.List;
+<h3><strong>3. Ahead-of-Time Class Loading &amp; Linking *(JEP 483)*</strong></h3><p>Caches the result of class loading and linking across JVM runs, reducing startup time without code changes.</p><pre><code># Step 1: training run — JVM records what it loads
+java -XX:AOTMode=<strong>record</strong> -XX:AOTConfiguration=app.aotconf -jar app.jar
+# Step 2: use cached data on subsequent runs
+java -XX:AOTMode=on -XX:AOTConfiguration=app.aotconf -jar app.jar
+# Noticeably faster startup on second run</code></pre>
+<h2><strong>Java 25</strong></h2><p>*(Long-Term Support — September 2025)*</p><h3><strong>1. Module Import Declarations *(Final — JEP 494)*</strong></h3><p>Import all packages exported by a module in one line — no need to list each package separately.</p><p><strong>Before Java 25:</strong></p><pre><code><strong>import</strong> java.util.List;
 <strong>import</strong> java.util.Map;
 <strong>import</strong> java.util.stream.Collectors;
 <strong>import</strong> java.util.function.Function;
@@ -698,11 +747,13 @@ System.out.println(lengths); // {Alice=5, Bob=3}</code></pre>
 <strong>public</strong> Config getConfig() {
     <strong>return</strong> config.orElseSet(<strong>this</strong>::loadConfig); // thread-safe, initialized once
 }</code></pre>
-<p>Also useful for lazy fields in records and interfaces.</p><h3><strong>3. Primitive Classes / Value Objects *(Preview — JEP 401)*</strong></h3><p>Part of <strong>Project Valhalla</strong>. value classes have no identity — two instances with the same fields are indistinguishable. The JVM can flatten them into arrays and avoid heap allocation.</p><p><strong>Before Java 25 — all objects have identity:</strong></p><p><strong>record</strong> Point(<strong>int</strong> x, <strong>int</strong> y) {} // still a reference type with identity</p><pre><code>Point a = <strong>new</strong> Point(1, 2);
+<p>Also useful for lazy fields in records and interfaces.</p><h3><strong>3. Primitive Classes / Value Objects *(Preview — JEP 401)*</strong></h3><p>Part of <strong>Project Valhalla</strong>. value classes have no identity — two instances with the same fields are indistinguishable. The JVM can flatten them into arrays and avoid heap allocation.</p><p><strong>Before Java 25 — all objects have identity:</strong></p><pre><code><strong>record</strong> Point(<strong>int</strong> x, <strong>int</strong> y) {} // still a reference type with identity
+Point a = <strong>new</strong> Point(1, 2);
 Point b = <strong>new</strong> Point(1, 2);
 System.out.println(a == b);       // false — different references
 System.out.println(a.equals(b));  // true — same values</code></pre>
-<p><strong>Java 25+ (preview):</strong></p><p><strong>value</strong> <strong>record</strong> Point(<strong>int</strong> x, <strong>int</strong> y) {}  // no identity — only values matter</p><pre><code>Point a = <strong>new</strong> Point(1, 2);
+<p><strong>Java 25+ (preview):</strong></p><pre><code><strong>value</strong> <strong>record</strong> Point(<strong>int</strong> x, <strong>int</strong> y) {}  // no identity — only values matter
+Point a = <strong>new</strong> Point(1, 2);
 Point b = <strong>new</strong> Point(1, 2);
 // == is now equivalent to equals() — same field values, same identity
 System.out.println(a == b); // true
