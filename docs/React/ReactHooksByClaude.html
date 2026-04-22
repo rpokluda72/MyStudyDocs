@@ -1,0 +1,937 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ReactHooksByClaude</title>
+  <link rel="stylesheet" href="../assets/content.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+</head>
+<body>
+  <h1>ReactHooksByClaude</h1>
+  <p>React Hooks – Study Document</p><p>Sources: GeeksForGeeks · W3Schools · React.dev</p><h1><strong>Part 1 – GeeksForGeeks</strong></h1><p><em>Source: <a href="https://www.geeksforgeeks.org/reactjs/reactjs-hooks/" target="_blank" rel="noopener noreferrer">https://www.geeksforgeeks.org/reactjs/reactjs-hooks/</a></em></p><h2><strong>Introduction to React Hooks</strong></h2><p>React Hooks, introduced in React 16.8, enable functional components to use state, lifecycle, and other React features without relying on class components.</p><h3><strong>Key Benefits</strong></h3><ul><li>Eliminate class component requirements for state management</li><li>Improve code readability with functional programming style</li><li>Enable cleaner, more maintainable modern React applications</li></ul><h3><strong>Hooks vs. Class Components</strong></h3><table><tr><td><p><strong>Aspect</strong></p></td><td><p><strong>Class Components</strong></p></td><td><p><strong>React Hooks</strong></p></td></tr><tr><td><p>Structure</p></td><td><p>ES6 classes with this.state</p></td><td><p>Functions with hooks</p></td></tr><tr><td><p>Logic Organization</p></td><td><p>Spread across lifecycle methods</p></td><td><p>Grouped together</p></td></tr><tr><td><p>Logic Reusability</p></td><td><p>Difficult</p></td><td><p>Easy with custom hooks</p></td></tr><tr><td><p>Familiarity</p></td><td><p>OOP-oriented</p></td><td><p>Functional approach</p></td></tr><tr><td><p>Error Boundaries</p></td><td><p>Supported</p></td><td><p>Not yet supported</p></td></tr></table><h2><strong>1. State Hooks</strong></h2><h3><strong>useState</strong></h3><p>Used to declare state variables in functional components, allowing you to read and modify state.</p><p>Syntax:</p><pre><code>const [state, setState] = useState(initialState);</code></pre>
+<table><tr><td><p><strong>Parameter</strong></p></td><td><p><strong>Description</strong></p></td></tr><tr><td><p>state</p></td><td><p>Current state value</p></td></tr><tr><td><p>setState</p></td><td><p>Function to update state</p></td></tr><tr><td><p>initialState</p></td><td><p>Initial value (primitive, object, or array)</p></td></tr></table><p>Example – Counter:</p><pre><code>import React, { useState } from "react";
+
+function App() {
+    const [count, setCount] = useState(0);
+    const increment = () =&gt; setCount(count + 1);
+    const decrement = () =&gt; setCount(count - 1);
+
+    return (
+        &lt;div&gt;
+            &lt;h1&gt;Count: {count}&lt;/h1&gt;
+            &lt;button onClick={increment}&gt;Increment&lt;/button&gt;
+            &lt;button onClick={decrement}&gt;Decrement&lt;/button&gt;
+        &lt;/div&gt;
+    );
+}
+
+export default App;</code></pre>
+<h3><strong>useReducer</strong></h3><p>Advanced state management for complex logic involving multiple sub-values or intricate state transitions.</p><p>Syntax:</p><pre><code>const [state, dispatch] = useReducer(reducer, initialState);</code></pre>
+<p>Example:</p><pre><code>import React, { useReducer } from "react";
+
+function reducer(count, action) {
+    if (action === "increment") return count + 1;
+    if (action === "decrement") return count - 1;
+    return count;
+}
+
+function App() {
+    const [count, dispatch] = useReducer(reducer, 0);
+
+    return (
+        &lt;div&gt;
+            &lt;h1&gt;Count: {count}&lt;/h1&gt;
+            &lt;button onClick={() =&gt; dispatch("increment")}&gt;Increment&lt;/button&gt;
+            &lt;button onClick={() =&gt; dispatch("decrement")}&gt;Decrement&lt;/button&gt;
+        &lt;/div&gt;
+    );
+}
+
+export default App;</code></pre>
+<h2><strong>2. Context Hooks</strong></h2><h3><strong>useContext</strong></h3><p>Allows functional components to directly access React Context API values without prop drilling.</p><p>Syntax:</p><pre><code>const contextValue = useContext(MyContext);</code></pre>
+<p>Example – Theme context:</p><pre><code>import React, { createContext, useContext, useState } from "react";
+
+const ThemeContext = createContext();
+
+function App() {
+    const [theme, setTheme] = useState("light");
+
+    return (
+        &lt;ThemeContext.Provider value={theme}&gt;
+            &lt;div&gt;
+                &lt;h1&gt;Current Theme: {theme}&lt;/h1&gt;
+                &lt;button onClick={() =&gt; setTheme(t =&gt; t === "light" ? "dark" : "light")}&gt;
+                    Toggle Theme
+                &lt;/button&gt;
+                &lt;ThemeDisplay /&gt;
+            &lt;/div&gt;
+        &lt;/ThemeContext.Provider&gt;
+    );
+}
+
+function ThemeDisplay() {
+    const theme = useContext(ThemeContext);
+    return &lt;h2&gt;Theme from Context: {theme}&lt;/h2&gt;;
+}
+
+export default App;</code></pre>
+<h2><strong>3. Effect Hooks</strong></h2><h3><strong>useEffect</strong></h3><p>Handles common side effects like data fetching, subscriptions, and DOM manipulation. Replaces componentDidMount and componentDidUpdate.</p><p>Syntax:</p><pre><code>useEffect(() =&gt; {
+    <em>// Side effect logic here</em>
+    return () =&gt; { <em>/* cleanup */</em> };
+}, [dependencies]);</code></pre>
+<p>Example – document title:</p><pre><code>import React, { useState, useEffect } from "react";
+
+function App() {
+    const [count, setCount] = useState(0);
+
+    useEffect(() =&gt; {
+        document.title = `Count: ${count}`;
+        return () =&gt; { document.title = "React App"; };
+    }, [count]);
+
+    return (
+        &lt;div&gt;
+            &lt;h1&gt;Count: {count}&lt;/h1&gt;
+            &lt;button onClick={() =&gt; setCount(count + 1)}&gt;Increment&lt;/button&gt;
+        &lt;/div&gt;
+    );
+}
+
+export default App;</code></pre>
+<h3><strong>useLayoutEffect</strong></h3><p>Runs synchronously after DOM updates, before the browser paints. Useful for measuring or modifying layout.</p><pre><code>useLayoutEffect(() =&gt; {
+    <em>// Manipulate layout or measure DOM elements</em>
+}, [dependencies]);</code></pre>
+<h2><strong>4. Performance Hooks</strong></h2><h3><strong>useMemo</strong></h3><p>Caches computed results, recalculating only when dependencies change. Prevents unnecessary recalculations on every render.</p><p>Syntax:</p><pre><code>const memoizedValue = useMemo(() =&gt; computeExpensiveValue(a, b), [a, b]);</code></pre>
+<p>Example:</p><pre><code>import React, { useState, useMemo } from "react";
+
+function App() {
+    const [count, setCount] = useState(0);
+    const [text, setText] = useState("");
+
+    const expensiveCalculation = useMemo(() =&gt; {
+        console.log("Expensive calculation...");
+        return count * 2;
+    }, [count]);
+
+    return (
+        &lt;div&gt;
+            &lt;h1&gt;Count: {count}&lt;/h1&gt;
+            &lt;h2&gt;Result: {expensiveCalculation}&lt;/h2&gt;
+            &lt;button onClick={() =&gt; setCount(count + 1)}&gt;Increment Count&lt;/button&gt;
+            &lt;input value={text} onChange={e =&gt; setText(e.target.value)} /&gt;
+        &lt;/div&gt;
+    );
+}
+
+export default App;</code></pre>
+<h3><strong>useCallback</strong></h3><p>Memoizes function references so they are only recreated when dependencies change. Prevents unnecessary re-renders of child components that receive functions as props.</p><p>Syntax:</p><pre><code>const memoizedCallback = useCallback(() =&gt; { doSomething(a, b); }, [a, b]);</code></pre>
+<h2><strong>5. Ref Hooks</strong></h2><h3><strong>useRef</strong></h3><p>Stores mutable values or accesses DOM elements without triggering re-renders.</p><p>Syntax:</p><pre><code>const refContainer = useRef(initialValue);</code></pre>
+<p>Example – Accessing DOM element:</p><pre><code>import React, { useState, useRef } from "react";
+
+function App() {
+    const countRef = useRef(0);
+    const [forceRender, setForceRender] = useState(false);
+
+    const increment = () =&gt; {
+        countRef.current += 1;
+        setForceRender(!forceRender);
+    };
+
+    return (
+        &lt;div&gt;
+            &lt;h1&gt;Count: {countRef.current}&lt;/h1&gt;
+            &lt;button onClick={increment}&gt;Increment&lt;/button&gt;
+        &lt;/div&gt;
+    );
+}
+
+export default App;</code></pre>
+<h2><strong>6. Custom Hooks</strong></h2><p>User-defined functions starting with "use" that encapsulate reusable logic. Enhance code reusability without altering component hierarchy.</p><p>Example – useWidth:</p><pre><code><em>// useWidth.js</em>
+import { useState, useEffect } from "react";
+
+function useWidth() {
+    const [width, setWidth] = useState(window.innerWidth);
+
+    useEffect(() =&gt; {
+        const handleResize = () =&gt; setWidth(window.innerWidth);
+        window.addEventListener("resize", handleResize);
+        return () =&gt; window.removeEventListener("resize", handleResize);
+    }, []);
+
+    return width;
+}
+
+export default useWidth;</code></pre>
+<p>Using the custom hook:</p><pre><code>import React from "react";
+import useWidth from "./useWidth";
+
+function App() {
+    const width = useWidth();
+    return &lt;h1&gt;Window Width: {width}px&lt;/h1&gt;;
+}
+
+export default App;</code></pre>
+<h2><strong>7. Other Hooks</strong></h2><table><tr><td><p><strong>Hook</strong></p></td><td><p><strong>Description</strong></p></td></tr><tr><td><p>useImperativeHandle</p></td><td><p>Customises the instance value exposed by useRef to parent components</p></td></tr><tr><td><p>useDebugValue</p></td><td><p>Displays custom labels for hooks in React DevTools</p></td></tr><tr><td><p>useLayoutEffect</p></td><td><p>Like useEffect, but fires synchronously after all DOM mutations</p></td></tr><tr><td><p>useInsertionEffect</p></td><td><pre><code>Designed for injecting styles before DOM mutations; for CSS-in-JS libraries</code></pre>
+</td></tr></table><h1><strong>Part 2 – W3Schools</strong></h1><p><em>Source: <a href="https://www.w3schools.com/react/react_hooks.asp" target="_blank" rel="noopener noreferrer">https://www.w3schools.com/react/react_hooks.asp</a> (and sub-pages)</em></p><h2><strong>What is a Hook?</strong></h2><p>Hooks are functions that let you 'hook into' React state and lifecycle features from functional components. They do not work inside class components.</p><h3><strong>Hook Rules</strong></h3><ul><li>Hooks can only be called inside React function components.</li><li>Hooks can only be called at the top level of a component.</li><li>Hooks cannot be conditional.</li></ul><pre><code><strong>Example</strong>
+import { useState } from 'react';
+import { createRoot } from 'react-dom/client';
+
+function FavoriteColor() {
+  const [color, setColor] = useState("red");
+
+  return (
+    &lt;&gt;
+      &lt;h1&gt;My favorite color is {color}!&lt;/h1&gt;
+      &lt;button type="button" onClick={() =&gt; setColor("blue")}&gt;Blue&lt;/button&gt;
+      &lt;button type="button" onClick={() =&gt; setColor("red")}&gt;Red&lt;/button&gt;
+      &lt;button type="button" onClick={() =&gt; setColor("pink")}&gt;Pink&lt;/button&gt;
+      &lt;button type="button" onClick={() =&gt; setColor("green")}&gt;Green&lt;/button&gt;
+    &lt;/&gt;
+  );
+}
+
+createRoot(document.getElementById('root')).render(&lt;FavoriteColor /&gt;);</code></pre>
+<h2><strong>useState</strong></h2><p>The React useState Hook allows you to track state in a function component. State generally refers to data or properties that need to be tracked in an application.</p><p>Syntax:</p><pre><code>const [currentValue, setCurrentValue] = useState(initialValue);</code></pre>
+<h3><strong>Reading and Updating State</strong></h3><pre><code><strong>Example – multiple state variables</strong>
+function MyCar() {
+  const [brand, setBrand] = useState("Ford");
+  const [model, setModel] = useState("Mustang");
+  const [year, setYear] = useState("1964");
+  const [color, setColor] = useState("red");
+
+  return (
+    &lt;&gt;
+      &lt;h1&gt;My {brand}&lt;/h1&gt;
+      &lt;p&gt;It is a {color} {model} from {year}.&lt;/p&gt;
+    &lt;/&gt;
+  )
+}</code></pre>
+<h3><strong>Updating Objects in State</strong></h3><p>When state is updated the entire state gets replaced. Use the spread operator to update only the changed property:</p><pre><code><strong>Example – spread operator</strong>
+function MyCar() {
+  const [car, setCar] = useState({
+    brand: "Ford",
+    model: "Mustang",
+    year: "1964",
+    color: "red"
+  });
+
+  const updateColor = () =&gt; {
+    setCar(previousState =&gt; {
+      return { ...previousState, color: "blue" }
+    });
+  }
+
+  return (
+    &lt;&gt;
+      &lt;h1&gt;My {car.brand}&lt;/h1&gt;
+      &lt;p&gt;It is a {car.color} {car.model} from {car.year}.&lt;/p&gt;
+      &lt;button type="button" onClick={updateColor}&gt;Blue&lt;/button&gt;
+    &lt;/&gt;
+  )
+}</code></pre>
+<h2><strong>useEffect</strong></h2><p>The useEffect Hook allows you to perform side effects in your components. Some examples of side effects are: fetching data, directly updating the DOM, and timers.</p><p>Syntax:</p><pre><code>useEffect(&lt;function&gt;, &lt;dependency&gt;)</code></pre>
+<h3><strong>Dependency Array Patterns</strong></h3><table><tr><td><p><strong>Pattern</strong></p></td><td><p><strong>When it runs</strong></p></td></tr><tr><td><pre><code>useEffect(() =&gt; { })</code></pre>
+</td><td><p>Runs on every render</p></td></tr><tr><td><pre><code>useEffect(() =&gt; { }, [])</code></pre>
+</td><td><p>Runs only on the first render</p></td></tr><tr><td><pre><code>useEffect(() =&gt; { }, [prop, state])</code></pre>
+</td><td><p>Runs on first render and when prop/state changes</p></td></tr></table><pre><code><strong>Example – Timer with cleanup</strong>
+import { useState, useEffect } from 'react';
+import { createRoot } from 'react-dom/client';
+
+function Timer() {
+  const [count, setCount] = useState(0);
+
+  useEffect(() =&gt; {
+    let timer = setTimeout(() =&gt; {
+      setCount((count) =&gt; count + 1);
+    }, 1000);
+
+    return () =&gt; clearTimeout(timer);
+  }, []);
+
+  return &lt;h1&gt;I've rendered {count} times!&lt;/h1&gt;;
+}
+
+createRoot(document.getElementById('root')).render(&lt;Timer /&gt;);
+<strong>Example – Dependent effect</strong>
+function Counter() {
+  const [count, setCount] = useState(0);
+  const [calculation, setCalculation] = useState(0);
+
+  useEffect(() =&gt; {
+    setCalculation(() =&gt; count * 2);
+  }, [count]);
+
+  return (
+    &lt;&gt;
+      &lt;p&gt;Count: {count}&lt;/p&gt;
+      &lt;button onClick={() =&gt; setCount((c) =&gt; c + 1)}&gt;+&lt;/button&gt;
+      &lt;p&gt;Calculation: {calculation}&lt;/p&gt;
+    &lt;/&gt;
+  );
+}</code></pre>
+<h2><strong>useContext</strong></h2><p>React Context is a way to manage state globally. It solves the "prop drilling" problem – passing props through components that do not need the data.</p><h3><strong>Create and Use Context – 3 Steps</strong></h3><ul><li>Step 1: Create context with createContext()</li><li>Step 2: Wrap children with Context Provider and supply value</li><li>Step 3: Call useContext(MyContext) in any child component</li></ul><pre><code><strong>Example – complete context usage</strong>
+import { useState, createContext, useContext } from 'react';
+import { createRoot } from 'react-dom/client';
+
+const UserContext = createContext();
+
+function Component1() {
+  const [user, setUser] = useState("Linus");
+
+  return (
+    &lt;UserContext.Provider value={user}&gt;
+      &lt;h1&gt;{`Hello ${user}!`}&lt;/h1&gt;
+      &lt;Component2 /&gt;
+    &lt;/UserContext.Provider&gt;
+  );
+}
+
+function Component2() {
+  return (
+    &lt;&gt;
+      &lt;h1&gt;Component 2&lt;/h1&gt;
+      &lt;Component3 /&gt;
+    &lt;/&gt;
+  );
+}
+
+function Component3() {
+  const user = useContext(UserContext);
+  return (
+    &lt;&gt;
+      &lt;h1&gt;Component 3&lt;/h1&gt;
+      &lt;h2&gt;{`Hello ${user} again!`}&lt;/h2&gt;
+    &lt;/&gt;
+  );
+}
+
+createRoot(document.getElementById('root')).render(&lt;Component1 /&gt;);</code></pre>
+<h2><strong>useRef</strong></h2><p>The useRef Hook allows you to persist values between renders without triggering a re-render, and to access DOM elements directly.</p><pre><code><strong>Example – track render count (no re-render)</strong>
+import { useState, useRef, useEffect } from 'react';
+
+function App() {
+  const [inputValue, setInputValue] = useState("");
+  const count = useRef(0);
+
+  useEffect(() =&gt; {
+    count.current = count.current + 1;
+  });
+
+  return (
+    &lt;&gt;
+      &lt;input
+        type="text"
+        value={inputValue}
+        onChange={(e) =&gt; setInputValue(e.target.value)}
+      /&gt;
+      &lt;h1&gt;Render Count: {count.current}&lt;/h1&gt;
+    &lt;/&gt;
+  );
+}
+<strong>Example – focus a DOM element</strong>
+import { useRef } from 'react';
+
+function App() {
+  const inputElement = useRef();
+
+  const focusInput = () =&gt; {
+    inputElement.current.focus();
+  };
+
+  return (
+    &lt;&gt;
+      &lt;input type="text" ref={inputElement} /&gt;
+      &lt;button onClick={focusInput}&gt;Focus Input&lt;/button&gt;
+    &lt;/&gt;
+  );
+}
+<strong>Example – track previous state value</strong>
+import { useRef, useState, useEffect } from 'react';
+
+function App() {
+  const [inputValue, setInputValue] = useState("");
+  const previousInputValue = useRef("");
+
+  useEffect(() =&gt; {
+    previousInputValue.current = inputValue;
+  }, [inputValue]);
+
+  return (
+    &lt;&gt;
+      &lt;input
+        type="text"
+        value={inputValue}
+        onChange={(e) =&gt; setInputValue(e.target.value)}
+      /&gt;
+      &lt;h2&gt;Current Value: {inputValue}&lt;/h2&gt;
+      &lt;h2&gt;Previous Value: {previousInputValue.current}&lt;/h2&gt;
+    &lt;/&gt;
+  );
+}</code></pre>
+<h2><strong>useReducer</strong></h2><p>The useReducer Hook is similar to the useState Hook. It allows for custom state logic and is useful when you find yourself keeping track of multiple pieces of state that rely on complex logic.</p><p>Syntax:</p><pre><code>useReducer(reducer, initialState, init)</code></pre>
+<table><tr><td><p><strong>Parameter</strong></p></td><td><p><strong>Description</strong></p></td></tr><tr><td><p>reducer</p></td><td><p>Function containing custom state logic</p></td></tr><tr><td><p>initialState</p></td><td><p>Initial state value (simple value or object)</p></td></tr><tr><td><p>init</p></td><td><p>Optional function for lazy state initialisation</p></td></tr></table><pre><code><strong>Example – scoreboard</strong>
+import { useReducer } from 'react';
+
+const initialScore = [
+  { id: 1, score: 0, name: "John" },
+  { id: 2, score: 0, name: "Sally" },
+];
+
+const reducer = (state, action) =&gt; {
+  switch (action.type) {
+    case "INCREASE":
+      return state.map((player) =&gt; {
+        if (player.id === action.id) {
+          return { ...player, score: player.score + 1 };
+        }
+        return player;
+      });
+    default:
+      return state;
+  }
+};
+
+function Score() {
+  const [score, dispatch] = useReducer(reducer, initialScore);
+
+  return (
+    &lt;&gt;
+      {score.map((player) =&gt; (
+        &lt;div key={player.id}&gt;
+          &lt;label&gt;
+            &lt;input
+              type="button"
+              onClick={() =&gt; dispatch({ type: "INCREASE", id: player.id })}
+              value={player.name}
+            /&gt;
+            {player.score}
+          &lt;/label&gt;
+        &lt;/div&gt;
+      ))}
+    &lt;/&gt;
+  );
+}</code></pre>
+<h2><strong>useCallback</strong></h2><p>The useCallback Hook returns a memoized callback function. This allows you to isolate resource-intensive functions from re-running on every render. Note: useCallback returns a memoized function, useMemo returns a memoized value.</p><p>Syntax:</p><pre><code>useCallback(callback, dependencies)
+<strong>Example – with useCallback (only clicked button re-renders)</strong>
+import React, { useState, useCallback } from 'react';
+
+const Button = React.memo(({ onClick, text }) =&gt; {
+  console.log(`${text} button rendered`);
+  return &lt;button onClick={onClick}&gt;{text}&lt;/button&gt;;
+});
+
+function WithCallbackExample() {
+  const [count1, setCount1] = useState(0);
+  const [count2, setCount2] = useState(0);
+
+  const handleClick1 = useCallback(() =&gt; {
+    setCount1(count1 + 1);
+  }, [count1]);
+
+  const handleClick2 = useCallback(() =&gt; {
+    setCount2(count2 + 1);
+  }, [count2]);
+
+  return (
+    &lt;div&gt;
+      &lt;p&gt;Count 1: {count1}&lt;/p&gt;
+      &lt;p&gt;Count 2: {count2}&lt;/p&gt;
+      &lt;Button onClick={handleClick1} text="Button 1" /&gt;
+      &lt;Button onClick={handleClick2} text="Button 2" /&gt;
+    &lt;/div&gt;
+  );
+}</code></pre>
+<h2><strong>useMemo</strong></h2><p>The useMemo Hook returns a memoized value. It only runs when one of its dependencies updates, improving performance for expensive calculations.</p><p>Syntax:</p><pre><code>useMemo(() =&gt; computeExpensiveValue(a, b), [a, b])
+<strong>Example – expensive calculation with useMemo</strong>
+import { useState, useMemo } from 'react';
+
+const expensiveCalculation = (num) =&gt; {
+  console.log("Calculating...");
+  for (let i = 0; i &lt; 1000000000; i++) { num += 1; }
+  return num;
+};
+
+const App = () =&gt; {
+  const [count, setCount] = useState(0);
+  const [todos, setTodos] = useState([]);
+
+  <em>// Only recalculates when count changes, not when todos change</em>
+  const calculation = useMemo(() =&gt; expensiveCalculation(count), [count]);
+
+  return (
+    &lt;div&gt;
+      &lt;div&gt;
+        &lt;h2&gt;My Todos&lt;/h2&gt;
+        {todos.map((todo, index) =&gt; &lt;p key={index}&gt;{todo}&lt;/p&gt;)}
+        &lt;button onClick={() =&gt; setTodos((t) =&gt; [...t, "New Todo"])}&gt;Add Todo&lt;/button&gt;
+      &lt;/div&gt;
+      &lt;hr /&gt;
+      &lt;div&gt;
+        Count: {count}
+        &lt;button onClick={() =&gt; setCount((c) =&gt; c + 1)}&gt;+&lt;/button&gt;
+        &lt;h2&gt;Expensive Calculation: {calculation}&lt;/h2&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  );
+};</code></pre>
+<h2><strong>Custom Hooks</strong></h2><p>Hooks are reusable functions. When you have component logic that needs to be used by multiple components, we can extract that logic to a custom Hook. Custom Hooks start with "use".</p><pre><code><strong>useFetch.js – custom hook</strong>
+import { useState, useEffect } from "react";
+
+const useFetch = (url) =&gt; {
+  const [data, setData] = useState(null);
+
+  useEffect(() =&gt; {
+    fetch(url)
+      .then((res) =&gt; res.json())
+      .then((data) =&gt; setData(data));
+  }, [url]);
+
+  return [data];
+};
+
+export default useFetch;
+<strong>index.js – using the custom hook</strong>
+import { createRoot } from 'react-dom/client';
+import useFetch from "./useFetch";
+
+const Home = () =&gt; {
+  const [data] = useFetch("<a href="https://jsonplaceholder.typicode.com/todos" target="_blank" rel="noopener noreferrer">https://jsonplaceholder.typicode.com/todos</a>");
+
+  return (
+    &lt;&gt;
+      {data &amp;&amp;
+        data.map((item) =&gt; {
+          return &lt;p key={item.id}&gt;{item.title}&lt;/p&gt;;
+        })}
+    &lt;/&gt;
+  );
+};
+
+createRoot(document.getElementById('root')).render(&lt;Home /&gt;);</code></pre>
+<h1><strong>Part 3 – React.dev</strong></h1><p><em>Source: <a href="https://react.dev/reference/react/hooks" target="_blank" rel="noopener noreferrer">https://react.dev/reference/react/hooks</a></em></p><h2><strong>Built-in React Hooks Overview</strong></h2><p>Hooks let you use different React features from your components. You can either use the built-in Hooks or combine them to build your own.</p><table><tr><td><p><strong>Category</strong></p></td><td><p><strong>Hooks</strong></p></td></tr><tr><td><p>State Hooks</p></td><td><p>useState, useReducer</p></td></tr><tr><td><p>Context Hooks</p></td><td><p>useContext</p></td></tr><tr><td><p>Ref Hooks</p></td><td><p>useRef, useImperativeHandle</p></td></tr><tr><td><p>Effect Hooks</p></td><td><p>useEffect, useLayoutEffect, useInsertionEffect</p></td></tr><tr><td><p>Performance Hooks</p></td><td><p>useMemo, useCallback, useTransition, useDeferredValue</p></td></tr><tr><td><p>Other Hooks</p></td><td><p>useDebugValue, useId, useSyncExternalStore, useActionState</p></td></tr></table><h2><strong>useState</strong></h2><p>useState is a React Hook that lets you add a state variable to your component.</p><pre><code>const [state, setState] = useState(initialState)</code></pre>
+<h3><strong>Parameters &amp; Returns</strong></h3><table><tr><td><p><strong>Parameter / Return</strong></p></td><td><p><strong>Description</strong></p></td></tr><tr><td><p>initialState</p></td><td><p>The initial value. If a function is passed it is treated as an initializer (called once only).</p></td></tr><tr><td><p>Returns [state, set]</p></td><td><pre><code>state is the current value; set updates it and triggers a re-render.</code></pre>
+</td></tr></table><h3><strong>Common Usage Patterns</strong></h3><p>Basic counter:</p><pre><code>function Counter() {
+  const [count, setCount] = useState(0);
+
+  function handleClick() {
+    setCount(count + 1);
+  }
+
+  return (
+    &lt;button onClick={handleClick}&gt;
+      You pressed me {count} times
+    &lt;/button&gt;
+  );
+}</code></pre>
+<p>Text input:</p><pre><code>function MyInput() {
+  const [text, setText] = useState('hello');
+
+  return (
+    &lt;&gt;
+      &lt;input value={text} onChange={e =&gt; setText(e.target.value)} /&gt;
+      &lt;p&gt;You typed: {text}&lt;/p&gt;
+      &lt;button onClick={() =&gt; setText('hello')}&gt;Reset&lt;/button&gt;
+    &lt;/&gt;
+  );
+}</code></pre>
+<h3><strong>Updater Function (avoid stale state)</strong></h3><p>Wrong – multiple calls in same event use stale value:</p><pre><code><em>// All three calls read the same stale age!</em>
+function handleClick() {
+  setAge(age + 1); <em>// setAge(42 + 1)</em>
+  setAge(age + 1); <em>// setAge(42 + 1) — still 42!</em>
+  setAge(age + 1); <em>// result is 43, not 45</em>
+}</code></pre>
+<p>Correct – use updater function:</p><pre><code>function handleClick() {
+  setAge(a =&gt; a + 1); <em>// 42 =&gt; 43</em>
+  setAge(a =&gt; a + 1); <em>// 43 =&gt; 44</em>
+  setAge(a =&gt; a + 1); <em>// 44 =&gt; 45</em>
+}</code></pre>
+<h3><strong>Updating Objects and Arrays</strong></h3><p>Always replace, never mutate:</p><pre><code><em>// Wrong: mutation</em>
+form.firstName = 'Taylor';
+setForm(form);
+
+<em>// Correct: replacement</em>
+setForm({
+  ...form,
+  firstName: 'Taylor'
+});
+
+<em>// Array: add</em>
+setTodos([...todos, { id: nextId++, title: title, done: false }]);
+
+<em>// Array: update</em>
+setTodos(todos.map(t =&gt; t.id === nextTodo.id ? nextTodo : t));
+
+<em>// Array: delete</em>
+setTodos(todos.filter(t =&gt; t.id !== todoId));</code></pre>
+<h3><strong>Resetting State with Key</strong></h3><pre><code>export default function App() {
+  const [version, setVersion] = useState(0);
+
+  return (
+    &lt;&gt;
+      &lt;button onClick={() =&gt; setVersion(version + 1)}&gt;Reset&lt;/button&gt;
+      &lt;Form key={version} /&gt;
+    &lt;/&gt;
+  );
+}</code></pre>
+<h2><strong>useReducer</strong></h2><p>useReducer is a React Hook that lets you add a reducer to your component. Useful for complex state with multiple sub-values or interdependent updates.</p><pre><code>const [state, dispatch] = useReducer(reducer, initialArg, init?)
+import { useReducer } from 'react';
+
+function reducer(state, action) {
+  switch (action.type) {
+    case 'incremented_age':
+      return { name: state.name, age: state.age + 1 };
+    case 'changed_name':
+      return { name: action.nextName, age: state.age };
+    default:
+      throw Error('Unknown action: ' + action.type);
+  }
+}
+
+function MyComponent() {
+  const [state, dispatch] = useReducer(reducer, { name: 'Taylor', age: 42 });
+
+  return (
+    &lt;&gt;
+      &lt;input
+        value={state.name}
+        onChange={e =&gt; dispatch({ type: 'changed_name', nextName: e.target.value })}
+      /&gt;
+      &lt;button onClick={() =&gt; dispatch({ type: 'incremented_age' })}&gt;
+        Increment age
+      &lt;/button&gt;
+      &lt;p&gt;Hello, {state.name}. You are {state.age}.&lt;/p&gt;
+    &lt;/&gt;
+  );
+}</code></pre>
+<h3><strong>Managing Arrays with useReducer</strong></h3><pre><code>function tasksReducer(tasks, action) {
+  switch (action.type) {
+    case 'added':
+      return [...tasks, { id: action.id, text: action.text, done: false }];
+    case 'changed':
+      return tasks.map(t =&gt; t.id === action.task.id ? action.task : t);
+    case 'deleted':
+      return tasks.filter(t =&gt; t.id !== action.id);
+    default:
+      throw Error('Unknown action: ' + action.type);
+  }
+}
+
+const [tasks, dispatch] = useReducer(tasksReducer, initialTasks);</code></pre>
+<h2><strong>useContext</strong></h2><p>useContext is a React Hook that lets you read and subscribe to context from your component.</p><pre><code>const value = useContext(SomeContext)</code></pre>
+<p>Returns the context value from the closest matching provider above.</p><h3><strong>Passing Data Deeply</strong></h3><pre><code>import { createContext, useContext } from 'react';
+
+const ThemeContext = createContext(null);
+
+export default function MyApp() {
+  return (
+    &lt;ThemeContext value="dark"&gt;
+      &lt;Form /&gt;
+    &lt;/ThemeContext&gt;
+  );
+}
+
+function Button({ children }) {
+  const theme = useContext(ThemeContext);
+  const className = 'button-' + theme;
+  return &lt;button className={className}&gt;{children}&lt;/button&gt;;
+}</code></pre>
+<h3><strong>Dynamic Context (with useState)</strong></h3><pre><code>function MyPage() {
+  const [theme, setTheme] = useState('dark');
+  return (
+    &lt;ThemeContext value={theme}&gt;
+      &lt;Form /&gt;
+      &lt;Button onClick={() =&gt; setTheme('light')}&gt;
+        Switch to light theme
+      &lt;/Button&gt;
+    &lt;/ThemeContext&gt;
+  );
+}</code></pre>
+<h3><strong>Scaling with Context + useReducer</strong></h3><pre><code><em>// TasksContext.js</em>
+import { createContext, useContext, useReducer } from 'react';
+
+const TasksContext = createContext(null);
+const TasksDispatchContext = createContext(null);
+
+export function TasksProvider({ children }) {
+  const [tasks, dispatch] = useReducer(tasksReducer, initialTasks);
+  return (
+    &lt;TasksContext value={tasks}&gt;
+      &lt;TasksDispatchContext value={dispatch}&gt;
+        {children}
+      &lt;/TasksDispatchContext&gt;
+    &lt;/TasksContext&gt;
+  );
+}
+
+export function useTasks() { return useContext(TasksContext); }
+export function useTasksDispatch() { return useContext(TasksDispatchContext); }</code></pre>
+<h2><strong>useRef</strong></h2><p>useRef is a React Hook that lets you reference a value that is not needed for rendering. Mutating ref.current does NOT trigger a re-render.</p><pre><code>const ref = useRef(initialValue)</code></pre>
+<table><tr><td><p><strong>Use case</strong></p></td><td><p><strong>Use ref or state?</strong></p></td></tr><tr><td><p>Interval / timeout ID</p></td><td><p>ref</p></td></tr><tr><td><p>DOM node reference</p></td><td><p>ref</p></td></tr><tr><td><p>Value not shown on screen</p></td><td><p>ref</p></td></tr><tr><td><p>Data displayed in JSX</p></td><td><p>state</p></td></tr><tr><td><p>Triggers re-render on change</p></td><td><p>state</p></td></tr></table><p>Stopwatch – combining ref and state:</p><pre><code>import { useState, useRef } from 'react';
+
+export default function Stopwatch() {
+  const [startTime, setStartTime] = useState(null);
+  const [now, setNow] = useState(null);
+  const intervalRef = useRef(null);
+
+  function handleStart() {
+    setStartTime(Date.now());
+    setNow(Date.now());
+    clearInterval(intervalRef.current);
+    intervalRef.current = setInterval(() =&gt; {
+      setNow(Date.now());
+    }, 10);
+  }
+
+  function handleStop() {
+    clearInterval(intervalRef.current);
+  }
+
+  const secondsPassed = startTime &amp;&amp; now ? (now - startTime) / 1000 : 0;
+
+  return (
+    &lt;&gt;
+      &lt;h1&gt;Time passed: {secondsPassed.toFixed(3)}&lt;/h1&gt;
+      &lt;button onClick={handleStart}&gt;Start&lt;/button&gt;
+      &lt;button onClick={handleStop}&gt;Stop&lt;/button&gt;
+    &lt;/&gt;
+  );
+}</code></pre>
+<p>DOM manipulation – focus and video player:</p><pre><code><em>// Focus example</em>
+export default function Form() {
+  const inputRef = useRef(null);
+
+  function handleClick() {
+    inputRef.current.focus();
+  }
+
+  return (
+    &lt;&gt;
+      &lt;input ref={inputRef} /&gt;
+      &lt;button onClick={handleClick}&gt;Focus the input&lt;/button&gt;
+    &lt;/&gt;
+  );
+}</code></pre>
+<h2><strong>useEffect</strong></h2><p>useEffect is a React Hook that lets you synchronize a component with an external system.</p><pre><code>useEffect(setup, dependencies?)</code></pre>
+<table><tr><td><p><strong>Parameter</strong></p></td><td><p><strong>Description</strong></p></td></tr><tr><td><p>setup</p></td><td><p>Function with effect logic. May return a cleanup function.</p></td></tr><tr><td><p>dependencies?</p></td><td><p>Array of reactive values. Effect re-runs when any change. Omit to run after every render.</p></td></tr></table><h3><strong>Connecting to External Systems</strong></h3><pre><code>import { useState, useEffect } from 'react';
+
+function ChatRoom({ roomId }) {
+  const [serverUrl, setServerUrl] = useState('<a href="https://localhost:1234" target="_blank" rel="noopener noreferrer">https://localhost:1234</a>');
+
+  useEffect(() =&gt; {
+    const connection = createConnection(serverUrl, roomId);
+    connection.connect();
+    return () =&gt; {
+      connection.disconnect();
+    };
+  }, [serverUrl, roomId]);
+
+  return &lt;h1&gt;Welcome to the {roomId} room!&lt;/h1&gt;;
+}</code></pre>
+<h3><strong>Fetching Data</strong></h3><pre><code>useEffect(() =&gt; {
+  let ignore = false;
+  setBio(null);
+
+  fetchBio(person).then(result =&gt; {
+    if (!ignore) setBio(result);
+  });
+
+  return () =&gt; { ignore = true; };
+}, [person]);</code></pre>
+<h3><strong>Common Pitfalls</strong></h3><table><tr><td><p><strong>Issue</strong></p></td><td><p><strong>Cause</strong></p></td><td><p><strong>Solution</strong></p></td></tr><tr><td><p>Effect runs twice on mount</p></td><td><p>Strict Mode stress-test</p></td><td><p>Implement proper cleanup function</p></td></tr><tr><td><p>Infinite loop</p></td><td><p>Effect updates a dependency</p></td><td><p>Use updater functions or move state reading to useEffectEvent</p></td></tr><tr><td><p>Runs after every render</p></td><td><p>Missing dependency array</p></td><td><p>Add [] or specify dependencies</p></td></tr><tr><td><p>Stale values in callback</p></td><td><p>Object/function created each render becomes dependency</p></td><td><p>Define object/function inside the Effect</p></td></tr></table><h2><strong>useMemo</strong></h2><p>useMemo is a React Hook that lets you cache the result of a calculation between re-renders.</p><pre><code>const cachedValue = useMemo(calculateValue, dependencies)</code></pre>
+<h3><strong>Skipping Expensive Recalculations</strong></h3><pre><code>import { useMemo } from 'react';
+
+function TodoList({ todos, tab, theme }) {
+  const visibleTodos = useMemo(
+    () =&gt; filterTodos(todos, tab),
+    [todos, tab]
+  );
+
+  return (
+    &lt;div className={theme}&gt;
+      &lt;ul&gt;
+        {visibleTodos.map(todo =&gt; (
+          &lt;li key={todo.id}&gt;{todo.text}&lt;/li&gt;
+        ))}
+      &lt;/ul&gt;
+    &lt;/div&gt;
+  );
+}</code></pre>
+<h3><strong>Skipping Re-renders with memo</strong></h3><pre><code>import { useMemo, memo } from 'react';
+
+const List = memo(function List({ items }) {
+  return items.map(item =&gt; &lt;li key={item.id}&gt;{item.text}&lt;/li&gt;);
+});
+
+export default function TodoList({ todos, tab, theme }) {
+  <em>// Without useMemo, List re-renders on every parent render</em>
+  const visibleTodos = useMemo(
+    () =&gt; filterTodos(todos, tab),
+    [todos, tab]
+  );
+
+  return (
+    &lt;div className={theme}&gt;
+      &lt;List items={visibleTodos} /&gt;
+    &lt;/div&gt;
+  );
+}</code></pre>
+<h3><strong>When to use useMemo</strong></h3><table><tr><td><p><strong>Use useMemo</strong></p></td><td><p><strong>Do NOT use useMemo</strong></p></td></tr><tr><td><p>Calculation takes &gt;= 1ms</p></td><td><p>Simple, fast calculations</p></td></tr><tr><td><p>Passing value to memo() child</p></td><td><p>Value not passed to memoized component</p></td></tr><tr><td><p>Value used as dep of another hook</p></td><td><p>Code that does not work without it (fix the bug)</p></td></tr></table><h2><strong>useCallback</strong></h2><p>useCallback is a React Hook that lets you cache a function definition between re-renders.</p><pre><code>const cachedFn = useCallback(fn, dependencies)</code></pre>
+<h3><strong>Preventing Re-renders of Memoized Children</strong></h3><pre><code>import { useCallback, memo } from 'react';
+
+function ProductPage({ productId, referrer, theme }) {
+  const handleSubmit = useCallback((orderDetails) =&gt; {
+    post('/product/' + productId + '/buy', { referrer, orderDetails });
+  }, [productId, referrer]);
+
+  return (
+    &lt;div className={theme}&gt;
+      &lt;ShippingForm onSubmit={handleSubmit} /&gt;
+    &lt;/div&gt;
+  );
+}
+
+const ShippingForm = memo(function ShippingForm({ onSubmit }) {
+  <em>// Only re-renders if onSubmit prop changes</em>
+});</code></pre>
+<h3><strong>useMemo vs useCallback</strong></h3><table><tr><td><p><strong>Hook</strong></p></td><td><p><strong>Caches</strong></p></td><td><p><strong>Use when</strong></p></td></tr><tr><td><p>useCallback</p></td><td><p>The function itself</p></td><td><p>Passing callbacks to memoized child components</p></td></tr><tr><td><p>useMemo</p></td><td><p>The result of calling function</p></td><td><p>Expensive computations used in rendering</p></td></tr></table><pre><code><em>// These are equivalent:</em>
+useCallback(fn, deps)
+useMemo(() =&gt; fn, deps)</code></pre>
+<h2><strong>useTransition &amp; useDeferredValue</strong></h2><p>useTransition marks a state update as non-blocking (lower priority). useDeferredValue defers updating a non-critical part of the UI.</p><pre><code><em>// useTransition</em>
+const [isPending, startTransition] = useTransition();
+
+startTransition(() =&gt; {
+  setPage('/about');
+});
+
+<em>// useDeferredValue</em>
+const deferredValue = useDeferredValue(value);</code></pre>
+<h2><strong>Other Built-in Hooks</strong></h2><table><tr><td><p><strong>Hook</strong></p></td><td><p><strong>Description</strong></p></td><td><p><strong>Example use</strong></p></td></tr><tr><td><p>useId</p></td><td><p>Generates a unique ID stable across server/client renders</p></td><td><p>Accessibility attributes (aria-labelledby)</p></td></tr><tr><td><p>useDebugValue</p></td><td><p>Displays a label in React DevTools for a custom Hook</p></td><td><p>Debugging custom hooks</p></td></tr><tr><td><p>useSyncExternalStore</p></td><td><p>Subscribes to an external data store</p></td><td><p>Redux, Zustand, browser APIs</p></td></tr><tr><td><p>useImperativeHandle</p></td><td><p>Customises the ref handle exposed to parent components</p></td><td><p>Exposing specific methods from a child</p></td></tr><tr><td><p>useLayoutEffect</p></td><td><p>Like useEffect but fires before browser paint (synchronous)</p></td><td><p>Measuring DOM, scroll position</p></td></tr><tr><td><p>useInsertionEffect</p></td><td><pre><code>Fires before React makes DOM changes; for CSS-in-JS libraries</code></pre>
+</td><td><p>Emotion, styled-components internals</p></td></tr></table><h2><strong>Custom Hooks</strong></h2><p>You can create your own Hooks to share stateful logic between components. A custom Hook is a JavaScript function whose name starts with "use" and that may call other Hooks.</p><pre><code><em>// useChatRoom.js</em>
+function useChatRoom({ serverUrl, roomId }) {
+  useEffect(() =&gt; {
+    const connection = createConnection(serverUrl, roomId);
+    connection.connect();
+    return () =&gt; connection.disconnect();
+  }, [roomId, serverUrl]);
+}
+
+<em>// Usage in a component</em>
+function ChatRoom({ roomId }) {
+  const [serverUrl, setServerUrl] = useState('<a href="https://localhost:1234" target="_blank" rel="noopener noreferrer">https://localhost:1234</a>');
+  useChatRoom({ roomId, serverUrl });
+  <em>// ...</em>
+}
+<em>// useWindowSize.js</em>
+import { useState, useEffect } from 'react';
+
+function useWindowSize() {
+  const [size, setSize] = useState({
+    width: window.innerWidth,
+    height: window.innerHeight,
+  });
+
+  useEffect(() =&gt; {
+    function handleResize() {
+      setSize({ width: window.innerWidth, height: window.innerHeight });
+    }
+    window.addEventListener('resize', handleResize);
+    return () =&gt; window.removeEventListener('resize', handleResize);
+  }, []);
+
+  return size;
+}
+
+<em>// Usage</em>
+function App() {
+  const { width, height } = useWindowSize();
+  return &lt;p&gt;Window: {width} x {height}&lt;/p&gt;;
+}</code></pre>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>
+    document.querySelectorAll('pre code').forEach(function(el){if(!el.className)el.classList.add('language-typescript');});
+    document.querySelectorAll('pre code').forEach(function(el){ hljs.highlightElement(el); });
+  </script>
+  <script>(function () {
+    var marks = [];
+    var idx = -1;
+
+    function clearMarks() {
+        marks.forEach(function (m) {
+            var p = m.parentNode;
+            if (p) { p.replaceChild(document.createTextNode(m.textContent), m); p.normalize(); }
+        });
+        marks = [];
+        idx = -1;
+    }
+
+    function markText(query) {
+        var results = [];
+        var lower = query.toLowerCase();
+        var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null);
+        var nodes = [];
+        var n;
+        while ((n = walker.nextNode())) {
+            if (n.nodeValue.toLowerCase().includes(lower)) nodes.push(n);
+        }
+        nodes.forEach(function (textNode) {
+            var text  = textNode.nodeValue;
+            var ltext = text.toLowerCase();
+            var par   = textNode.parentNode;
+            if (!par) return;
+            var frag = document.createDocumentFragment();
+            var last = 0, i;
+            while ((i = ltext.indexOf(lower, last)) !== -1) {
+                if (i > last) frag.appendChild(document.createTextNode(text.slice(last, i)));
+                var m = document.createElement('mark');
+                m.className = 'dsm';
+                m.style.cssText = 'background:#ffe066;color:inherit;border-radius:2px;';
+                m.textContent = text.slice(i, i + query.length);
+                frag.appendChild(m);
+                results.push(m);
+                last = i + query.length;
+            }
+            if (last < text.length) frag.appendChild(document.createTextNode(text.slice(last)));
+            par.replaceChild(frag, textNode);
+        });
+        return results;
+    }
+
+    function highlight() {
+        marks.forEach(function (m, i) {
+            m.style.background = i === idx ? '#ff9900' : '#ffe066';
+            m.style.outline    = i === idx ? '2px solid #e65c00' : 'none';
+        });
+        if (marks[idx]) marks[idx].scrollIntoView({ block: 'center' });
+    }
+
+    function reply(src) {
+        src.postMessage({ type: 'searchResult', count: marks.length, current: idx }, '*');
+    }
+
+    window.addEventListener('message', function (e) {
+        var d = e.data;
+        if (!d || !d.type) return;
+        if (d.type === 'search') {
+            clearMarks();
+            if (d.query) {
+                marks = markText(d.query);
+                if (marks.length) idx = 0;
+                highlight();
+            }
+            reply(e.source);
+        } else if (d.type === 'searchNav') {
+            if (!marks.length) return;
+            idx = d.dir === 'next'
+                ? (idx + 1) % marks.length
+                : (idx - 1 + marks.length) % marks.length;
+            highlight();
+            reply(e.source);
+        } else if (d.type === 'searchClear') {
+            clearMarks();
+        }
+    });
+})();</script>
+</body>
+</html>

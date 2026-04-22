@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>RxJSbyClaude</title>
+  <link rel="stylesheet" href="../assets/content.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+</head>
+<body>
+  <h1>RxJSbyClaude</h1>
+  <p>RxJS – Study &amp; Learn Guide</p><p>Based on rxjs.dev official documentation · RxJS 7.x</p><h1><strong>1. Introduction</strong></h1><p>RxJS (Reactive Extensions for JavaScript) is a library for reactive programming using Observables, making it easier to compose asynchronous or callback-based code. Think of it as Lodash for events and async data streams.</p><p>RxJS provides one core type – Observable – and several supporting types (Observer, Subscription, Subject, Schedulers) along with a large set of operators inspired by Array methods (map, filter, reduce, ...) that allow you to handle asynchronous events as collections.</p><h2><strong>1.1 Observable vs Promise vs Callback</strong></h2><table><tr><td><p><strong>Feature</strong></p></td><td><p><strong>Callback</strong></p></td><td><p><strong>Promise</strong></p></td><td><p><strong>Observable (RxJS)</strong></p></td></tr><tr><td><p>Values</p></td><td><p>Single</p></td><td><p>Single</p></td><td><p>Multiple (0..N)</p></td></tr><tr><td><p>Lazy</p></td><td><p>No</p></td><td><p>No (eager)</p></td><td><p>Yes (cold by default)</p></td></tr><tr><td><p>Cancellable</p></td><td><p>No</p></td><td><p>No</p></td><td><p>Yes (unsubscribe)</p></td></tr><tr><td><p>Operators</p></td><td><p>None</p></td><td><p>then/catch only</p></td><td><p>100+ composable operators</p></td></tr><tr><td><p>Push/Pull</p></td><td><p>Push (sort of)</p></td><td><p>Push</p></td><td><p>Push</p></td></tr><tr><td><p>Sync or Async</p></td><td><p>Both</p></td><td><p>Always async</p></td><td><p>Both</p></td></tr></table><h2><strong>1.2 The Purity Principle</strong></h2><p>RxJS makes your code less error-prone by using pure functions. Normally you'd create an impure function that can change shared state. RxJS isolates that state using Observables:</p><pre><code>// Impure – uses shared variable
+let count = 0;
+document.addEventListener('click', () =&gt; console.log(`Clicked ${++count} times`));
+
+// Pure with RxJS – state is isolated
+import { fromEvent, scan } from 'rxjs';
+
+fromEvent(document, 'click')
+  .pipe(scan((count) =&gt; count + 1, 0))
+  .subscribe((count) =&gt; console.log(`Clicked ${count} times`));</code></pre>
+<h2><strong>1.3 First Example: Event to Observable</strong></h2><pre><code>import { fromEvent, throttleTime, scan } from 'rxjs';
+
+fromEvent(document, 'click')
+  .pipe(
+    throttleTime(1000),           // at most one click per second
+    scan((count) =&gt; count + 1, 0) // accumulate click count
+  )
+  .subscribe((count) =&gt; console.log(`Clicked ${count} times`));</code></pre>
+<h1><strong>2. Observables</strong></h1><p>Observables are lazy Push collections of multiple values. They fill the missing spot in the following table:</p><table><tr><td></td><td><p><strong>Single value</strong></p></td><td><p><strong>Multiple values</strong></p></td></tr><tr><td><p>Pull (consumer decides when)</p></td><td><p>Function</p></td><td><p>Iterator</p></td></tr><tr><td><p>Push (producer decides when)</p></td><td><p>Promise</p></td><td><p>Observable</p></td></tr></table><p>An Observable is lazy – it does nothing until you subscribe. Every new subscription triggers a fresh, independent execution (cold Observable).</p><h2><strong>2.1 Creating Observables</strong></h2><p>Use the Observable constructor for full control:</p><pre><code>import { Observable } from 'rxjs';
+
+const observable = new Observable((subscriber) =&gt; {
+  subscriber.next(1);
+  subscriber.next(2);
+  subscriber.next(3);
+  setTimeout(() =&gt; {
+    subscriber.next(4);
+    subscriber.complete();
+  }, 1000);
+});</code></pre>
+<h2><strong>2.2 Subscribing to Observables</strong></h2><p>Subscribing is like calling a function – each call starts an independent execution. The code inside the Observable only runs when you subscribe.</p><pre><code>console.log('before subscribe');
+observable.subscribe({
+  next(x)     { console.log('got value ' + x); },
+  error(err)  { console.error('error: ' + err); },
+  complete()  { console.log('done'); },
+});
+console.log('after subscribe');
+
+// Output:
+// before subscribe
+// got value 1
+// got value 2
+// got value 3
+// after subscribe
+// got value 4   (after ~1 second)
+// done</code></pre>
+<h2><strong>2.3 Executing Observables</strong></h2><p>The code inside the Observable constructor is the "Observable execution". It can deliver three types of notifications:</p><table><tr><td><p><strong>Notification</strong></p></td><td><p><strong>Method</strong></p></td><td><p><strong>Description</strong></p></td></tr><tr><td><p>Next</p></td><td><pre><code>subscriber.next(value)</code></pre>
+</td><td><p>Sends a value to the observer. Can be called multiple times.</p></td></tr><tr><td><p>Error</p></td><td><pre><code>subscriber.error(err)</code></pre>
+</td><td><p>Sends an error. Terminates the execution – no further notifications.</p></td></tr><tr><td><p>Complete</p></td><td><pre><code>subscriber.complete()</code></pre>
+</td><td><p>Signals completion. No more next() calls after this.</p></td></tr></table><pre><code>import { Observable } from 'rxjs';
+
+const observable = new Observable((subscriber) =&gt; {
+  subscriber.next(1);
+  subscriber.next(2);
+  subscriber.complete();     // signals done
+  subscriber.next(3);        // IGNORED – never delivered after complete()
+});
+
+observable.subscribe({
+  next:     (v) =&gt; console.log(v),
+  complete: ()  =&gt; console.log('Completed'),
+});
+// 1
+// 2
+// Completed</code></pre>
+<h2><strong>2.4 Disposing Observables</strong></h2><pre><code>subscribe() returns a Subscription. Call unsubscribe() to cancel and release resources:
+import { interval } from 'rxjs';
+
+const subscription = interval(400).subscribe((x) =&gt; console.log(x));
+
+// Cancel after 1.5 seconds
+setTimeout(() =&gt; subscription.unsubscribe(), 1500);
+// 0
+// 1
+// 2
+// 3  (then stops)</code></pre>
+<p>You can also provide custom teardown logic inside the Observable:</p><pre><code>const observable = new Observable((subscriber) =&gt; {
+  const id = setInterval(() =&gt; subscriber.next('tick'), 1000);
+
+  // Teardown logic – runs on unsubscribe or complete
+  return () =&gt; clearInterval(id);
+});</code></pre>
+<h2><strong>2.5 Creation Helper Functions</strong></h2><table><tr><td><p><strong>Function</strong></p></td><td><p><strong>Description</strong></p></td></tr><tr><td><pre><code>of(...values)</code></pre>
+</td><td><p>Emits each argument synchronously then completes</p></td></tr><tr><td><pre><code>from(iterable | Promise)</code></pre>
+</td><td><p>Converts array, iterable, or Promise into Observable</p></td></tr><tr><td><pre><code>fromEvent(target, event)</code></pre>
+</td><td><p>Creates Observable from DOM or Node.js events</p></td></tr><tr><td><pre><code>interval(ms)</code></pre>
+</td><td><p>Emits 0, 1, 2, ... every ms milliseconds</p></td></tr><tr><td><pre><code>timer(delay, interval?)</code></pre>
+</td><td><p>Emits once after delay, optionally repeating</p></td></tr><tr><td><pre><code>range(start, count)</code></pre>
+</td><td><p>Emits a range of sequential integers</p></td></tr><tr><td><p>EMPTY</p></td><td><p>Observable that completes immediately with no items</p></td></tr><tr><td><p>NEVER</p></td><td><p>Observable that never emits, errors, or completes</p></td></tr><tr><td><pre><code>throwError(() =&gt; err)</code></pre>
+</td><td><p>Observable that immediately errors</p></td></tr><tr><td><pre><code>defer(() =&gt; observable)</code></pre>
+</td><td><p>Defers creation of Observable until subscription</p></td></tr><tr><td><pre><code>forkJoin([o1, o2, ...])</code></pre>
+</td><td><p>Waits for all Observables to complete, emits last values</p></td></tr></table><pre><code>import { of, from, fromEvent, interval } from 'rxjs';
+
+// of – synchronous values
+of(1, 2, 3).subscribe(console.log);         // 1, 2, 3
+
+// from – array or Promise
+from([10, 20, 30]).subscribe(console.log);   // 10, 20, 30
+from(fetch('/api/user')).subscribe(console.log);
+
+// fromEvent – DOM events
+fromEvent(document, 'click').subscribe((e) =&gt; console.log(e.clientX));
+
+// interval – ticks every second
+interval(1000).subscribe(console.log);       // 0, 1, 2, ...</code></pre>
+<h1><strong>3. Observer</strong></h1><p>An Observer is a consumer of values delivered by an Observable. It is simply an object with three optional callback methods:</p><pre><code>import { Observable } from 'rxjs';
+
+const observer = {
+  next:     (value)  =&gt; console.log('Next:', value),
+  error:    (err)    =&gt; console.error('Error:', err),
+  complete: ()       =&gt; console.log('Complete'),
+};
+
+observable.subscribe(observer);</code></pre>
+<h2><strong>3.1 Partial Observers</strong></h2><p>All three callbacks are optional. You can provide just the ones you need:</p><pre><code>// Only handle next values
+observable.subscribe((value) =&gt; console.log(value));
+
+// Handle next and error
+observable.subscribe({
+  next:  (value) =&gt; console.log(value),
+  error: (err)   =&gt; console.error(err),
+});
+
+// Using shorthand positional arguments (deprecated style)
+observable.subscribe(
+  (value) =&gt; console.log(value),    // next
+  (err)   =&gt; console.error(err),    // error
+  ()      =&gt; console.log('done')    // complete
+);</code></pre>
+<h2><strong>3.2 The Observer Interface</strong></h2><table><tr><td><p><strong>Method</strong></p></td><td><p><strong>Called when</strong></p></td><td><p><strong>After this…</strong></p></td></tr><tr><td><pre><code>next(value)</code></pre>
+</td><td><p>Observable emits a new value</p></td><td><p>Observable continues normally</p></td></tr><tr><td><pre><code>error(err)</code></pre>
+</td><td><p>Observable encounters an error</p></td><td><p>Observable stops – no further callbacks</p></td></tr><tr><td><pre><code>complete()</code></pre>
+</td><td><p>Observable finishes successfully</p></td><td><p>Observable stops – no further callbacks</p></td></tr></table><p>If an error occurs and no error handler is provided, it is thrown as an uncaught exception. Always handle errors in long-lived streams.</p><pre><code>import { throwError } from 'rxjs';
+
+// Always provide error handler for production code
+throwError(() =&gt; new Error('Something went wrong'))
+  .subscribe({
+    next:  (v)   =&gt; console.log(v),
+    error: (err) =&gt; console.error('Caught:', err.message), // Caught: Something went wrong
+  });</code></pre>
+<h1><strong>4. Subscription</strong></h1><p>A Subscription represents the execution of an Observable. It has one important method: unsubscribe(), which cancels the Observable execution and frees any resources it holds.</p><pre><code>import { interval } from 'rxjs';
+
+const observable = interval(1000);
+const subscription = observable.subscribe((x) =&gt; console.log(x));
+
+// Later, cancel the subscription:
+subscription.unsubscribe();</code></pre>
+<h2><strong>4.1 Composite Subscriptions</strong></h2><p>Subscriptions can be combined together so that a single unsubscribe() call cancels multiple Observables:</p><pre><code>import { interval } from 'rxjs';
+
+const sub1 = interval(400).subscribe((x) =&gt; console.log('first:',  x));
+const sub2 = interval(300).subscribe((x) =&gt; console.log('second:', x));
+
+sub1.add(sub2);          // sub2 becomes a child of sub1
+
+setTimeout(() =&gt; {
+  sub1.unsubscribe();    // also unsubscribes sub2
+}, 1000);</code></pre>
+<h2><strong>4.2 Managing Subscriptions (Best Practices)</strong></h2><p>Unmanaged subscriptions cause memory leaks. Always clean up, especially in long-lived components:</p><pre><code>import { Subject, interval } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
+
+// Pattern 1: takeUntil with a destroy signal (recommended for Angular)
+const destroy$ = new Subject&lt;void&gt;();
+
+interval(1000)
+  .pipe(takeUntil(destroy$))
+  .subscribe(console.log);
+
+// On component destroy:
+destroy$.next();
+destroy$.complete();
+
+// Pattern 2: store and unsubscribe manually
+const sub = interval(1000).subscribe(console.log);
+// ...
+sub.unsubscribe();</code></pre>
+<h1><strong>5. Subject</strong></h1><p>A Subject is a special type of Observable that allows values to be multicasted to many Observers. While plain Observables are unicast (each subscribed Observer owns an independent execution), Subjects are multicast. A Subject is simultaneously an Observable AND an Observer.</p><table><tr><td><p><strong>Feature</strong></p></td><td><p><strong>Observable</strong></p></td><td><p><strong>Subject</strong></p></td></tr><tr><td><p>Multicast</p></td><td><p>No – each subscriber gets own execution</p></td><td><p>Yes – all subscribers share one execution</p></td></tr><tr><td><p>Push values</p></td><td><p>Only from inside constructor</p></td><td><p>From outside via next(), error(), complete()</p></td></tr><tr><td><p>Late subscribers</p></td><td><p>Get full replay (cold)</p></td><td><p>Miss past values (unless BehaviorSubject etc.)</p></td></tr><tr><td><p>Use case</p></td><td><p>Data source / pipeline</p></td><td><p>Event bus, bridging imperative code</p></td></tr></table><h2><strong>5.1 Basic Subject</strong></h2><pre><code>import { Subject } from 'rxjs';
+
+const subject = new Subject&lt;number&gt;();
+
+subject.subscribe({ next: (v) =&gt; console.log(`observerA: ${v}`) });
+subject.subscribe({ next: (v) =&gt; console.log(`observerB: ${v}`) });
+
+subject.next(1);
+subject.next(2);
+
+// Logs:
+// observerA: 1
+// observerB: 1
+// observerA: 2
+// observerB: 2</code></pre>
+<h2><strong>5.2 Subject as Observer</strong></h2><p>Because a Subject is also an Observer, you can pass it to subscribe() to multicast any cold Observable:</p><pre><code>import { Subject, from } from 'rxjs';
+
+const subject = new Subject&lt;number&gt;();
+
+subject.subscribe({ next: (v) =&gt; console.log(`observerA: ${v}`) });
+subject.subscribe({ next: (v) =&gt; console.log(`observerB: ${v}`) });
+
+const observable = from([1, 2, 3]);
+observable.subscribe(subject);   // Subject bridges cold -&gt; multicast
+
+// Logs:
+// observerA: 1  observerB: 1  observerA: 2  observerB: 2  ...</code></pre>
+<h2><strong>5.3 BehaviorSubject</strong></h2><p>BehaviorSubject stores the current value and immediately emits it to every new subscriber. Perfect for representing "state over time" (e.g. current user, selected tab, form values).</p><pre><code>import { BehaviorSubject } from 'rxjs';
+
+const subject = new BehaviorSubject(0);   // initial value = 0
+
+subject.subscribe({ next: (v) =&gt; console.log(`observerA: ${v}`) });
+
+subject.next(1);
+subject.next(2);
+
+subject.subscribe({ next: (v) =&gt; console.log(`observerB: ${v}`) });
+
+subject.next(3);
+
+// Logs:
+// observerA: 0
+// observerA: 1
+// observerA: 2
+// observerB: 2   &lt;-- late subscriber gets current value immediately
+// observerA: 3
+// observerB: 3
+
+// Read current value synchronously:
+console.log(subject.getValue());   // 3</code></pre>
+<h2><strong>5.4 ReplaySubject</strong></h2><p>ReplaySubject records N past values and replays them to every new subscriber. Optionally, a windowTime (ms) can limit how old recorded values can be.</p><pre><code>import { ReplaySubject } from 'rxjs';
+
+const subject = new ReplaySubject(3);   // buffer last 3 values
+
+subject.subscribe({ next: (v) =&gt; console.log(`observerA: ${v}`) });
+
+subject.next(1);
+subject.next(2);
+subject.next(3);
+subject.next(4);
+
+subject.subscribe({ next: (v) =&gt; console.log(`observerB: ${v}`) });
+
+subject.next(5);
+
+// Logs:
+// observerA: 1  observerA: 2  observerA: 3  observerA: 4
+// observerB: 2  observerB: 3  observerB: 4  &lt;-- gets last 3 on subscribe
+// observerA: 5  observerB: 5
+
+// With window time – replay items from the last 500ms:
+const timedSubject = new ReplaySubject(100, 500);</code></pre>
+<h2><strong>5.5 AsyncSubject</strong></h2><p>AsyncSubject emits only the last value of the execution, and only when complete() is called. Useful for representing a single async result (similar to Promise).</p><pre><code>import { AsyncSubject } from 'rxjs';
+
+const subject = new AsyncSubject&lt;number&gt;();
+
+subject.subscribe({ next: (v) =&gt; console.log(`observerA: ${v}`) });
+
+subject.next(1);
+subject.next(2);
+subject.next(3);
+subject.next(4);
+
+subject.subscribe({ next: (v) =&gt; console.log(`observerB: ${v}`) });
+
+subject.next(5);
+subject.complete();
+
+// Logs:
+// observerA: 5
+// observerB: 5</code></pre>
+<h2><strong>5.6 Subject Variants Summary</strong></h2><table><tr><td><p><strong>Subject type</strong></p></td><td><p><strong>Emits to late subscriber</strong></p></td><td><p><strong>Typical use case</strong></p></td></tr><tr><td><p>Subject</p></td><td><p>Nothing (misses past values)</p></td><td><p>Event bus, manual multicast</p></td></tr><tr><td><p>BehaviorSubject</p></td><td><p>Current (latest) value</p></td><td><p>Shared state, form fields, current user</p></td></tr><tr><td><pre><code>ReplaySubject(N)</code></pre>
+</td><td><p>Last N values (optionally by time)</p></td><td><p>Cache recent events, late-loading consumers</p></td></tr><tr><td><p>AsyncSubject</p></td><td><p>Last value only when complete() fires</p></td><td><p>Single async result (like a Promise)</p></td></tr></table><h1><strong>6. Scheduler</strong></h1><p>A Scheduler controls when a subscription starts and when notifications are delivered. It has three components: a data structure (task queue), an execution context (where/when tasks run), and a virtual clock (now()).</p><h2><strong>6.1 Scheduler Types</strong></h2><table><tr><td><p><strong>Scheduler</strong></p></td><td><p><strong>Execution context</strong></p></td><td><p><strong>Use for</strong></p></td></tr><tr><td><p>null / undefined</p></td><td><p>Synchronous, recursive</p></td><td><p>Constant-time or tail-recursive operations</p></td></tr><tr><td><p>queueScheduler</p></td><td><p>Current event frame queue (trampoline)</p></td><td><p>Iteration operations</p></td></tr><tr><td><p>asapScheduler</p></td><td><p>Micro-task queue (like Promise.then)</p></td><td><p>Async conversions, run before next macro-task</p></td></tr><tr><td><p>asyncScheduler</p></td><td><p>setInterval / setTimeout</p></td><td><p>Time-based operations (delay, interval, timer)</p></td></tr><tr><td><p>animationFrameScheduler</p></td><td><p>requestAnimationFrame</p></td><td><p>Smooth browser animations</p></td></tr></table><h2><strong>6.2 observeOn – Scheduling Notifications</strong></h2><pre><code>observeOn() controls on which scheduler downstream operators and the subscriber run. The example below shows how asyncScheduler defers delivery to the next event loop tick:
+import { Observable, observeOn, asyncScheduler } from 'rxjs';
+
+const observable = new Observable((observer) =&gt; {
+  observer.next(1);
+  observer.next(2);
+  observer.next(3);
+  observer.complete();
+}).pipe(
+  observeOn(asyncScheduler)
+);
+
+console.log('before subscribe');
+observable.subscribe({
+  next(x)    { console.log('got value ' + x); },
+  complete() { console.log('done'); },
+});
+console.log('after subscribe');
+
+// Output:
+// before subscribe
+// after subscribe       &lt;-- note: before the values!
+// got value 1
+// got value 2
+// got value 3
+// done</code></pre>
+<h2><strong>6.3 subscribeOn – Scheduling the Subscription</strong></h2><pre><code>subscribeOn() schedules the subscribe() call itself on a given scheduler:
+import { of, subscribeOn, asyncScheduler } from 'rxjs';
+
+console.log('start');
+
+of(1, 2, 3)
+  .pipe(subscribeOn(asyncScheduler))
+  .subscribe(console.log);
+
+console.log('end');
+
+// Output:
+// start
+// end
+// 1  2  3  (deferred to next tick)</code></pre>
+<h2><strong>6.4 Schedulers in Creation Operators</strong></h2><p>Most creation operators that deal with time accept a scheduler as their last argument:</p><pre><code>import { interval, asyncScheduler, asapScheduler } from 'rxjs';
+
+// Default: asyncScheduler
+interval(1000).subscribe(console.log);
+
+// Explicit scheduler
+interval(1000, asyncScheduler).subscribe(console.log);
+
+// Use asapScheduler for micro-task timing
+import { of } from 'rxjs';
+of(1, 2, 3, asapScheduler).subscribe(console.log);</code></pre>
+<h1><strong>7. Operators</strong></h1><p>Operators are the essential pieces that allow complex async code to be composed in a declarative manner. All pipeable operators are pure functions: they take an Observable and return a new Observable without modifying the source.</p><pre><code>import { of } from 'rxjs';
+import { map, filter } from 'rxjs/operators';
+
+of(1, 2, 3, 4, 5)
+  .pipe(
+    filter((n) =&gt; n % 2 !== 0),    // 1, 3, 5
+    map((n) =&gt; n * n)              // 1, 9, 25
+  )
+  .subscribe((n) =&gt; console.log(n));</code></pre>
+<h2><strong>7.1 Creation Operators</strong></h2><table><tr><td><p><strong>Operator</strong></p></td><td><p><strong>Description</strong></p></td></tr><tr><td><pre><code>of(...values)</code></pre>
+</td><td><p>Emits each argument synchronously then completes</p></td></tr><tr><td><pre><code>from(input)</code></pre>
+</td><td><p>Converts array, Promise, iterable, or Observable-like into Observable</p></td></tr><tr><td><pre><code>fromEvent(target, event)</code></pre>
+</td><td><p>Creates Observable from DOM/Node events</p></td></tr><tr><td><pre><code>interval(period)</code></pre>
+</td><td><p>Emits 0, 1, 2, ... every period ms (uses asyncScheduler)</p></td></tr><tr><td><pre><code>timer(delay, period?)</code></pre>
+</td><td><pre><code>Emits once after delay; optionally repeats every period ms</code></pre>
+</td></tr><tr><td><pre><code>range(start, count)</code></pre>
+</td><td><p>Emits a sequential range of integers</p></td></tr><tr><td><pre><code>defer(() =&gt; obs)</code></pre>
+</td><td><p>Creates Observable lazily – factory called per subscriber</p></td></tr><tr><td><p>EMPTY</p></td><td><p>Observable that immediately completes with no items</p></td></tr><tr><td><pre><code>throwError(() =&gt; err)</code></pre>
+</td><td><p>Observable that immediately errors</p></td></tr><tr><td><pre><code>forkJoin([o1, o2])</code></pre>
+</td><td><pre><code>Waits for all to complete; emits array of last values</code></pre>
+</td></tr><tr><td><pre><code>combineLatest([o1, o2])</code></pre>
+</td><td><p>When any emits, combine latest from all into array</p></td></tr><tr><td><pre><code>zip([o1, o2])</code></pre>
+</td><td><p>Pair nth emissions from each Observable into array</p></td></tr></table><pre><code>import { forkJoin, of, timer } from 'rxjs';
+
+// forkJoin – wait for all to complete (like Promise.all)
+forkJoin([
+  of('hello'),
+  timer(1000),
+  fetch('/api/user').then((r) =&gt; r.json()),
+]).subscribe(([word, tick, user]) =&gt; {
+  console.log(word, tick, user);
+});
+
+// combineLatest – react to latest from all sources
+import { combineLatest, interval } from 'rxjs';
+
+combineLatest([
+  interval(1000),
+  interval(1500),
+]).subscribe(([a, b]) =&gt; console.log(a, b));
+// [0,0]  [1,0]  [1,1]  [2,1]  ...</code></pre>
+<h2><strong>7.2 Transformation Operators</strong></h2><table><tr><td><p><strong>Operator</strong></p></td><td><p><strong>Description</strong></p></td></tr><tr><td><pre><code>map(fn)</code></pre>
+</td><td><p>Apply fn to every emitted value</p></td></tr><tr><td><pre><code>mergeMap(fn)</code></pre>
+</td><td><p>Map to Observable, merge all inner subscriptions concurrently</p></td></tr><tr><td><pre><code>switchMap(fn)</code></pre>
+</td><td><p>Map to Observable, cancel previous inner Observable on each emission</p></td></tr><tr><td><pre><code>concatMap(fn)</code></pre>
+</td><td><p>Map to Observable, subscribe sequentially (wait for each to complete)</p></td></tr><tr><td><pre><code>exhaustMap(fn)</code></pre>
+</td><td><p>Map to Observable, ignore new emissions while inner is still running</p></td></tr><tr><td><pre><code>scan(fn, seed)</code></pre>
+</td><td><p>Accumulate values like Array.reduce, emitting each intermediate result</p></td></tr><tr><td><pre><code>reduce(fn, seed)</code></pre>
+</td><td><p>Like scan but emits only the final accumulated value on complete</p></td></tr><tr><td><pre><code>buffer(obs)</code></pre>
+</td><td><p>Collect values into arrays, emit array when boundary Observable fires</p></td></tr><tr><td><pre><code>bufferTime(ms)</code></pre>
+</td><td><p>Collect values into arrays every ms milliseconds</p></td></tr><tr><td><pre><code>bufferCount(n)</code></pre>
+</td><td><p>Collect n values, emit array, repeat</p></td></tr><tr><td><pre><code>groupBy(keyFn)</code></pre>
+</td><td><p>Split into GroupedObservables keyed by keyFn result</p></td></tr><tr><td><pre><code>expand(fn)</code></pre>
+</td><td><p>Recursively apply fn and merge results (like flatMap with recursion)</p></td></tr><tr><td><pre><code>pairwise()</code></pre>
+</td><td><p>Emit [prev, curr] pairs for each new value</p></td></tr></table><pre><code>import { of, fromEvent, interval } from 'rxjs';
+import { map, mergeMap, switchMap, concatMap, scan } from 'rxjs/operators';
+
+// map – double each value
+of(1, 2, 3).pipe(map((x) =&gt; x * 2)).subscribe(console.log);   // 2 4 6
+
+// scan – running total (like reduce but emits each step)
+of(1, 2, 3, 4)
+  .pipe(scan((acc, val) =&gt; acc + val, 0))
+  .subscribe(console.log);   // 1 3 6 10
+
+// mergeMap – parallel inner subscriptions (e.g. parallel HTTP)
+const ids = of(1, 2, 3);
+ids
+  .pipe(mergeMap((id) =&gt; fetch(`/api/item/${id}`).then((r) =&gt; r.json())))
+  .subscribe(console.log);
+
+// switchMap – cancel previous (e.g. typeahead search)
+fromEvent(searchInput, 'input')
+  .pipe(switchMap((e) =&gt; fetch(`/api/search?q=${e.target.value}`)))
+  .subscribe(console.log);
+
+// concatMap – sequential, preserves order (e.g. save operations)
+clicks$
+  .pipe(concatMap(() =&gt; interval(1000).pipe(take(3))))
+  .subscribe(console.log);</code></pre>
+<p><strong>Choosing a mapping operator: </strong>mergeMap = parallel/concurrent | switchMap = cancel previous | concatMap = sequential | exhaustMap = ignore while busy</p><h2><strong>7.3 Filtering Operators</strong></h2><table><tr><td><p><strong>Operator</strong></p></td><td><p><strong>Description</strong></p></td></tr><tr><td><pre><code>filter(predicate)</code></pre>
+</td><td><p>Emit only values where predicate returns true</p></td></tr><tr><td><pre><code>take(n)</code></pre>
+</td><td><p>Emit first n values then complete</p></td></tr><tr><td><pre><code>takeUntil(notifier$)</code></pre>
+</td><td><p>Emit until notifier$ emits, then complete</p></td></tr><tr><td><pre><code>takeWhile(predicate)</code></pre>
+</td><td><p>Emit while predicate is true, then complete</p></td></tr><tr><td><pre><code>skip(n)</code></pre>
+</td><td><p>Skip first n values, then emit the rest</p></td></tr><tr><td><pre><code>skipUntil(notifier$)</code></pre>
+</td><td><p>Skip until notifier$ emits</p></td></tr><tr><td><pre><code>first(predicate?)</code></pre>
+</td><td><p>Emit first value (or first matching predicate), then complete</p></td></tr><tr><td><pre><code>last(predicate?)</code></pre>
+</td><td><p>Emit last value on complete (or last matching)</p></td></tr><tr><td><pre><code>debounceTime(ms)</code></pre>
+</td><td><p>Emit only after ms of silence (great for input fields)</p></td></tr><tr><td><pre><code>throttleTime(ms)</code></pre>
+</td><td><p>Emit first value in each ms-wide window</p></td></tr><tr><td><pre><code>distinctUntilChanged()</code></pre>
+</td><td><p>Skip value if it equals previous emitted value</p></td></tr><tr><td><pre><code>distinct()</code></pre>
+</td><td><p>Skip any value already emitted before</p></td></tr><tr><td><pre><code>sampleTime(ms)</code></pre>
+</td><td><p>Emit the most recent value every ms</p></td></tr><tr><td><pre><code>audit(durationSelector)</code></pre>
+</td><td><p>Emit last value after silence period from selector Observable</p></td></tr></table><pre><code>import { fromEvent, interval } from 'rxjs';
+import { debounceTime, distinctUntilChanged, takeUntil, filter } from 'rxjs/operators';
+
+// debounceTime + distinctUntilChanged – classic search box pattern
+fromEvent(searchInput, 'input')
+  .pipe(
+    map((e) =&gt; e.target.value),
+    debounceTime(300),              // wait 300ms after last keystroke
+    distinctUntilChanged(),         // only if value changed
+    filter((text) =&gt; text.length &gt;= 2)
+  )
+  .subscribe((query) =&gt; doSearch(query));
+
+// takeUntil – automatic cleanup
+const destroy$ = new Subject&lt;void&gt;();
+
+interval(1000)
+  .pipe(takeUntil(destroy$))
+  .subscribe(console.log);</code></pre>
+<h2><strong>7.4 Combination Operators</strong></h2><table><tr><td><p><strong>Operator</strong></p></td><td><p><strong>Description</strong></p></td></tr><tr><td><pre><code>merge(o1, o2, ...)</code></pre>
+</td><td><pre><code>Subscribe to all concurrently; emit values as they arrive</code></pre>
+</td></tr><tr><td><pre><code>concat(o1, o2, ...)</code></pre>
+</td><td><pre><code>Subscribe sequentially; wait for each to complete before next</code></pre>
+</td></tr><tr><td><pre><code>combineLatest([o1, o2])</code></pre>
+</td><td><p>When any source emits, combine with latest from all others</p></td></tr><tr><td><pre><code>zip([o1, o2])</code></pre>
+</td><td><p>Pair nth emissions from all sources into an array</p></td></tr><tr><td><pre><code>forkJoin([o1, o2])</code></pre>
+</td><td><p>Wait for all to complete, emit array of last values</p></td></tr><tr><td><pre><code>startWith(...values)</code></pre>
+</td><td><p>Prepend static values before source begins</p></td></tr><tr><td><pre><code>withLatestFrom(o2)</code></pre>
+</td><td><p>Combine source emission with latest value from o2</p></td></tr><tr><td><pre><code>race(o1, o2, ...)</code></pre>
+</td><td><p>Mirror the first Observable to emit</p></td></tr><tr><td><pre><code>partition(pred)</code></pre>
+</td><td><p>Split one Observable into two: [pass, fail]</p></td></tr></table><pre><code>import { merge, concat, combineLatest, of, interval } from 'rxjs';
+import { withLatestFrom, startWith } from 'rxjs/operators';
+
+// merge – interleave multiple streams
+merge(
+  interval(1000).pipe(map(() =&gt; 'A')),
+  interval(1500).pipe(map(() =&gt; 'B'))
+).subscribe(console.log);
+
+// withLatestFrom – enrich source with latest value from another
+const clicks$ = fromEvent(button, 'click');
+const value$  = inputObservable$;
+
+clicks$
+  .pipe(withLatestFrom(value$))
+  .subscribe(([click, value]) =&gt; console.log('Submitted:', value));
+
+// startWith – emit initial value before source
+interval(1000)
+  .pipe(startWith('Ready!'))
+  .subscribe(console.log);   // Ready!, 0, 1, 2, ...</code></pre>
+<h2><strong>7.5 Error Handling Operators</strong></h2><table><tr><td><p><strong>Operator</strong></p></td><td><p><strong>Description</strong></p></td></tr><tr><td><pre><code>catchError(fn)</code></pre>
+</td><td><p>Intercept error and return a replacement Observable (or rethrow)</p></td></tr><tr><td><pre><code>retry(n)</code></pre>
+</td><td><p>Resubscribe on error, up to n times</p></td></tr><tr><td><pre><code>retryWhen(fn)</code></pre>
+</td><td><p>Resubscribe with custom logic (e.g. delay, exponential back-off)</p></td></tr></table><pre><code>import { of, throwError, interval } from 'rxjs';
+import { catchError, retry, retryWhen, delayWhen, take } from 'rxjs/operators';
+
+// catchError – recover with a fallback Observable
+throwError(() =&gt; new Error('oops'))
+  .pipe(
+    catchError((err) =&gt; {
+      console.error('Caught:', err.message);
+      return of('fallback value');
+    })
+  )
+  .subscribe(console.log);   // fallback value
+
+// retry – simple retry
+someApiCall$
+  .pipe(retry(3))
+  .subscribe(console.log);
+
+// retryWhen – exponential back-off
+someApiCall$
+  .pipe(
+    retryWhen((errors) =&gt;
+      errors.pipe(
+        delayWhen((_, attempt) =&gt; timer(Math.pow(2, attempt) * 1000)),
+        take(4)
+      )
+    )
+  )
+  .subscribe(console.log);</code></pre>
+<h2><strong>7.6 Utility Operators</strong></h2><table><tr><td><p><strong>Operator</strong></p></td><td><p><strong>Description</strong></p></td></tr><tr><td><pre><code>tap(fn)</code></pre>
+</td><td><p>Side-effect without modifying the stream (logging, debugging)</p></td></tr><tr><td><pre><code>delay(ms)</code></pre>
+</td><td><p>Shift all emissions forward in time by ms milliseconds</p></td></tr><tr><td><pre><code>timeout({each})</code></pre>
+</td><td><p>Error if no value is emitted within each ms</p></td></tr><tr><td><pre><code>toArray()</code></pre>
+</td><td><p>Collect all values into a single array emission on complete</p></td></tr><tr><td><pre><code>finalize(fn)</code></pre>
+</td><td><p>Run fn on complete, error, or unsubscribe (cleanup)</p></td></tr><tr><td><pre><code>share()</code></pre>
+</td><td><pre><code>Multicast using a Subject; auto-connect on first subscriber</code></pre>
+</td></tr><tr><td><pre><code>shareReplay(n)</code></pre>
+</td><td><p>Multicast + replay last n values to new subscribers</p></td></tr><tr><td><pre><code>observeOn(sched)</code></pre>
+</td><td><p>Change the scheduler for downstream operators</p></td></tr><tr><td><pre><code>subscribeOn(sched)</code></pre>
+</td><td><p>Change the scheduler for the subscription itself</p></td></tr></table><pre><code>import { interval, of } from 'rxjs';
+import { tap, delay, toArray, share, shareReplay, finalize } from 'rxjs/operators';
+
+// tap – debug without altering the stream
+of(1, 2, 3)
+  .pipe(
+    tap((v) =&gt; console.log('Before map:', v)),
+    map((v) =&gt; v * 10),
+    tap((v) =&gt; console.log('After map:', v))
+  )
+  .subscribe(console.log);
+
+// shareReplay – cache HTTP response for multiple subscribers
+const user$ = fetch('/api/me')
+  .then((r) =&gt; r.json());
+
+const cachedUser$ = from(user$).pipe(shareReplay(1));
+
+// All subscribers share one HTTP call:
+cachedUser$.subscribe((user) =&gt; renderHeader(user));
+cachedUser$.subscribe((user) =&gt; renderProfile(user));
+
+// finalize – guaranteed cleanup
+someStream$
+  .pipe(finalize(() =&gt; console.log('Stream ended (any reason)')))
+  .subscribe();</code></pre>
+<h2><strong>7.7 Multicasting Operators</strong></h2><pre><code>share() and shareReplay() are the modern way to multicast. They internally use a Subject to share one Observable execution among multiple subscribers.
+import { interval } from 'rxjs';
+import { share, shareReplay, take } from 'rxjs/operators';
+
+// Without share – two subscriptions = two separate interval timers
+const cold$ = interval(1000).pipe(take(3));
+cold$.subscribe((v) =&gt; console.log('sub1:', v));
+cold$.subscribe((v) =&gt; console.log('sub2:', v));
+
+// With share – both share one timer
+const hot$ = interval(1000).pipe(take(3), share());
+hot$.subscribe((v) =&gt; console.log('sub1:', v));
+hot$.subscribe((v) =&gt; console.log('sub2:', v));
+
+// shareReplay(1) – replay latest to late subscribers (great for HTTP)
+const data$ = from(fetch('/api/data')).pipe(shareReplay(1));
+data$.subscribe((d) =&gt; renderA(d));
+data$.subscribe((d) =&gt; renderB(d));   // no second HTTP request</code></pre>
+<h2><strong>7.8 Conditional and Boolean Operators</strong></h2><table><tr><td><p><strong>Operator</strong></p></td><td><p><strong>Description</strong></p></td></tr><tr><td><pre><code>every(predicate)</code></pre>
+</td><td><p>Returns Observable&lt;boolean&gt; – true if all values satisfy predicate</p></td></tr><tr><td><pre><code>find(predicate)</code></pre>
+</td><td><p>Emit first value satisfying predicate, then complete</p></td></tr><tr><td><pre><code>findIndex(predicate)</code></pre>
+</td><td><p>Emit index of first value satisfying predicate</p></td></tr><tr><td><pre><code>defaultIfEmpty(val)</code></pre>
+</td><td><p>Emit val if source completes without emitting anything</p></td></tr><tr><td><pre><code>isEmpty()</code></pre>
+</td><td><p>Emit true if source completes without emitting, false otherwise</p></td></tr><tr><td><pre><code>iif(cond, t$, f$)</code></pre>
+</td><td><p>Lazily subscribe to t$ if cond() is true, else f$</p></td></tr></table><pre><code>import { of, iif, EMPTY } from 'rxjs';
+import { every, defaultIfEmpty } from 'rxjs/operators';
+
+// every – all values pass?
+of(1, 2, 3)
+  .pipe(every((x) =&gt; x &lt; 5))
+  .subscribe(console.log);   // true
+
+// defaultIfEmpty – fallback
+EMPTY
+  .pipe(defaultIfEmpty('nothing'))
+  .subscribe(console.log);   // nothing
+
+// iif – conditional subscription
+const flag = true;
+iif(
+  () =&gt; flag,
+  of('flag is true'),
+  of('flag is false')
+).subscribe(console.log);   // flag is true</code></pre>
+<h2><strong>7.9 Mathematical and Aggregate Operators</strong></h2><table><tr><td><p><strong>Operator</strong></p></td><td><p><strong>Description</strong></p></td></tr><tr><td><pre><code>count(predicate?)</code></pre>
+</td><td><p>Count total (or matching) emissions, emit on complete</p></td></tr><tr><td><pre><code>max(comparator?)</code></pre>
+</td><td><p>Emit the maximum value on complete</p></td></tr><tr><td><pre><code>min(comparator?)</code></pre>
+</td><td><p>Emit the minimum value on complete</p></td></tr><tr><td><pre><code>reduce(fn, seed)</code></pre>
+</td><td><p>Accumulate all values, emit single result on complete</p></td></tr></table><pre><code>import { of } from 'rxjs';
+import { count, max, min, reduce } from 'rxjs/operators';
+
+const numbers$ = of(5, 4, 7, 2, 8);
+
+numbers$.pipe(count()).subscribe(console.log);                    // 5
+numbers$.pipe(max()).subscribe(console.log);                      // 8
+numbers$.pipe(min()).subscribe(console.log);                      // 2
+numbers$.pipe(reduce((acc, v) =&gt; acc + v, 0)).subscribe(console.log); // 26</code></pre>
+<h1><strong>Operators Quick Reference</strong></h1><table><tr><td><p><strong>Category</strong></p></td><td><p><strong>Most Important Operators</strong></p></td></tr><tr><td><p>Creation</p></td><td><p>of, from, fromEvent, interval, timer, defer, EMPTY, forkJoin, combineLatest, zip</p></td></tr><tr><td><p>Transformation</p></td><td><p>map, mergeMap, switchMap, concatMap, exhaustMap, scan, reduce, buffer, groupBy</p></td></tr><tr><td><p>Filtering</p></td><td><p>filter, take, takeUntil, first, last, debounceTime, distinctUntilChanged, skip</p></td></tr><tr><td><p>Combination</p></td><td><p>merge, concat, combineLatest, zip, withLatestFrom, startWith, race</p></td></tr><tr><td><p>Error Handling</p></td><td><p>catchError, retry, retryWhen, finalize</p></td></tr><tr><td><p>Utility</p></td><td><p>tap, delay, toArray, share, shareReplay, observeOn, subscribeOn, timeout</p></td></tr><tr><td><p>Multicasting</p></td><td><p>share, shareReplay</p></td></tr><tr><td><p>Conditional</p></td><td><p>every, find, defaultIfEmpty, iif, isEmpty</p></td></tr><tr><td><p>Mathematical</p></td><td><p>count, max, min, reduce</p></td></tr></table>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>
+    document.querySelectorAll('pre code').forEach(function(el){if(!el.className)el.classList.add('language-typescript');});
+    document.querySelectorAll('pre code').forEach(function(el){ hljs.highlightElement(el); });
+  </script>
+  <script>(function () {
+    var marks = [];
+    var idx = -1;
+
+    function clearMarks() {
+        marks.forEach(function (m) {
+            var p = m.parentNode;
+            if (p) { p.replaceChild(document.createTextNode(m.textContent), m); p.normalize(); }
+        });
+        marks = [];
+        idx = -1;
+    }
+
+    function markText(query) {
+        var results = [];
+        var lower = query.toLowerCase();
+        var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null);
+        var nodes = [];
+        var n;
+        while ((n = walker.nextNode())) {
+            if (n.nodeValue.toLowerCase().includes(lower)) nodes.push(n);
+        }
+        nodes.forEach(function (textNode) {
+            var text  = textNode.nodeValue;
+            var ltext = text.toLowerCase();
+            var par   = textNode.parentNode;
+            if (!par) return;
+            var frag = document.createDocumentFragment();
+            var last = 0, i;
+            while ((i = ltext.indexOf(lower, last)) !== -1) {
+                if (i > last) frag.appendChild(document.createTextNode(text.slice(last, i)));
+                var m = document.createElement('mark');
+                m.className = 'dsm';
+                m.style.cssText = 'background:#ffe066;color:inherit;border-radius:2px;';
+                m.textContent = text.slice(i, i + query.length);
+                frag.appendChild(m);
+                results.push(m);
+                last = i + query.length;
+            }
+            if (last < text.length) frag.appendChild(document.createTextNode(text.slice(last)));
+            par.replaceChild(frag, textNode);
+        });
+        return results;
+    }
+
+    function highlight() {
+        marks.forEach(function (m, i) {
+            m.style.background = i === idx ? '#ff9900' : '#ffe066';
+            m.style.outline    = i === idx ? '2px solid #e65c00' : 'none';
+        });
+        if (marks[idx]) marks[idx].scrollIntoView({ block: 'center' });
+    }
+
+    function reply(src) {
+        src.postMessage({ type: 'searchResult', count: marks.length, current: idx }, '*');
+    }
+
+    window.addEventListener('message', function (e) {
+        var d = e.data;
+        if (!d || !d.type) return;
+        if (d.type === 'search') {
+            clearMarks();
+            if (d.query) {
+                marks = markText(d.query);
+                if (marks.length) idx = 0;
+                highlight();
+            }
+            reply(e.source);
+        } else if (d.type === 'searchNav') {
+            if (!marks.length) return;
+            idx = d.dir === 'next'
+                ? (idx + 1) % marks.length
+                : (idx - 1 + marks.length) % marks.length;
+            highlight();
+            reply(e.source);
+        } else if (d.type === 'searchClear') {
+            clearMarks();
+        }
+    });
+})();</script>
+</body>
+</html>

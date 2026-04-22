@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>RxJava</title>
+  <link rel="stylesheet" href="../assets/content.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+</head>
+<body>
+  <h1>RxJava</h1>
+  <p><strong>What is RxJava?</strong></p><p>RxJava is a Java implementation of <a href="https://reactivex.io/" target="_blank" rel="noopener noreferrer">ReactiveX</a>, a library for composing asynchronous and event-based programs using observable sequences. It extends the observer pattern to support sequences of data and/or events and adds operators that allow you to compose sequences together declaratively. </p><p>RxJava allows you to write clean, composable, and flexible code for asynchronous operations such as: </p><ul><li>Network calls and API responses</li><li>UI events and user interactions</li><li>Database queries and data processing</li><li>Background processing and computation</li><li>Event streams and messaging</li></ul><p><strong>Getting Started</strong></p><p><strong>Installation</strong></p><p>To start using RxJava in your project, add the following dependency: </p><pre><code>// Maven</code></pre>
+<p>&lt;dependency&gt;</p><pre><code>   &lt;groupId&gt;io.reactivex.rxjava3&lt;/groupId&gt;
+    &lt;artifactId&gt;rxjava&lt;/artifactId&gt;
+    &lt;version&gt;3.1.8&lt;/version&gt;</code></pre>
+<p>&lt;/dependency&gt;</p><pre><code>// Gradle</code></pre>
+<p>implementation 'io.reactivex.rxjava3:rxjava:3.1.8'</p><p> </p><p><strong>Core Concepts</strong></p><p><strong>Observable</strong></p><p>The core type in RxJava is the Observable. An Observable represents a stream of data or events that can be observed. It can emit: </p><ul><li>Zero or more items (onNext)</li><li>An error (onError)</li><li>A completion signal (onComplete)</li></ul><pre><code>import io.reactivex.rxjava3.core.Observable;
+// Creating an Observable that emits a sequence of integers
+Observable&lt;Integer&gt; observable = Observable.fromArray(1, 2, 3, 4, 5);
+// Subscribing to the Observable
+observable.subscribe(
+    item -&gt; System.out.println("Received: " + item),  // onNext
+    error -&gt; System.err.println("Error: " + error),   // onError
+    () -&gt; System.out.println("Completed")             // onComplete
+);</code></pre>
+<p><strong>Operators</strong></p><p>Operators allow you to transform, combine, manipulate, and work with the sequences emitted by Observables. RxJava provides a vast array of operators to handle almost any scenario. </p><pre><code>import io.reactivex.rxjava3.core.Observable;
+Observable.fromArray(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+    .filter(n -&gt; n % 2 == 0)      // Keep only even numbers
+    .map(n -&gt; n * n)              // Square each number
+    .take(3)                      // Take only the first 3 results
+    .subscribe(
+        result -&gt; System.out.println("Result: " + result),
+        error -&gt; System.err.println("Error: " + error),
+        () -&gt; System.out.println("Processing completed")
+    );
+// Output:
+// Result: 4
+// Result: 16
+// Result: 36
+// Processing completed</code></pre>
+<p><strong>Schedulers</strong></p><p>Schedulers in RxJava manage the execution context (thread) on which operations run, allowing you to control concurrency. Some common schedulers include: </p><ul><li>Schedulers.io() - For IO-bound work (network, disk)</li><li>Schedulers.computation() - For CPU-intensive work</li><li>Schedulers.newThread() - Creates a new thread for each unit of work</li><li>AndroidSchedulers.mainThread() - For Android UI thread operations (with RxAndroid)</li></ul><p><strong>Key Benefits of RxJava</strong></p><p><strong>Declarative Programming</strong></p><p>RxJava enables a declarative programming style where you describe what you want to happen rather than how to do it, leading to cleaner and more maintainable code. </p><p><strong>Composability</strong></p><p>Chain operators together to create complex data processing pipelines with simple, reusable components. </p><p><strong>Error Handling</strong></p><p>Built-in error handling mechanisms make dealing with exceptions in asynchronous code much more manageable. </p><p><strong>Concurrency Made Simple</strong></p><p>Switch between threads easily without complex synchronization or locks using Schedulers. </p><p><strong>to Use RxJava</strong></p><p>RxJava is particularly useful in scenarios involving: </p><ul><li>Complex asynchronous operations</li><li>Event-based programming</li><li>Managing multiple data sources</li><li>Real-time data updates</li><li>Backpressure handling (when producers are faster than consumers)</li></ul><p><strong>Common Use Cases</strong></p><ul><li>Network API calls with retries, caching, and fallbacks</li><li>UI event handling with debouncing and throttling</li><li>Combining multiple data sources with different refresh rates</li><li>Background processing with progress updates</li><li>Complex search operations with typeahead suggestions</li></ul><p><strong>RxJava Tutorials</strong></p><p>Learn RxJava step-by-step with these comprehensive tutorials. From basic concepts to advanced techniques, master reactive programming with practical examples. </p><p><strong>Tutorial 1: Creating Observables</strong></p><p>In this tutorial, we'll learn how to create Observables using different factory methods and understand the core concepts behind Observable creation. </p><p><strong>Basic Observable Creation</strong></p><p>There are several ways to create Observables in RxJava: </p><ul><li>Observable.create() - Create an Observable from scratch</li><li>Observable.just() - Create an Observable that emits a specified item</li><li>Observable.fromIterable() - Convert an Iterable into an Observable</li><li>Observable.fromArray() - Convert an array into an Observable</li><li>Observable.fromCallable() - Create an Observable from a Callable</li><li>Observable.interval() - Create an Observable that emits a sequence of integers spaced by a given time interval</li></ul><pre><code>import io.reactivex.rxjava3.core.Observable;
+// Creating and subscribing to a simple Observable
+Observable&lt;String&gt; observable = Observable.create(emitter -&gt; {
+    try {
+        emitter.onNext("Hello");
+        emitter.onNext("World");
+        emitter.onComplete();
+    } catch (Exception e) {
+        emitter.onError(e);
+    }
+});
+// Subscribe with separate action handlers
+observable.subscribe(
+    item -&gt; System.out.println(item),             // onNext handler
+    error -&gt; error.printStackTrace(),             // onError handler
+    () -&gt; System.out.println("Completed")         // onComplete handler
+);</code></pre>
+<p><strong>Creating Observables from Common Sources</strong></p><p>RxJava provides factory methods to create Observables from common data sources: </p><p><strong>From Collections</strong></p><p>List[object Object]</p><p><strong>From Future</strong></p><p>Future[object Object]</p><p><a href="https://www.rxjava.com/tutorials" target="_blank" rel="noopener noreferrer">Read Full Tutorial </a></p><p><strong>Tutorial 2: Working with Schedulers</strong></p><p>In this tutorial, we'll explore how to use Schedulers to control threading in RxJava applications, allowing you to perform operations on different threads. </p><p><strong>Understanding Schedulers</strong></p><p>Schedulers in RxJava determine which threads are used for executing operations and delivering results. They're crucial for managing concurrency and ensuring that operations don't block critical threads like the UI thread. </p><p><strong>Key Scheduler Types</strong></p><ul><li><strong>Schedulers.io()</strong></li></ul><p>Backed by a thread pool that can grow as needed. Ideal for I/O-bound work like network requests and disk operations.</p><ul><li><strong>Schedulers.computation()</strong></li></ul><p>Fixed thread pool sized to the number of available processors. Best for CPU-intensive work.</p><ul><li><strong>Schedulers.newThread()</strong></li></ul><p>Creates a new thread for each unit of work. More expensive but sometimes necessary.</p><ul><li><strong>Schedulers.single()</strong></li></ul><p>Uses a single thread for all operations, ensuring sequential execution.</p><p><strong>Controlling the Execution Thread</strong></p><p>RxJava provides two main operators for controlling which threads are used: </p><ul><li>subscribeOn() - Specifies the Scheduler on which the Observable will operate</li><li>observeOn() - Specifies the Scheduler on which the Observer will receive notifications</li></ul><pre><code>import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.schedulers.Schedulers;
+Observable.just("Long running operation")
+    .map(s -&gt; {
+        System.out.println("Processing on thread: " + Thread.currentThread().getName());
+        // Simulate long-running operation
+        Thread.sleep(1000);
+        return s + " completed";
+    })
+    .subscribeOn(Schedulers.io())           // Specify thread for the source Observable
+    .observeOn(Schedulers.computation())    // Specify thread for downstream operations
+    .subscribe(
+        result -&gt; System.out.println("Received on thread: " + 
+                    Thread.currentThread().getName() + ", Result: " + result),
+        Throwable::printStackTrace
+    );</code></pre>
+<p><strong>RxJava Operators</strong></p><p>Operators are the building blocks of reactive programming with RxJava. They allow you to transform, filter, combine, and manipulate data streams in powerful ways. </p><p><strong>Operator Categories</strong></p><p>RxJava provides a rich set of operators organized into different categories based on their purpose: </p><ul><li><strong>Creation Operators</strong></li></ul><p>Create Observable sequences from various sources. </p><p><em>just, fromArray, fromIterable, interval, range </em></p><ul><li><strong>Transforming Operators</strong></li></ul><p>Transform items emitted by Observables. </p><p><em>map, flatMap, switchMap, buffer, scan </em></p><ul><li><strong>Filtering Operators</strong></li></ul><p>Filter items emitted by Observables. </p><p><em>filter, take, skip, distinct, debounce </em></p><ul><li><strong>Combining Operators</strong></li></ul><p>Combine multiple Observables. </p><p><em>merge, concat, zip, combineLatest, withLatestFrom </em></p><ul><li><strong>Error Handling Operators</strong></li></ul><p>Handle errors in Observable sequences. </p><p><em>onErrorReturn, onErrorResumeNext, retry, retryWhen </em></p><ul><li><strong>Utility Operators</strong></li></ul><p>Perform actions on Observable sequences. </p><p><em>delay, doOnNext, doOnError, timeout, timestamp </em></p><p><strong>Essential Operators</strong></p><ul><li><strong>map</strong></li></ul><p>Transforms each item emitted by an Observable by applying a function to each item. </p><pre><code>Observable.just("Hello, World!")
+    .map(s -&gt; s.toUpperCase())
+    .subscribe(result -&gt; System.out.println(result));
+// Output: HELLO, WORLD!</code></pre>
+<p><strong>Marble Diagram</strong></p><pre><code>--1--2--3--4--&gt;
+   map(x =&gt; x*x)
+--1--4--9-16--&gt;</code></pre>
+<p><strong>When to Use</strong></p><p>When you need to transform each item in a 1:1 relationship without changing the number of items.</p><p><strong>Similar To</strong></p><p>select in LINQ, Array.map() in JavaScript</p><ul><li><strong>filter</strong></li></ul><p>Emits only those items from an Observable that pass a predicate test. </p><pre><code>Observable.fromArray(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+    .filter(n -&gt; n % 2 == 0)  // Keep only even numbers
+    .subscribe(n -&gt; System.out.println(n));
+// Output: 2, 4, 6, 8, 10</code></pre>
+<p><strong>Marble Diagram</strong></p><pre><code>--1--2--3--4--5--&gt;
+ filter(x =&gt; x % 2 == 0)
+----2-----4------&gt;</code></pre>
+<p><strong>When to Use</strong></p><p>When you need to exclude items that don't meet certain criteria.</p><p><strong>Similar To</strong></p><p>where in LINQ, Array.filter() in JavaScript</p><ul><li><strong>flatMap</strong></li></ul><p>Transforms items emitted by an Observable into Observables, then flattens the emissions. </p><pre><code>// Simulate fetching user details after fetching user IDs
+Observable.just("user1", "user2", "user3")
+    .flatMap(userId -&gt; getUserDetails(userId))
+    .subscribe(userDetails -&gt; System.out.println(userDetails));
+// Where getUserDetails is defined as:
+private Observable&lt;String&gt; getUserDetails(String userId) {
+    return Observable.just("Details for " + userId);
+}</code></pre>
+<p><strong>Marble Diagram</strong></p><pre><code>--1--------2------&gt;
+  flatMap(x =&gt; [x, x+1])
+--1-2------2-3----&gt;</code></pre>
+<p><strong>When to Use</strong></p><p>When you need to perform nested asynchronous operations, like API calls that depend on the result of another API call.</p><p><strong>Similar To</strong></p><p>selectMany in LINQ, Array.flatMap() in JavaScript</p><ul><li><strong>debounce</strong></li></ul><p>Only emits an item if a specified time period has passed without the Observable emitting another item. </p><pre><code>// In an Android UI context with RxBinding
+RxTextView.textChanges(searchEditText)
+    .debounce(300, TimeUnit.MILLISECONDS) // Wait for 300ms of inactivity
+    .observeOn(AndroidSchedulers.mainThread())
+    .subscribe(query -&gt; performSearch(query.toString()));</code></pre>
+<p><strong>Marble Diagram</strong></p><pre><code>--1-2-3---4-|--&gt;
+   debounce(100ms)
+---------3---4-|--&gt;</code></pre>
+<p><strong>When to Use</strong></p><p>When handling rapid user input like search queries, to avoid making API calls for each keystroke.</p><p><strong>Similar To</strong></p><p>Debounce functions in UI libraries, lodash's _.debounce()</p><p><strong>Operator Selection Guide</strong></p><p>Choosing the right operator can be challenging. Here's a quick guide to help you pick the right operator based on your needs: </p><p><strong>Need to Transform Items?</strong></p><ul><li><strong>map</strong>: One-to-one transformation of each item</li><li><strong>flatMap</strong>: One-to-many transformation, preserves order but may interleave</li><li><strong>switchMap</strong>: One-to-many transformation, cancels previous inner Observables</li><li><strong>concatMap</strong>: One-to-many transformation, processes inner Observables in order</li></ul><p><strong>Need to Filter Items?</strong></p><ul><li><strong>filter</strong>: Remove items that don't satisfy a condition</li><li><strong>take</strong>: Limit the number of items</li><li><strong>skip</strong>: Skip a number of items</li><li><strong>distinct</strong>: Remove duplicate items</li><li><strong>elementAt</strong>: Only emit the item at a specific index</li></ul><p><strong>Need to Combine Multiple Observables?</strong></p><ul><li><strong>merge</strong>: Combine multiple Observables, emitting items as they arrive</li><li><strong>concat</strong>: Combine Observables sequentially, one after the other</li><li><strong>zip</strong>: Combine items from multiple Observables into pairs/tuples</li><li><strong>combineLatest</strong>: When any Observable emits, combine with latest from others</li></ul><p><strong>Need to Handle Errors?</strong></p><ul><li><strong>onErrorReturn</strong>: Return a default value if error occurs</li><li><strong>onErrorResumeNext</strong>: Switch to a fallback Observable if error occurs</li><li><strong>retry</strong>: Resubscribe to the source Observable if error occurs</li><li><strong>retryWhen</strong></li></ul><p><strong>Real-World RxJava Examples</strong></p><p>Explore practical examples of using RxJava in real-world scenarios. These examples demonstrate how to solve common challenges using reactive programming patterns. </p><ul><li><ol><li><strong>Network Requests with Error Handling</strong></li></ol></li></ul><p>This example shows how to handle network requests with RxJava, including proper error handling, timeouts, retries, and thread management. </p><p><strong>Key Concepts Demonstrated</strong></p><ul><li>Moving network operations to background threads with subscribeOn</li><li>Implementing timeouts to prevent waiting indefinitely</li><li>Automatic retries for transient failures</li><li>Fallback values with onErrorReturn</li><li>Thread switching for UI updates with observeOn</li><li>Proper loading state management</li></ul><p><strong>When to Use This Pattern</strong></p><p>This pattern is ideal for any network-dependent operation in your application, such as API calls, file downloads, or any remote data fetch that needs to be resilient against failures and should not block the main thread. </p><pre><code>import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.schedulers.Schedulers;
+import java.util.concurrent.TimeUnit;
+// Simulate a network request with timeout, retry, and error handling
+public Observable&lt;String&gt; fetchDataFromApi(String endpoint) {
+    return Observable
+        .fromCallable(() -&gt; {
+            // Simulate network call
+            System.out.println("Making request to: " + endpoint);
+            if (Math.random() &lt; 0.3) { // 30% chance of failure
+                throw new IOException("Network error");
+            }
+            Thread.sleep(2000); // Simulate network delay
+            return "Response from " + endpoint;
+        })
+        .subscribeOn(Schedulers.io()) // Perform on IO thread
+        .timeout(5, TimeUnit.SECONDS) // Timeout after 5 seconds
+        .retry(2) // Retry up to 2 times
+        .onErrorReturn(error -&gt; "Error fetching data: " + error.getMessage());
+}
+// Usage
+fetchDataFromApi("/api/users")
+    .observeOn(AndroidSchedulers.mainThread()) // Switch to main thread for Android UI
+    .doOnSubscribe(d -&gt; showLoadingIndicator())
+    .doFinally(() -&gt; hideLoadingIndicator())
+    .subscribe(
+        response -&gt; displayData(response),
+        error -&gt; showError(error)
+    );</code></pre>
+<ul><li><ol><li><strong>Real-time Form Validation</strong></li></ol></li></ul><p>This example demonstrates how to implement real-time form validation that enables/disables a submit button based on input validity. </p><p><strong>Key Concepts Demonstrated</strong></p><ul><li>Reactive UI updates based on user input</li><li>Combining multiple validation streams with combineLatest</li><li>Preventing duplicate emissions with distinctUntilChanged</li><li>Declarative UI state management</li></ul><p><strong>When to Use This Pattern</strong></p><p>Use this pattern when you need to perform real-time validation of user input across multiple fields with interdependencies. It's perfect for login forms, registration flows, or any multi-step input process where you want to provide immediate feedback. </p><pre><code>// Android example with RxBinding
+// Validates a form when both email and password meet criteria
+Observable&lt;Boolean&gt; emailValid = RxTextView
+    .textChanges(emailEditText)
+    .map(CharSequence::toString)
+    .map(email -&gt; email.contains("@") &amp;&amp; email.length() &gt; 5);
+Observable&lt;Boolean&gt; passwordValid = RxTextView
+    .textChanges(passwordEditText)
+    .map(CharSequence::toString)
+    .map(password -&gt; password.length() &gt;= 8);
+Observable.combineLatest(emailValid, passwordValid, 
+    (isEmailValid, isPasswordValid) -&gt; isEmailValid &amp;&amp; isPasswordValid)
+    .distinctUntilChanged()
+    .subscribe(isValid -&gt; {
+        submitButton.setEnabled(isValid);
+        if (isValid) {
+            submitButton.setAlpha(1.0f);
+        } else {
+            submitButton.setAlpha(0.5f);
+        }
+    });</code></pre>
+<ul><li><ol><li><strong>Reactive Search Implementation</strong></li></ol></li></ul><p>This example shows how to implement a responsive search feature that queries an API as the user types, with proper debouncing and cancelation of outdated requests. </p><p><strong>Key Concepts Demonstrated</strong></p><ul><li>Debouncing rapid user input with debounce</li><li>Cancelling outdated requests with switchMap</li><li>Filtering out short queries that would return too many results</li><li>Showing loading states during queries</li><li>Handling errors gracefully</li></ul><p><strong>When to Use This Pattern</strong></p><p>This pattern is ideal for implementing search features, autocomplete, typeahead suggestions, or any UI that needs to react to user input by fetching data from an external source. It provides a smooth user experience by avoiding unnecessary API calls and ensuring that only the most recent search results are displayed. </p><pre><code>// Search example with debounce and switchMap
+Observable&lt;String&gt; searchQueryObservable = RxTextView
+    .textChanges(searchEditText)
+    .map(CharSequence::toString)
+    .debounce(300, TimeUnit.MILLISECONDS) // Wait for 300ms of inactivity
+    .distinctUntilChanged()  // Only emit when the query changes
+    .filter(query -&gt; query.length() &gt;= 2); // Only search for queries with 2+ chars</code></pre>
+<p>searchQueryObservable</p><pre><code>    .doOnNext(query -&gt; showLoading())
+    .switchMap(query -&gt; searchApi.search(query)
+        .subscribeOn(Schedulers.io())
+        .onErrorReturn(error -&gt; Collections.emptyList())
+    )
+    .observeOn(AndroidSchedulers.mainThread())
+    .subscribe(
+        results -&gt; {
+            hideLoading();
+            displayResults(results);
+        },
+        error -&gt; {
+            hideLoading();
+            showError(error);
+        }
+    );</code></pre>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>
+    document.querySelectorAll('pre code').forEach(function(el){if(!el.className)el.classList.add('language-java');});
+    document.querySelectorAll('pre code').forEach(function(el){ hljs.highlightElement(el); });
+  </script>
+  <script>(function () {
+    var marks = [];
+    var idx = -1;
+
+    function clearMarks() {
+        marks.forEach(function (m) {
+            var p = m.parentNode;
+            if (p) { p.replaceChild(document.createTextNode(m.textContent), m); p.normalize(); }
+        });
+        marks = [];
+        idx = -1;
+    }
+
+    function markText(query) {
+        var results = [];
+        var lower = query.toLowerCase();
+        var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null);
+        var nodes = [];
+        var n;
+        while ((n = walker.nextNode())) {
+            if (n.nodeValue.toLowerCase().includes(lower)) nodes.push(n);
+        }
+        nodes.forEach(function (textNode) {
+            var text  = textNode.nodeValue;
+            var ltext = text.toLowerCase();
+            var par   = textNode.parentNode;
+            if (!par) return;
+            var frag = document.createDocumentFragment();
+            var last = 0, i;
+            while ((i = ltext.indexOf(lower, last)) !== -1) {
+                if (i > last) frag.appendChild(document.createTextNode(text.slice(last, i)));
+                var m = document.createElement('mark');
+                m.className = 'dsm';
+                m.style.cssText = 'background:#ffe066;color:inherit;border-radius:2px;';
+                m.textContent = text.slice(i, i + query.length);
+                frag.appendChild(m);
+                results.push(m);
+                last = i + query.length;
+            }
+            if (last < text.length) frag.appendChild(document.createTextNode(text.slice(last)));
+            par.replaceChild(frag, textNode);
+        });
+        return results;
+    }
+
+    function highlight() {
+        marks.forEach(function (m, i) {
+            m.style.background = i === idx ? '#ff9900' : '#ffe066';
+            m.style.outline    = i === idx ? '2px solid #e65c00' : 'none';
+        });
+        if (marks[idx]) marks[idx].scrollIntoView({ block: 'center' });
+    }
+
+    function reply(src) {
+        src.postMessage({ type: 'searchResult', count: marks.length, current: idx }, '*');
+    }
+
+    window.addEventListener('message', function (e) {
+        var d = e.data;
+        if (!d || !d.type) return;
+        if (d.type === 'search') {
+            clearMarks();
+            if (d.query) {
+                marks = markText(d.query);
+                if (marks.length) idx = 0;
+                highlight();
+            }
+            reply(e.source);
+        } else if (d.type === 'searchNav') {
+            if (!marks.length) return;
+            idx = d.dir === 'next'
+                ? (idx + 1) % marks.length
+                : (idx - 1 + marks.length) % marks.length;
+            highlight();
+            reply(e.source);
+        } else if (d.type === 'searchClear') {
+            clearMarks();
+        }
+    });
+})();</script>
+</body>
+</html>

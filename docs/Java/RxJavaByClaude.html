@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>RxJavaByClaude</title>
+  <link rel="stylesheet" href="../assets/content.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+</head>
+<body>
+  <h1>RxJavaByClaude</h1>
+  <p>RxJava – Study &amp; Learn Guide</p><p>Based on ReactiveX documentation · RxJava 3.x</p><p><a href="https://www.rxjava.com" target="_blank" rel="noopener noreferrer">https://www.rxjava.com</a></p><h1>1. Introduction</h1><p>RxJava is the Java implementation of ReactiveX (Reactive Extensions) – a library for composing asynchronous and event-based programs using observable sequences. It extends the classic Observer pattern to support sequences of data/events and adds powerful operators that let you compose, transform, and combine those sequences declaratively.</p><h2>1.1 The Observable Abstraction</h2><p>Observables fill a critical gap between synchronous and asynchronous data retrieval:</p><table><tr><td><p><strong>Cardinality</strong></p></td><td><p><strong>Synchronous</strong></p></td><td><p><strong>Asynchronous</strong></p></td></tr><tr><td><p>Single item</p></td><td><p>T getData()</p></td><td><p>Future&lt;T&gt; getData()</p></td></tr><tr><td><p>Multiple items</p></td><td><p>Iterable&lt;T&gt; getData()</p></td><td><p>Observable&lt;T&gt; getData()  &lt;- RxJava</p></td></tr></table><h2>1.2 Observable vs. Iterable (Push vs. Pull)</h2><p>Iterables use a pull model – the consumer requests the next value. Observables use a push model – the producer emits values to the consumer.</p><table><tr><td><p><strong>Event</strong></p></td><td><p><strong>Iterable (pull)</strong></p></td><td><p><strong>Observable (push)</strong></p></td></tr><tr><td><p>Retrieve data</p></td><td><p>T next()</p></td><td><pre><code>onNext(T)</code></pre>
+</td></tr><tr><td><p>Error</p></td><td><p>throws Exception</p></td><td><pre><code>onError(Exception)</code></pre>
+</td></tr><tr><td><p>Completion</p></td><td><p>!hasNext()</p></td><td><pre><code>onCompleted()</code></pre>
+</td></tr></table><h2>1.3 Core Types</h2><table><tr><td><p><strong>Type</strong></p></td><td><p><strong>Emissions</strong></p></td><td><p><strong>Description</strong></p></td></tr><tr><td><p>Observable&lt;T&gt;</p></td><td><p>0..N items + complete/error</p></td><td><pre><code>General-purpose reactive stream; no backpressure support</code></pre>
+</td></tr><tr><td><p>Flowable&lt;T&gt;</p></td><td><p>0..N items + complete/error</p></td><td><p>Like Observable but with backpressure support (Reactive Streams compatible)</p></td></tr><tr><td><p>Single&lt;T&gt;</p></td><td><p>Exactly 1 item or error</p></td><td><p>Represents a single async result</p></td></tr><tr><td><p>Maybe&lt;T&gt;</p></td><td><p>0 or 1 item or error</p></td><td><p>Represents an optional async result</p></td></tr><tr><td><p>Completable</p></td><td><p>Complete or error (no items)</p></td><td><p>Represents a fire-and-forget async action</p></td></tr><tr><td><p>Subject&lt;T&gt;</p></td><td><p>0..N items (hot)</p></td><td><pre><code>Acts as both Observable and Observer; multicasts to all subscribers</code></pre>
+</td></tr></table><h2>1.4 Hot vs. Cold Observables</h2><table><tr><td><p><strong>Type</strong></p></td><td><p><strong>When it starts emitting</strong></p></td><td><p><strong>Subscribers see</strong></p></td></tr><tr><td><p>Cold</p></td><td><p>Only when a subscriber subscribes</p></td><td><p>Complete sequence from the beginning (each subscriber gets its own execution)</p></td></tr><tr><td><p>Hot</p></td><td><p>Immediately upon creation</p></td><td><p>Only items emitted after they subscribe (e.g. a UI event stream)</p></td></tr></table><h2>1.5 Core Principles</h2><p><strong>Composability: </strong>Operators allow you to declaratively chain transformations on async streams, avoiding callback nesting.</p><p><strong>Flexibility: </strong>Works for single values, finite sequences, and infinite streams – all under one abstraction.</p><pre><code><strong>Implementation Agnosticism: </strong>RxJava is unopinionated about threading; you choose schedulers without changing business logic.</code></pre>
+<h1>2. Tutorials – Getting Started</h1><h2>2.1 Dependency (Maven / Gradle)</h2><p>Add RxJava 3.x to your project:</p><pre><code>&lt;!-- Maven --&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;io.reactivex.rxjava3&lt;/groupId&gt;
+    &lt;artifactId&gt;rxjava&lt;/artifactId&gt;
+    &lt;version&gt;3.1.8&lt;/version&gt;
+&lt;/dependency&gt;
+
+// Gradle
+implementation "io.reactivex.rxjava3:rxjava:3.1.8"</code></pre>
+<h2>2.2 Your First Observable</h2><p>The simplest way to create an Observable is Observable.just():</p><pre><code>import io.reactivex.rxjava3.core.Observable;
+
+Observable&lt;String&gt; observable = Observable.just("Hello", "RxJava", "World");
+
+observable.subscribe(
+    item  -&gt; System.out.println("Received: " + item),   // onNext
+    error -&gt; System.err.println("Error: " + error),     // onError
+    ()    -&gt; System.out.println("Completed!")            // onComplete
+);</code></pre>
+<h2>2.3 Creating with Observable.create()</h2><p>For full control, use create() and call observer methods manually:</p><pre><code>Observable&lt;Integer&gt; source = Observable.create(emitter -&gt; {
+    try {
+        for (int i = 1; i &lt;= 5; i++) {
+            if (emitter.isDisposed()) return;   // check if downstream unsubscribed
+            emitter.onNext(i);
+        }
+        emitter.onComplete();
+    } catch (Exception e) {
+        emitter.onError(e);
+    }
+});
+
+source.subscribe(System.out::println);</code></pre>
+<h2>2.4 Transforming Items with map() and filter()</h2><pre><code>Observable.range(1, 10)
+    .filter(n -&gt; n % 2 == 0)          // keep even numbers
+    .map(n -&gt; "Number: " + n)          // transform to String
+    .subscribe(System.out::println);</code></pre>
+<h2>2.5 Threading: subscribeOn &amp; observeOn</h2><pre><code>subscribeOn() controls on which thread the Observable does its work. observeOn() controls on which thread downstream operators and the subscriber run.
+Observable.fromCallable(() -&gt; fetchDataFromNetwork())   // slow I/O
+    .subscribeOn(Schedulers.io())          // run fetchData on I/O thread
+    .observeOn(Schedulers.single())        // process result on single thread
+    .subscribe(
+        data  -&gt; updateUI(data),
+        error -&gt; showError(error)
+    );
+
+// Common Schedulers:
+// Schedulers.io()           - for I/O operations (network, file)
+// Schedulers.computation()  - for CPU-intensive work
+// Schedulers.newThread()    - creates a new thread each time
+// Schedulers.single()       - single background thread
+// Schedulers.trampoline()   - queues work on current thread</code></pre>
+<h2>2.6 Disposables and Resource Cleanup</h2><p>A Disposable lets you cancel a subscription to stop receiving items and free resources:</p><pre><code>Disposable disposable = Observable.interval(1, TimeUnit.SECONDS)
+    .subscribe(tick -&gt; System.out.println("Tick: " + tick));
+
+// Later, when you no longer need the stream:
+disposable.dispose();
+
+// CompositeDisposable - manage multiple subscriptions together
+CompositeDisposable composite = new CompositeDisposable();
+composite.add(disposable1);
+composite.add(disposable2);
+composite.dispose();   // disposes all at once</code></pre>
+<h2>2.7 Flowable and Backpressure</h2><p>Use Flowable when the producer can emit faster than the consumer can process. BackpressureStrategy controls what happens when the buffer overflows:</p><pre><code>Flowable.range(1, 1_000_000)
+    .onBackpressureBuffer()         // buffer excess items
+    .observeOn(Schedulers.computation())
+    .subscribe(System.out::println);
+
+// BackpressureStrategy options:
+// BUFFER  - buffer all items (risk OutOfMemoryError)
+// DROP    - drop items that cannot be handled
+// LATEST  - keep only the latest item
+// ERROR   - throw MissingBackpressureException
+// MISSING - no strategy; use onBackpressureXxx() downstream</code></pre>
+<h1>3. Operators</h1><p>Operators are the building blocks of RxJava pipelines. They transform, filter, combine, and manage Observable sequences. Below are all categories from <a href="https://reactivex.io/documentation/operators.html" target="_blank" rel="noopener noreferrer">https://reactivex.io/documentation/operators.html</a></p><h2>3.1 Creating Observables</h2><p>Operators that originate new Observables.</p><table><tr><td><p><strong>Operator</strong></p></td><td><p><strong>Description</strong></p></td></tr><tr><td><pre><code>create()</code></pre>
+</td><td><p>Create Observable from scratch by calling observer methods programmatically</p></td></tr><tr><td><pre><code>defer()</code></pre>
+</td><td><pre><code>Do not create Observable until subscriber subscribes; create fresh one per subscriber</code></pre>
+</td></tr><tr><td><pre><code>empty()</code></pre>
+</td><td><p>Create Observable that emits nothing and completes immediately</p></td></tr><tr><td><pre><code>never()</code></pre>
+</td><td><p>Create Observable that never emits and never completes</p></td></tr><tr><td><pre><code>error()</code></pre>
+</td><td><p>Create Observable that immediately signals an error</p></td></tr><tr><td><p>from*()</p></td><td><p>Convert Iterable, array, Future, Callable, or another reactive type into Observable</p></td></tr><tr><td><pre><code>interval()</code></pre>
+</td><td><p>Emit a sequence of integers spaced by a given time interval</p></td></tr><tr><td><pre><code>just()</code></pre>
+</td><td><p>Emit one to nine specific items (constant values)</p></td></tr><tr><td><pre><code>range()</code></pre>
+</td><td><p>Emit a range of sequential integers</p></td></tr><tr><td><pre><code>repeat()</code></pre>
+</td><td><p>Emit a particular item or sequence of items repeatedly</p></td></tr><tr><td><pre><code>timer()</code></pre>
+</td><td><p>Emit a single item after a given delay</p></td></tr><tr><td><pre><code>generate()</code></pre>
+</td><td><p>Create a cold Observable with a stateful generator function</p></td></tr></table><pre><code>// just - emit pre-existing values
+Observable.just(1, 2, 3).subscribe(System.out::println);
+
+// fromIterable - wrap a collection
+Observable.fromIterable(Arrays.asList("a", "b", "c")).subscribe(System.out::println);
+
+// interval - tick every second
+Observable.interval(1, TimeUnit.SECONDS).take(5).subscribe(System.out::println);
+
+// defer - fresh Observable per subscription
+Observable&lt;Long&gt; deferred = Observable.defer(() -&gt; Observable.just(System.currentTimeMillis()));</code></pre>
+<h2>3.2 Transforming Observables</h2><p>Operators that transform the items emitted by an Observable.</p><table><tr><td><p><strong>Operator</strong></p></td><td><p><strong>Description</strong></p></td></tr><tr><td><pre><code>map()</code></pre>
+</td><td><p>Transform each item by applying a function</p></td></tr><tr><td><pre><code>flatMap()</code></pre>
+</td><td><p>Transform each item into an Observable, then flatten/merge all resulting Observables</p></td></tr><tr><td><pre><code>concatMap()</code></pre>
+</td><td><p>Like flatMap but preserves order (no interleaving)</p></td></tr><tr><td><pre><code>switchMap()</code></pre>
+</td><td><p>Like flatMap but switches to the latest inner Observable, cancelling previous ones</p></td></tr><tr><td><pre><code>buffer()</code></pre>
+</td><td><p>Collect items into bundles (lists) and emit the bundles</p></td></tr><tr><td><pre><code>window()</code></pre>
+</td><td><p>Subdivide items into Observable windows instead of lists</p></td></tr><tr><td><pre><code>groupBy()</code></pre>
+</td><td><p>Divide Observable into a set of Observables organized by a key</p></td></tr><tr><td><pre><code>scan()</code></pre>
+</td><td><p>Apply a function to each item sequentially, emitting each intermediate result</p></td></tr><tr><td><pre><code>cast()</code></pre>
+</td><td><p>Cast each item to a different type</p></td></tr></table><pre><code>// map - transform each item
+Observable.just(1, 2, 3)
+    .map(n -&gt; n * n)
+    .subscribe(System.out::println);  // 1, 4, 9
+
+// flatMap - one item to many items (order not guaranteed)
+Observable.just("Hello World", "RxJava")
+    .flatMap(sentence -&gt; Observable.fromArray(sentence.split(" ")))
+    .subscribe(System.out::println);
+
+// scan - running total
+Observable.just(1, 2, 3, 4, 5)
+    .scan(0, Integer::sum)
+    .subscribe(System.out::println);  // 0, 1, 3, 6, 10, 15
+
+// buffer - emit lists of 3
+Observable.range(1, 9)
+    .buffer(3)
+    .subscribe(System.out::println);  // [1,2,3], [4,5,6], [7,8,9]</code></pre>
+<h2>3.3 Filtering Observables</h2><p>Operators that selectively emit items from an Observable.</p><table><tr><td><p><strong>Operator</strong></p></td><td><p><strong>Description</strong></p></td></tr><tr><td><pre><code>filter()</code></pre>
+</td><td><p>Emit only items that pass a predicate test</p></td></tr><tr><td><pre><code>first() / firstOrError()</code></pre>
+</td><td><p>Emit only the first item (or error if empty)</p></td></tr><tr><td><pre><code>last() / lastOrError()</code></pre>
+</td><td><p>Emit only the last item</p></td></tr><tr><td><pre><code>take(n)</code></pre>
+</td><td><p>Emit only the first n items</p></td></tr><tr><td><pre><code>takeLast(n)</code></pre>
+</td><td><p>Emit only the last n items</p></td></tr><tr><td><pre><code>skip(n)</code></pre>
+</td><td><p>Skip the first n items, emit the rest</p></td></tr><tr><td><pre><code>skipLast(n)</code></pre>
+</td><td><p>Skip the last n items</p></td></tr><tr><td><pre><code>distinct()</code></pre>
+</td><td><p>Suppress duplicate items</p></td></tr><tr><td><pre><code>distinctUntilChanged()</code></pre>
+</td><td><p>Suppress consecutively duplicate items</p></td></tr><tr><td><pre><code>elementAt(n)</code></pre>
+</td><td><p>Emit only the item at position n</p></td></tr><tr><td><pre><code>ignoreElements()</code></pre>
+</td><td><p>Emit no items but mirror complete/error notifications</p></td></tr><tr><td><pre><code>sample()</code></pre>
+</td><td><p>Emit the most recent item within periodic time intervals</p></td></tr><tr><td><pre><code>throttleFirst()</code></pre>
+</td><td><p>Emit the first item in each time window</p></td></tr><tr><td><pre><code>debounce()</code></pre>
+</td><td><p>Emit an item only if a specified timespan passes without another emission</p></td></tr><tr><td><pre><code>timeout()</code></pre>
+</td><td><p>Signal an error if no item is emitted within a timeout period</p></td></tr></table><pre><code>// filter - keep only even numbers
+Observable.range(1, 10)
+    .filter(n -&gt; n % 2 == 0)
+    .subscribe(System.out::println);  // 2, 4, 6, 8, 10
+
+// take + skip
+Observable.range(1, 10).take(3).subscribe(System.out::println);  // 1, 2, 3
+Observable.range(1, 10).skip(7).subscribe(System.out::println);  // 8, 9, 10
+
+// debounce - wait 300ms of silence (search box use case)
+searchInputObservable
+    .debounce(300, TimeUnit.MILLISECONDS)
+    .subscribe(query -&gt; performSearch(query));
+
+// distinct - no duplicates
+Observable.just(1, 1, 2, 2, 3, 1)
+    .distinct()
+    .subscribe(System.out::println);  // 1, 2, 3</code></pre>
+<h2>3.4 Combining Observables</h2><p>Operators that work with multiple Observables to create a single Observable.</p><table><tr><td><p><strong>Operator</strong></p></td><td><p><strong>Description</strong></p></td></tr><tr><td><pre><code>merge()</code></pre>
+</td><td><p>Combine multiple Observables into one by merging their emissions (concurrent)</p></td></tr><tr><td><pre><code>concat()</code></pre>
+</td><td><p>Emit items from multiple Observables sequentially (no interleaving)</p></td></tr><tr><td><pre><code>zip()</code></pre>
+</td><td><p>Combine emissions from multiple Observables pairwise via a combiner function</p></td></tr><tr><td><pre><code>combineLatest()</code></pre>
+</td><td><p>When any source emits, combine with the latest from all other sources</p></td></tr><tr><td><pre><code>startWith()</code></pre>
+</td><td><p>Prepend specified items before the source Observable emits</p></td></tr><tr><td><pre><code>switchOnNext()</code></pre>
+</td><td><p>Subscribe to the most recently emitted inner Observable, cancelling the previous</p></td></tr><tr><td><pre><code>join()</code></pre>
+</td><td><p>Combine items from two Observables based on overlapping time windows</p></td></tr><tr><td><pre><code>withLatestFrom()</code></pre>
+</td><td><p>Combine each source item with the latest item from another Observable</p></td></tr><tr><td><pre><code>amb()</code></pre>
+</td><td><p>Emit from only the first Observable to emit an item (ambiguous race)</p></td></tr></table><pre><code>// merge - interleave two streams
+Observable&lt;String&gt; o1 = Observable.just("A", "B");
+Observable&lt;String&gt; o2 = Observable.just("1", "2");
+Observable.merge(o1, o2).subscribe(System.out::println);
+
+// zip - pair items from two streams
+Observable.zip(
+    Observable.just("Alice", "Bob", "Charlie"),
+    Observable.just(30, 25, 35),
+    (name, age) -&gt; name + " is " + age
+).subscribe(System.out::println);
+// Alice is 30, Bob is 25, Charlie is 35
+
+// combineLatest - react to either source changing
+Observable.combineLatest(usernameObs, passwordObs,
+    (u, p) -&gt; !u.isEmpty() &amp;&amp; p.length() &gt;= 8)
+    .subscribe(valid -&gt; loginButton.setEnabled(valid));</code></pre>
+<h2>3.5 Error Handling Operators</h2><table><tr><td><p><strong>Operator</strong></p></td><td><p><strong>Description</strong></p></td></tr><tr><td><pre><code>onErrorReturn()</code></pre>
+</td><td><p>Return a default item when an error occurs, then complete</p></td></tr><tr><td><pre><code>onErrorResumeNext()</code></pre>
+</td><td><p>Switch to a different Observable when an error occurs</p></td></tr><tr><td><pre><code>onErrorComplete()</code></pre>
+</td><td><p>Complete (without error) when an error occurs</p></td></tr><tr><td><pre><code>retry()</code></pre>
+</td><td><p>Resubscribe to the source Observable on error, optionally with a count</p></td></tr><tr><td><pre><code>retryWhen()</code></pre>
+</td><td><p>Retry with custom logic (e.g., exponential back-off)</p></td></tr><tr><td><pre><code>doOnError()</code></pre>
+</td><td><p>Register a side-effect action when an error occurs (does not handle it)</p></td></tr></table><pre><code>// onErrorReturn - fallback value
+Observable.just("data")
+    .map(s -&gt; { throw new RuntimeException("oops"); })
+    .onErrorReturn(e -&gt; "fallback")
+    .subscribe(System.out::println);  // fallback
+
+// retry - resubscribe up to 3 times
+Observable.fromCallable(() -&gt; unstableNetworkCall())
+    .subscribeOn(Schedulers.io())
+    .retry(3)
+    .subscribe(result -&gt; process(result), error -&gt; log(error));
+
+// retryWhen - exponential back-off
+source.retryWhen(errors -&gt; errors
+    .zipWith(Observable.range(1, 3), (e, i) -&gt; i)
+    .flatMap(i -&gt; Observable.timer(i, TimeUnit.SECONDS)));</code></pre>
+<h2>3.6 Observable Utility Operators</h2><table><tr><td><p><strong>Operator</strong></p></td><td><p><strong>Description</strong></p></td></tr><tr><td><pre><code>delay()</code></pre>
+</td><td><p>Shift the emission of items forward in time</p></td></tr><tr><td><pre><code>doOnNext()</code></pre>
+</td><td><p>Register a side-effect action for each emitted item</p></td></tr><tr><td><pre><code>doOnComplete()</code></pre>
+</td><td><p>Register a side-effect action on completion</p></td></tr><tr><td><pre><code>doOnError()</code></pre>
+</td><td><p>Register a side-effect action on error</p></td></tr><tr><td><pre><code>doFinally()</code></pre>
+</td><td><p>Register a side-effect action on completion, error, or disposal</p></td></tr><tr><td><pre><code>materialize()</code></pre>
+</td><td><p>Represent items and notifications as emitted Notification objects</p></td></tr><tr><td><pre><code>dematerialize()</code></pre>
+</td><td><p>Reverse of materialize()</p></td></tr><tr><td><pre><code>observeOn()</code></pre>
+</td><td><p>Specify the Scheduler for downstream operators</p></td></tr><tr><td><pre><code>subscribeOn()</code></pre>
+</td><td><p>Specify the Scheduler for the source subscription</p></td></tr><tr><td><pre><code>serialize()</code></pre>
+</td><td><p>Force an Observable to make serialized, well-behaved calls</p></td></tr><tr><td><pre><code>timeInterval()</code></pre>
+</td><td><p>Convert emissions into objects indicating elapsed time between each</p></td></tr><tr><td><pre><code>timestamp()</code></pre>
+</td><td><p>Attach a timestamp to each emitted item</p></td></tr><tr><td><pre><code>timeout()</code></pre>
+</td><td><p>Signal an error if no item is emitted within a specified time</p></td></tr><tr><td><pre><code>using()</code></pre>
+</td><td><p>Create a disposable resource that lives as long as the Observable</p></td></tr><tr><td><pre><code>hide()</code></pre>
+</td><td><p>Hide the identity of the source (prevents casting to Subject etc.)</p></td></tr></table><pre><code>// delay - emit 2 seconds later
+Observable.just("delayed")
+    .delay(2, TimeUnit.SECONDS)
+    .subscribe(System.out::println);
+
+// doOnNext - log side-effects without transforming
+Observable.range(1, 5)
+    .doOnNext(n -&gt; System.out.println("About to emit: " + n))
+    .map(n -&gt; n * 2)
+    .subscribe(System.out::println);
+
+// using - resource tied to Observable lifetime
+Observable.using(
+    () -&gt; openDatabaseConnection(),          // acquire resource
+    conn -&gt; Observable.fromIterable(conn.query("SELECT ...")),
+    conn -&gt; conn.close()                     // release resource
+);</code></pre>
+<h2>3.7 Conditional and Boolean Operators</h2><table><tr><td><p><strong>Operator</strong></p></td><td><p><strong>Description</strong></p></td></tr><tr><td><pre><code>all()</code></pre>
+</td><td><p>Determine if all items meet a criterion (returns Single&lt;Boolean&gt;)</p></td></tr><tr><td><pre><code>any()</code></pre>
+</td><td><p>Determine if any item meets a criterion (returns Single&lt;Boolean&gt;)</p></td></tr><tr><td><pre><code>contains()</code></pre>
+</td><td><p>Determine if an Observable emits a particular item</p></td></tr><tr><td><pre><code>isEmpty()</code></pre>
+</td><td><p>Determine if an Observable emits any items</p></td></tr><tr><td><pre><code>amb()</code></pre>
+</td><td><p>Emit from only the first Observable to emit an item</p></td></tr><tr><td><pre><code>defaultIfEmpty()</code></pre>
+</td><td><p>Emit a default item if the source emits nothing before completing</p></td></tr><tr><td><pre><code>sequenceEqual()</code></pre>
+</td><td><p>Determine if two Observables emit the same sequence of items</p></td></tr><tr><td><pre><code>skipUntil()</code></pre>
+</td><td><p>Discard items until a second Observable emits an item</p></td></tr><tr><td><pre><code>skipWhile()</code></pre>
+</td><td><p>Discard items as long as a condition is true</p></td></tr><tr><td><pre><code>takeUntil()</code></pre>
+</td><td><p>Discard items after a second Observable emits or terminates</p></td></tr><tr><td><pre><code>takeWhile()</code></pre>
+</td><td><p>Emit items as long as a condition is true, then complete</p></td></tr></table><pre><code>// all - check if all items pass
+Observable.just(2, 4, 6).all(n -&gt; n % 2 == 0)
+    .subscribe(allEven -&gt; System.out.println("All even: " + allEven));  // true
+
+// defaultIfEmpty - fallback when stream is empty
+Observable.&lt;String&gt;empty()
+    .defaultIfEmpty("No items found")
+    .subscribe(System.out::println);
+
+// takeUntil - stop when trigger fires
+Observable.interval(500, TimeUnit.MILLISECONDS)
+    .takeUntil(stopSignalObservable)
+    .subscribe(System.out::println);</code></pre>
+<h2>3.8 Mathematical and Aggregate Operators</h2><p>These operators compute aggregate values over an entire Observable sequence (usually via RxJava extras or built-in methods on Flowable/Observable).</p><table><tr><td><p><strong>Operator</strong></p></td><td><p><strong>Description</strong></p></td></tr><tr><td><pre><code>count()</code></pre>
+</td><td><p>Count the number of items emitted (returns Single&lt;Long&gt;)</p></td></tr><tr><td><pre><code>reduce()</code></pre>
+</td><td><p>Apply a function to each item and emit the final accumulated value</p></td></tr><tr><td><pre><code>collect()</code></pre>
+</td><td><p>Collect items into a mutable data structure (returns Single)</p></td></tr><tr><td><pre><code>toList()</code></pre>
+</td><td><p>Collect all items into a Single&lt;List&lt;T&gt;&gt;</p></td></tr><tr><td><pre><code>toMap()</code></pre>
+</td><td><p>Collect items into a Single&lt;Map&lt;K,V&gt;&gt;</p></td></tr><tr><td><pre><code>concat()</code></pre>
+</td><td><p>Emit all items from multiple Observables sequentially without interleaving</p></td></tr><tr><td><p>sum / average / min / max</p></td><td><p>Available via rxjava-math library or manual reduce()</p></td></tr></table><pre><code>// count
+Observable.range(1, 100).count()
+    .subscribe(c -&gt; System.out.println("Count: " + c));  // 100
+
+// reduce - sum all items
+Observable.range(1, 5)
+    .reduce(0, Integer::sum)
+    .subscribe(sum -&gt; System.out.println("Sum: " + sum));  // 15
+
+// toList - collect into a list
+Observable.just("a", "b", "c")
+    .toList()
+    .subscribe(list -&gt; System.out.println(list));  // [a, b, c]
+
+// concat - sequential, no interleaving
+Observable.concat(
+    Observable.just(1, 2, 3),
+    Observable.just(4, 5, 6)
+).subscribe(System.out::println);  // 1, 2, 3, 4, 5, 6</code></pre>
+<h2>3.9 Connectable Observable Operators</h2><pre><code>Connectable Observables do not begin emitting upon subscription; they wait for a connect() call. This lets you set up multiple subscribers before any items are emitted.</code></pre>
+<table><tr><td><p><strong>Operator</strong></p></td><td><p><strong>Description</strong></p></td></tr><tr><td><pre><code>publish()</code></pre>
+</td><td><p>Convert an ordinary Observable into a ConnectableObservable</p></td></tr><tr><td><pre><code>connect()</code></pre>
+</td><td><p>Instruct a ConnectableObservable to begin emitting items to subscribers</p></td></tr><tr><td><pre><code>refCount()</code></pre>
+</td><td><pre><code>Make a ConnectableObservable behave like an ordinary Observable; auto-connects when first subscriber arrives</code></pre>
+</td></tr><tr><td><pre><code>replay()</code></pre>
+</td><td><p>Ensure all observers see the same emitted sequence even if they subscribe late</p></td></tr><tr><td><pre><code>share()</code></pre>
+</td><td><p>Shorthand for publish().refCount() - multicast to multiple subscribers with auto-connect</p></td></tr></table><pre><code>// publish + connect - coordinate multiple subscribers
+ConnectableObservable&lt;Long&gt; hot = Observable.interval(1, TimeUnit.SECONDS).publish();
+hot.subscribe(t -&gt; System.out.println("Sub1: " + t));
+hot.subscribe(t -&gt; System.out.println("Sub2: " + t));
+hot.connect();   // both subscribers receive the same ticks
+
+// share - auto-connect multicast
+Observable&lt;Long&gt; shared = Observable.interval(1, TimeUnit.SECONDS).share();
+shared.subscribe(t -&gt; System.out.println("A: " + t));
+shared.subscribe(t -&gt; System.out.println("B: " + t));
+
+// replay - cache and replay to late subscribers
+ConnectableObservable&lt;Integer&gt; replayed = Observable.range(1, 5).replay();
+replayed.connect();
+replayed.subscribe(System.out::println);  // all 5 items replayed to late subscriber</code></pre>
+<h2>3.10 Backpressure (Flowable)</h2><p>When a producer emits faster than the consumer can process, use Flowable with a BackpressureStrategy:</p><table><tr><td><p><strong>Strategy / Operator</strong></p></td><td><p><strong>Description</strong></p></td></tr><tr><td><p>BackpressureStrategy.BUFFER</p></td><td><p>Buffer all outstanding items in memory (risk OutOfMemoryError on unbounded streams)</p></td></tr><tr><td><p>BackpressureStrategy.DROP</p></td><td><p>Drop items that the consumer cannot handle</p></td></tr><tr><td><p>BackpressureStrategy.LATEST</p></td><td><p>Keep only the most recently emitted item when overwhelmed</p></td></tr><tr><td><p>BackpressureStrategy.ERROR</p></td><td><p>Throw MissingBackpressureException when overwhelmed</p></td></tr><tr><td><pre><code>onBackpressureBuffer()</code></pre>
+</td><td><p>Apply buffer strategy downstream</p></td></tr><tr><td><pre><code>onBackpressureDrop()</code></pre>
+</td><td><p>Apply drop strategy downstream</p></td></tr><tr><td><pre><code>onBackpressureLatest()</code></pre>
+</td><td><p>Apply latest strategy downstream</p></td></tr></table><h1>4. Practical Examples</h1><h2>Example 1: Basic Observable Chain</h2><p>Create, transform, filter, and subscribe.</p><pre><code>Observable.range(1, 20)
+    .filter(n -&gt; n % 3 == 0)          // multiples of 3
+    .map(n -&gt; "Value: " + n)
+    .take(4)                           // stop after 4
+    .subscribe(
+        System.out::println,
+        Throwable::printStackTrace,
+        () -&gt; System.out.println("Done!")
+    );
+// Output: Value: 3, Value: 6, Value: 9, Value: 12, Done!</code></pre>
+<h2>Example 2: Async Network Call</h2><p>Use fromCallable + subscribeOn to push blocking I/O off the main thread.</p><pre><code>public Observable&lt;User&gt; fetchUser(int userId) {
+    return Observable.fromCallable(() -&gt; {
+        // blocking HTTP call
+        return httpClient.get("/users/" + userId, User.class);
+    })
+    .subscribeOn(Schedulers.io())
+    .observeOn(Schedulers.single());
+}
+
+// Usage:
+fetchUser(42)
+    .subscribe(
+        user  -&gt; System.out.println("Got user: " + user.getName()),
+        error -&gt; System.err.println("Failed: " + error.getMessage())
+    );</code></pre>
+<h2>Example 3: Combining Two Streams with zip()</h2><p>Pair items from two independent Observables to produce combined results.</p><pre><code>Observable&lt;String&gt; names   = Observable.just("Alice", "Bob", "Carol");
+Observable&lt;Integer&gt; scores = Observable.just(95, 87, 92);
+
+Observable.zip(names, scores, (name, score) -&gt; name + ": " + score)
+    .subscribe(System.out::println);
+// Alice: 95
+// Bob: 87
+// Carol: 92</code></pre>
+<h2>Example 4: Error Handling with retry and Fallback</h2><pre><code>Observable.fromCallable(() -&gt; unstableService.getData())
+    .subscribeOn(Schedulers.io())
+    .retry(3)                                    // retry up to 3 times
+    .onErrorReturn(e -&gt; Collections.emptyList()) // if still failing, return empty list
+    .subscribe(
+        data  -&gt; processData(data),
+        error -&gt; log.error("Unrecoverable error", error)
+    );
+
+// Exponential back-off retry:
+Observable.fromCallable(() -&gt; unstableService.getData())
+    .retryWhen(errors -&gt; errors
+        .zipWith(Observable.range(1, 4), (err, attempt) -&gt; attempt)
+        .flatMap(attempt -&gt; Observable.timer(attempt, TimeUnit.SECONDS))
+    )
+    .subscribe(System.out::println);</code></pre>
+<h2>Example 5: Debounce for Search Input</h2><p>Avoid firing a search on every keystroke – wait for the user to pause typing.</p><pre><code>// searchTextChanges is an Observable&lt;String&gt; from a text-input field
+searchTextChanges
+    .debounce(300, TimeUnit.MILLISECONDS)   // wait for 300ms pause
+    .distinctUntilChanged()                  // ignore if same text as before
+    .filter(query -&gt; query.length() &gt;= 2)    // skip very short queries
+    .switchMap(query -&gt;                      // cancel previous, run new search
+        searchService.search(query)
+            .subscribeOn(Schedulers.io())
+            .onErrorReturnItem(Collections.emptyList())
+    )
+    .observeOn(Schedulers.single())
+    .subscribe(results -&gt; displayResults(results));</code></pre>
+<h2>Example 6: Subjects – Bridging Imperative and Reactive Code</h2><p>A Subject acts as both Observer and Observable. Use it to manually push items into a stream from non-reactive code.</p><pre><code>// PublishSubject - subscribers only receive items emitted after they subscribe
+PublishSubject&lt;String&gt; subject = PublishSubject.create();
+subject.subscribe(s -&gt; System.out.println("Sub1: " + s));
+subject.onNext("Hello");    // Sub1: Hello
+subject.subscribe(s -&gt; System.out.println("Sub2: " + s));
+subject.onNext("World");    // Sub1: World, Sub2: World
+subject.onComplete();
+
+// BehaviorSubject - replays the last item to new subscribers
+BehaviorSubject&lt;Integer&gt; behavior = BehaviorSubject.createDefault(0);
+behavior.onNext(1);
+behavior.onNext(2);
+behavior.subscribe(n -&gt; System.out.println("Late sub: " + n));  // Late sub: 2
+behavior.onNext(3);  // Late sub: 3
+
+// ReplaySubject - caches all (or N) items for new subscribers
+ReplaySubject&lt;String&gt; replay = ReplaySubject.create();
+replay.onNext("A");
+replay.onNext("B");
+replay.subscribe(System.out::println);  // A, B
+replay.onNext("C");                     // C</code></pre>
+<h2>Example 7: Parallel Execution with flatMap and Schedulers</h2><p>Process a list of items concurrently on the I/O thread pool.</p><pre><code>List&lt;String&gt; urls = Arrays.asList(url1, url2, url3, url4);
+
+Observable.fromIterable(urls)
+    .flatMap(url -&gt;
+        Observable.fromCallable(() -&gt; downloadFile(url))
+            .subscribeOn(Schedulers.io())  // each download on its own I/O thread
+    )
+    .observeOn(Schedulers.single())
+    .toList()
+    .subscribe(
+        files -&gt; System.out.println("Downloaded " + files.size() + " files"),
+        Throwable::printStackTrace
+    );</code></pre>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>
+    document.querySelectorAll('pre code').forEach(function(el){if(!el.className)el.classList.add('language-java');});
+    document.querySelectorAll('pre code').forEach(function(el){ hljs.highlightElement(el); });
+  </script>
+  <script>(function () {
+    var marks = [];
+    var idx = -1;
+
+    function clearMarks() {
+        marks.forEach(function (m) {
+            var p = m.parentNode;
+            if (p) { p.replaceChild(document.createTextNode(m.textContent), m); p.normalize(); }
+        });
+        marks = [];
+        idx = -1;
+    }
+
+    function markText(query) {
+        var results = [];
+        var lower = query.toLowerCase();
+        var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null);
+        var nodes = [];
+        var n;
+        while ((n = walker.nextNode())) {
+            if (n.nodeValue.toLowerCase().includes(lower)) nodes.push(n);
+        }
+        nodes.forEach(function (textNode) {
+            var text  = textNode.nodeValue;
+            var ltext = text.toLowerCase();
+            var par   = textNode.parentNode;
+            if (!par) return;
+            var frag = document.createDocumentFragment();
+            var last = 0, i;
+            while ((i = ltext.indexOf(lower, last)) !== -1) {
+                if (i > last) frag.appendChild(document.createTextNode(text.slice(last, i)));
+                var m = document.createElement('mark');
+                m.className = 'dsm';
+                m.style.cssText = 'background:#ffe066;color:inherit;border-radius:2px;';
+                m.textContent = text.slice(i, i + query.length);
+                frag.appendChild(m);
+                results.push(m);
+                last = i + query.length;
+            }
+            if (last < text.length) frag.appendChild(document.createTextNode(text.slice(last)));
+            par.replaceChild(frag, textNode);
+        });
+        return results;
+    }
+
+    function highlight() {
+        marks.forEach(function (m, i) {
+            m.style.background = i === idx ? '#ff9900' : '#ffe066';
+            m.style.outline    = i === idx ? '2px solid #e65c00' : 'none';
+        });
+        if (marks[idx]) marks[idx].scrollIntoView({ block: 'center' });
+    }
+
+    function reply(src) {
+        src.postMessage({ type: 'searchResult', count: marks.length, current: idx }, '*');
+    }
+
+    window.addEventListener('message', function (e) {
+        var d = e.data;
+        if (!d || !d.type) return;
+        if (d.type === 'search') {
+            clearMarks();
+            if (d.query) {
+                marks = markText(d.query);
+                if (marks.length) idx = 0;
+                highlight();
+            }
+            reply(e.source);
+        } else if (d.type === 'searchNav') {
+            if (!marks.length) return;
+            idx = d.dir === 'next'
+                ? (idx + 1) % marks.length
+                : (idx - 1 + marks.length) % marks.length;
+            highlight();
+            reply(e.source);
+        } else if (d.type === 'searchClear') {
+            clearMarks();
+        }
+    });
+})();</script>
+</body>
+</html>
