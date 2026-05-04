@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>WebSocketssByClaude</title>
+  <link rel="stylesheet" href="../assets/content.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+</head>
+<body>
+  <h1>WebSocketssByClaude</h1>
+  <p><strong>WebSockets — Study Guide</strong></p><p><em>Full-duplex real-time communication for the web</em></p><p><strong>1. What are WebSockets?</strong></p><p>WebSocket is a communication protocol (RFC 6455, 2011) that provides full-duplex (bidirectional) communication over a single, long-lived TCP connection. Unlike HTTP's request-response model, WebSockets allow both client and server to send messages independently at any time — without re-establishing a connection.</p><p><strong>Key characteristics:</strong></p><ul><li>Full-duplex: client and server send/receive simultaneously</li><li>Single persistent TCP connection — established once, kept open</li><li>Low overhead: 2-14 byte frame header vs. hundreds of bytes in HTTP headers</li><li>Low latency: no connection setup per message</li><li>Works over standard ports: ws:// (port 80) and wss:// (port 443)</li><li>Supported in all modern browsers and most server runtimes</li></ul><p><strong>2. HTTP vs WebSocket</strong></p><table><tr><td><p><strong>Feature</strong></p></td><td><p><strong>HTTP</strong></p></td><td><p><strong>WebSocket</strong></p></td></tr><tr><td><p>Communication</p></td><td><p>Request-response</p></td><td><p>Full-duplex, bidirectional</p></td></tr><tr><td><p>Connection</p></td><td><p>New per request (HTTP/1.1)</p></td><td><p>One persistent connection</p></td></tr><tr><td><p>State</p></td><td><p>Stateless</p></td><td><p>Stateful (session persists)</p></td></tr><tr><td><p>Overhead</p></td><td><p>High (headers each request)</p></td><td><p>Low after initial handshake</p></td></tr><tr><td><p>Who initiates</p></td><td><p>Always the client</p></td><td><p>Either side, any time</p></td></tr><tr><td><p>Use case</p></td><td><p>REST APIs, CRUD</p></td><td><p>Chat, gaming, live data feeds</p></td></tr><tr><td><p>Protocol</p></td><td><p>http:// / https://</p></td><td><p>ws:// / wss://</p></td></tr></table><p><strong>3. How WebSockets Work — The Handshake</strong></p><p>A WebSocket connection starts as a standard HTTP request that is then "upgraded" to the WebSocket protocol. This is called the WebSocket handshake.</p><p><strong>Step-by-step process:</strong></p><ul><li>1. Client sends HTTP GET with Upgrade: websocket and Sec-WebSocket-Key headers</li><li>2. Server responds with HTTP 101 Switching Protocols and Sec-WebSocket-Accept</li><li>3. TCP connection is now a WebSocket — both sides can send frames freely</li><li>4. Either side can close the connection by sending a Close frame</li></ul><p><strong>Client → Server: HTTP Upgrade Request</strong></p><pre><code>GET /chat HTTP/1.1
+Host: example.com
+Upgrade: websocket
+Connection: Upgrade
+Sec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==
+Sec-WebSocket-Version: 13</code></pre>
+<p><strong>Server → Client: 101 Switching Protocols</strong></p><pre><code>HTTP/1.1 101 Switching Protocols
+Upgrade: websocket
+Connection: Upgrade
+Sec-WebSocket-Accept: s3pPLMBiTxaQ9kYGzzhZRbK+xOo=</code></pre>
+<p><strong>4. Browser WebSocket API</strong></p><p><strong>Creating a Connection</strong></p><p><strong>JavaScript</strong></p><pre><code>const socket = new WebSocket('ws://localhost:8080/chat');</code></pre>
+<p> </p><pre><code>// Secure WebSocket (use in production)
+const secureSocket = new WebSocket('wss://example.com/chat');</code></pre>
+<p> </p><pre><code>// With subprotocol negotiation
+const stompSocket = new WebSocket('ws://example.com', ['stomp', 'v12.stomp']);
+console.log('Subprotocol agreed:', stompSocket.protocol);</code></pre>
+<p><strong>readyState Constants</strong></p><table><tr><td><p><strong>Constant</strong></p></td><td><p><strong>Value</strong></p></td><td><p><strong>Meaning</strong></p></td></tr><tr><td><p>WebSocket.CONNECTING</p></td><td><p>0</p></td><td><p>Connection is being established</p></td></tr><tr><td><p>WebSocket.OPEN</p></td><td><p>1</p></td><td><p>Connection open — ready to send/receive</p></td></tr><tr><td><p>WebSocket.CLOSING</p></td><td><p>2</p></td><td><p>Connection is being closed</p></td></tr><tr><td><p>WebSocket.CLOSED</p></td><td><p>3</p></td><td><p>Connection has been closed</p></td></tr></table><p><strong>Event Handlers</strong></p><p><strong>JavaScript</strong></p><pre><code>// Connection opened
+socket.onopen = function(event) {
+    console.log('Connected to server');
+    socket.send('Hello Server!');
+};</code></pre>
+<p> </p><pre><code>// Message received from server
+// event.data can be: string, Blob, or ArrayBuffer
+socket.onmessage = function(event) {
+    const data = JSON.parse(event.data);
+    console.log('Received:', data);
+};</code></pre>
+<p> </p><pre><code>// Error occurred
+socket.onerror = function(error) {
+    console.error('WebSocket Error:', error);
+};</code></pre>
+<p> </p><pre><code>// Connection closed
+socket.onclose = function(event) {
+    console.log('Closed. Code:', event.code, 'Reason:', event.reason);
+    // event.wasClean — true if closed cleanly (Close frame exchanged)
+};</code></pre>
+<p><strong>Methods: send() and close()</strong></p><p><strong>JavaScript</strong></p><pre><code>// Send a plain string
+socket.send('Hello!');</code></pre>
+<p> </p><pre><code>// Send structured JSON data
+socket.send(JSON.stringify({ type: 'chat', user: 'Alice', text: 'Hi!' }));</code></pre>
+<p> </p><pre><code>// Send binary data (ArrayBuffer)
+const buffer = new ArrayBuffer(128);
+socket.send(buffer);</code></pre>
+<p> </p><pre><code>// Check before sending (avoid errors)
+if (socket.readyState === WebSocket.OPEN) {
+    socket.send('Safe to send');
+}</code></pre>
+<p> </p><pre><code>// Close connection
+socket.close();             // Normal closure (code 1000)
+socket.close(1000, 'Done'); // With explicit code and reason</code></pre>
+<p><strong>Close Codes</strong></p><table><tr><td><p><strong>Code</strong></p></td><td><p><strong>Meaning</strong></p></td></tr><tr><td><p>1000</p></td><td><p>Normal Closure — connection closed successfully</p></td></tr><tr><td><p>1001</p></td><td><p>Going Away — server shutting down or browser navigating away</p></td></tr><tr><td><p>1002</p></td><td><p>Protocol Error — endpoint received malformed frame</p></td></tr><tr><td><p>1003</p></td><td><p>Unsupported Data — cannot accept the received data type</p></td></tr><tr><td><p>1006</p></td><td><p>Abnormal Closure — connection lost without a Close frame</p></td></tr><tr><td><p>1011</p></td><td><p>Internal Server Error — unexpected condition on server</p></td></tr></table><p><strong>5. Real Example — Chat Application</strong></p><p>A complete real-time chat app. The Node.js server maintains a list of all connected clients and broadcasts every received message to all of them.</p><p><strong>Node.js Server  (npm install ws)</strong></p><p><strong>server.js (Node.js + ws library)</strong></p><pre><code>const WebSocket = require('ws');
+const http = require('http');</code></pre>
+<p> </p><pre><code>const server = http.createServer();
+const wss = new WebSocket.Server({ server });</code></pre>
+<p> </p><pre><code>wss.on('connection', function(ws, req) {
+    const ip = req.socket.remoteAddress;
+    console.log('Client connected:', ip);</code></pre>
+<p> </p><pre><code>    // Welcome the new client
+    ws.send(JSON.stringify({ type: 'system', text: 'Welcome to the chat!' }));</code></pre>
+<p> </p><pre><code>    ws.on('message', function(data) {
+        const msg = data.toString();
+        console.log('Received:', msg);</code></pre>
+<p> </p><pre><code>        // Broadcast to ALL connected clients
+        wss.clients.forEach(function(client) {
+            if (client.readyState === WebSocket.OPEN) {
+                client.send(msg);
+            }
+        });
+    });</code></pre>
+<p> </p><pre><code>    ws.on('close', function(code, reason) {
+        console.log('Client disconnected. Code:', code);
+    });</code></pre>
+<p> </p><pre><code>    ws.on('error', function(err) {
+        console.error('Socket error:', err.message);
+    });
+});</code></pre>
+<p> </p><pre><code>server.listen(8080, () =&gt; console.log('WS server on port 8080'));</code></pre>
+<p><strong>Browser Client (HTML + JavaScript)</strong></p><p><strong>index.html (Browser Chat Client)</strong></p><pre><code>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;&lt;title&gt;WebSocket Chat&lt;/title&gt;&lt;/head&gt;
+&lt;body&gt;
+  &lt;h1&gt;Live Chat&lt;/h1&gt;
+  &lt;ul id="messages"&gt;&lt;/ul&gt;
+  &lt;input id="msgInput" type="text" placeholder="Type a message..." /&gt;
+  &lt;button onclick="sendMessage()"&gt;Send&lt;/button&gt;</code></pre>
+<p> </p><pre><code>  &lt;script&gt;
+    const socket = new WebSocket('ws://localhost:8080');
+    const list   = document.getElementById('messages');
+    const input  = document.getElementById('msgInput');</code></pre>
+<p> </p><pre><code>    socket.onopen = function() {
+      addToList('System: Connected');
+    };</code></pre>
+<p> </p><pre><code>    socket.onmessage = function(event) {
+      const data = JSON.parse(event.data);
+      addToList(data.text || event.data);
+    };</code></pre>
+<p> </p><pre><code>    socket.onclose = function() {
+      addToList('System: Disconnected');
+    };</code></pre>
+<p> </p><pre><code>    function sendMessage() {
+      const text = input.value.trim();
+      if (text &amp;&amp; socket.readyState === WebSocket.OPEN) {
+        socket.send(JSON.stringify({ type: 'chat', text }));
+        input.value = '';
+      }
+    }</code></pre>
+<p> </p><pre><code>    // Allow Enter key to send
+    input.addEventListener('keydown', (e) =&gt; {
+      if (e.key === 'Enter') sendMessage();
+    });</code></pre>
+<p> </p><pre><code>    function addToList(text) {
+      const li = document.createElement('li');
+      li.textContent = text;
+      list.appendChild(li);
+      list.scrollTop = list.scrollHeight;
+    }
+  &lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+<p><strong>6. Auto-Reconnect Pattern</strong></p><p>WebSocket has no built-in reconnection. Implement it manually with exponential backoff — start with a short delay and double it on each failed attempt.</p><p><strong>JavaScript — Exponential Backoff Reconnect</strong></p><pre><code>let socket;
+let reconnectDelay = 1000; // start: 1 second
+const MAX_DELAY = 30000;   // cap at 30 seconds</code></pre>
+<p> </p><pre><code>function connect() {
+    socket = new WebSocket('ws://localhost:8080');</code></pre>
+<p> </p><pre><code>    socket.onopen = function() {
+        console.log('Connected');
+        reconnectDelay = 1000; // reset on success
+    };</code></pre>
+<p> </p><pre><code>    socket.onmessage = function(event) {
+        console.log('Message:', event.data);
+    };</code></pre>
+<p> </p><pre><code>    socket.onclose = function(event) {
+        if (!event.wasClean) {
+            console.log('Connection lost. Reconnecting in', reconnectDelay, 'ms');
+            setTimeout(connect, reconnectDelay);
+            reconnectDelay = Math.min(reconnectDelay * 2, MAX_DELAY);
+        }
+    };
+}</code></pre>
+<p> </p><pre><code>connect();</code></pre>
+<p><strong>7. Spring Boot WebSocket Example (Java)</strong></p><p>Spring Boot supports WebSockets natively. Add dependency: spring-boot-starter-websocket. No extra libraries needed.</p><p><strong>pom.xml dependency</strong></p><p><strong>pom.xml</strong></p><pre><code>&lt;dependency&gt;
+    &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-boot-starter-websocket&lt;/artifactId&gt;
+&lt;/dependency&gt;</code></pre>
+<p><strong>WebSocket Configuration</strong></p><p><strong>WebSocketConfig.java</strong></p><pre><code>import org.springframework.context.annotation.Configuration;
+import org.springframework.web.socket.config.annotation.*;</code></pre>
+<p> </p><pre><code>@Configuration
+@EnableWebSocket
+public class WebSocketConfig implements WebSocketConfigurer {</code></pre>
+<p> </p><pre><code>    @Override
+    public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
+        registry.addHandler(new ChatHandler(), "/chat")
+                .setAllowedOrigins("*");
+    }
+}</code></pre>
+<p><strong>Chat Handler</strong></p><p><strong>ChatHandler.java</strong></p><pre><code>import org.springframework.stereotype.Component;
+import org.springframework.web.socket.*;
+import org.springframework.web.socket.handler.TextWebSocketHandler;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;</code></pre>
+<p> </p><pre><code>@Component
+public class ChatHandler extends TextWebSocketHandler {</code></pre>
+<p> </p><pre><code>    // Thread-safe list — multiple threads may connect simultaneously
+    private final List&lt;WebSocketSession&gt; sessions = new CopyOnWriteArrayList&lt;&gt;();</code></pre>
+<p> </p><pre><code>    @Override
+    public void afterConnectionEstablished(WebSocketSession session) throws Exception {
+        sessions.add(session);
+        session.sendMessage(new TextMessage("Welcome!"));
+    }</code></pre>
+<p> </p><pre><code>    @Override
+    protected void handleTextMessage(WebSocketSession session,
+                                     TextMessage message) throws Exception {
+        String payload = message.getPayload();
+        // Broadcast to all open sessions
+        for (WebSocketSession s : sessions) {
+            if (s.isOpen()) {
+                s.sendMessage(new TextMessage(payload));
+            }
+        }
+    }</code></pre>
+<p> </p><pre><code>    @Override
+    public void afterConnectionClosed(WebSocketSession session,
+                                      CloseStatus status) {
+        sessions.remove(session);
+    }
+}</code></pre>
+<p><strong>Connecting from JavaScript to Spring Boot Server</strong></p><p><strong>JavaScript (browser → Spring Boot)</strong></p><pre><code>// Spring Boot default port is 8080
+const socket = new WebSocket('ws://localhost:8080/chat');</code></pre>
+<p> </p><pre><code>socket.onopen  = () =&gt; console.log('Connected to Spring Boot server');
+socket.onmessage = (e) =&gt; console.log('Server says:', e.data);
+socket.onerror = (e) =&gt; console.error('Error:', e);</code></pre>
+<p> </p><pre><code>socket.onopen = function() {
+    socket.send(JSON.stringify({ user: 'Alice', text: 'Hello!' }));
+};</code></pre>
+<p><strong>8. WebSocket vs SSE vs Long Polling</strong></p><table><tr><td><p><strong>Feature</strong></p></td><td><p><strong>WebSocket</strong></p></td><td><p><strong>SSE</strong></p></td><td><p><strong>Long Polling</strong></p></td></tr><tr><td><p>Direction</p></td><td><p>Full-duplex (both ways)</p></td><td><p>Server → Client only</p></td><td><p>Client polls server</p></td></tr><tr><td><p>Protocol</p></td><td><p>WebSocket (ws://)</p></td><td><p>HTTP</p></td><td><p>HTTP</p></td></tr><tr><td><p>Connection</p></td><td><p>Persistent TCP</p></td><td><p>Persistent HTTP stream</p></td><td><p>Repeated HTTP requests</p></td></tr><tr><td><p>Latency</p></td><td><p>Very low</p></td><td><p>Low</p></td><td><p>Medium to high</p></td></tr><tr><td><p>Binary support</p></td><td><p>Yes</p></td><td><p>No (text only)</p></td><td><p>Via body</p></td></tr><tr><td><p>Auto-reconnect</p></td><td><p>No — manual</p></td><td><p>Yes — built-in</p></td><td><p>Manual</p></td></tr><tr><td><p>Browser support</p></td><td><p>All modern browsers</p></td><td><p>All except old IE</p></td><td><p>Universal</p></td></tr><tr><td><p>Proxies</p></td><td><p>May be blocked</p></td><td><p>Works everywhere</p></td><td><p>Works everywhere</p></td></tr><tr><td><p>Best for</p></td><td><p>Chat, gaming, collaboration</p></td><td><p>News feed, notifications</p></td><td><p>Legacy/fallback</p></td></tr></table><p><strong>9. WebSocket Frames (Wire Format)</strong></p><p>After the handshake, data is sent as WebSocket frames. Each frame has a small header followed by the payload. Understanding frames helps in debugging and protocol implementation.</p><table><tr><td><p><strong>Field</strong></p></td><td><p><strong>Size</strong></p></td><td><p><strong>Description</strong></p></td></tr><tr><td><p>FIN</p></td><td><p>1 bit</p></td><td><p>Final fragment flag (1 = last/only fragment)</p></td></tr><tr><td><p>RSV1-3</p></td><td><p>3 bits</p></td><td><p>Reserved for extensions (usually 0)</p></td></tr><tr><td><p>Opcode</p></td><td><p>4 bits</p></td><td><p>0x1=text, 0x2=binary, 0x8=close, 0x9=ping, 0xA=pong</p></td></tr><tr><td><p>MASK bit</p></td><td><p>1 bit</p></td><td><p>1 if payload is masked (client→server MUST mask)</p></td></tr><tr><td><p>Payload Length</p></td><td><p>7-71 bits</p></td><td><p>≤125: in 7 bits; 126: next 2 bytes; 127: next 8 bytes</p></td></tr><tr><td><p>Masking Key</p></td><td><p>0 or 4 bytes</p></td><td><p>Present only if MASK=1 (client-to-server frames)</p></td></tr><tr><td><p>Payload</p></td><td><p>Variable</p></td><td><p>Application data (XOR'd with masking key if masked)</p></td></tr></table><p>Client→Server frames MUST be masked. Server→Client frames are NOT masked.</p><p><strong>10. Security — WSS and Best Practices</strong></p><p>Always use wss:// (WebSocket Secure) in production. WSS runs WebSocket over TLS — the same encryption as HTTPS. Plain ws:// transmits data unencrypted.</p><ul><li>wss:// — encrypted (TLS/SSL), required in production</li><li>ws:// — unencrypted, only acceptable on localhost</li><li>Validate the Origin header server-side to prevent Cross-Site WebSocket Hijacking (CSWSH)</li><li>Authenticate before upgrading — pass JWT in query string or use cookies</li><li>Limit message size to prevent memory exhaustion attacks</li><li>Rate-limit messages per connection to prevent abuse</li><li>Use wss:// behind a reverse proxy (nginx/Apache) that terminates TLS</li></ul><p><strong>JavaScript — Origin Validation</strong></p><pre><code>// Node.js: validate Origin to prevent CSWSH
+const wss = new WebSocket.Server({
+    port: 443,
+    verifyClient: function(info, callback) {
+        const allowed = ['<a href="https://myapp.com" target="_blank" rel="noopener noreferrer">https://myapp.com</a>', '<a href="https://www.myapp.com" target="_blank" rel="noopener noreferrer">https://www.myapp.com</a>'];
+        const isAllowed = allowed.includes(info.origin);
+        callback(isAllowed, 403, 'Forbidden');
+    }
+});</code></pre>
+<p><strong>11. Common Use Cases</strong></p><table><tr><td><p><strong>Use Case</strong></p></td><td><p><strong>Why WebSocket?</strong></p></td></tr><tr><td><p>Real-time chat</p></td><td><p>Instant bidirectional messaging between users</p></td></tr><tr><td><p>Live financial data / trading</p></td><td><p>Server pushes price ticks continuously</p></td></tr><tr><td><p>Online multiplayer games</p></td><td><p>Ultra-low-latency state sync between players</p></td></tr><tr><td><p>Collaborative editing</p></td><td><p>Broadcast cursor/edit events to all editors (Google Docs)</p></td></tr><tr><td><p>Live dashboards / monitoring</p></td><td><p>Server pushes metrics — no client polling needed</p></td></tr><tr><td><p>Push notifications</p></td><td><p>Instant delivery without polling</p></td></tr><tr><td><p>IoT device communication</p></td><td><p>Persistent lightweight connections from devices</p></td></tr><tr><td><p>Live auctions / bidding</p></td><td><p>Real-time bid updates visible to all participants</p></td></tr></table><p><strong>12. Scaling WebSocket Servers</strong></p><p>WebSocket connections are stateful — each connection is pinned to a specific server instance. Horizontal scaling requires two things: sticky sessions and a shared message broker.</p><ul><li>Sticky sessions (session affinity): load balancer always routes a client to the same server node</li><li>Pub/Sub broker: Redis Pub/Sub, Kafka, or RabbitMQ — any node can publish, all nodes receive and forward to their own clients</li><li>Socket.IO: popular Node.js library with built-in Redis adapter for scaling and auto-reconnect</li><li>Spring WebSocket + STOMP + SockJS + Redis: common enterprise Java stack for scalable WebSockets</li></ul><p><strong>Node.js — Socket.IO with Redis Adapter (horizontal scaling)</strong></p><pre><code>// Redis adapter for Socket.IO (scales across multiple Node.js processes)
+const { createClient } = require('redis');
+const { createAdapter } = require('@socket.io/redis-adapter');
+const { Server } = require('socket.io');</code></pre>
+<p> </p><pre><code>const pubClient = createClient({ url: 'redis://localhost:6379' });
+const subClient = pubClient.duplicate();</code></pre>
+<p> </p><pre><code>const io = new Server(httpServer);
+io.adapter(createAdapter(pubClient, subClient));</code></pre>
+<p> </p><pre><code>// Now multiple server nodes share the same pub/sub channel
+io.on('connection', (socket) =&gt; {
+    socket.on('message', (data) =&gt; {
+        io.emit('message', data); // broadcast across ALL nodes
+    });
+});</code></pre>
+<p><strong>13. Key Interview Questions &amp; Answers</strong></p><p><strong>Q: What is WebSocket and how does it differ from HTTP?</strong></p><p>A: WebSocket is a full-duplex, stateful protocol over TCP. After an HTTP "upgrade" handshake, both client and server can send messages independently. HTTP is stateless request-response — the client must request; the server can only respond. WebSocket has much lower overhead per message (small frame header vs. full HTTP headers).</p><p><strong>Q: How does the WebSocket handshake work?</strong></p><p>A: The client sends HTTP GET with headers: Upgrade: websocket, Connection: Upgrade, and a Sec-WebSocket-Key (random base64). The server responds with HTTP 101 Switching Protocols and Sec-WebSocket-Accept (SHA-1 of key + GUID, base64 encoded). After that, the TCP socket is reused as a WebSocket connection.</p><p><strong>Q: What is the difference between ws:// and wss://?</strong></p><p>A: ws:// is plain WebSocket over unencrypted TCP. wss:// is WebSocket over TLS (like HTTPS). Always use wss:// in production to encrypt data and prevent MITM attacks.</p><p><strong>Q: When would you use WebSocket vs Server-Sent Events (SSE)?</strong></p><p>A: Use WebSocket when you need bidirectional communication (chat, gaming, collaborative editing). Use SSE when only the server needs to push to the client (news feed, notifications) — SSE uses plain HTTP, works through all proxies, and has built-in reconnection.</p><p><strong>Q: How do you implement reconnection in WebSocket?</strong></p><p>A: WebSocket has no built-in auto-reconnect. On the onclose event, use setTimeout with exponential backoff to call new WebSocket(...) again. Reset the delay on successful connection. The cap prevents flood-reconnects. Libraries like ReconnectingWebSocket handle this automatically.</p><p><strong>Q: How do you scale WebSocket servers horizontally?</strong></p><p>A: WebSocket connections are sticky to one server. For scaling: configure the load balancer for sticky sessions (IP hash or cookie), and use a pub/sub message broker (Redis, Kafka) so that all server nodes receive all messages and can forward them to their local clients.</p><p><strong>Q: What are WebSocket frames and why must client frames be masked?</strong></p><p>A: Frames are the transmission unit of the WebSocket protocol. Each frame has a small header (FIN, opcode, MASK bit, payload length, optional masking key) followed by the payload. Client-to-server frames must be masked (XOR with a random 4-byte key) as per RFC 6455, to prevent cache-poisoning attacks against intermediary HTTP caches.</p><p><strong>Q: What is Cross-Site WebSocket Hijacking (CSWSH)?</strong></p><p>A: CSWSH is an attack where a malicious website initiates a WebSocket connection to your server using the victim's cookies (similar to CSRF). Mitigation: validate the Origin header server-side and reject connections from unexpected origins. Unlike XHR, WebSockets are not protected by the same-origin policy by default.</p>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>
+    
+    document.querySelectorAll('pre code').forEach(function(el){ hljs.highlightElement(el); });
+  </script>
+  <script>(function () {
+    var marks = [];
+    var idx = -1;
+
+    function clearMarks() {
+        marks.forEach(function (m) {
+            var p = m.parentNode;
+            if (p) { p.replaceChild(document.createTextNode(m.textContent), m); p.normalize(); }
+        });
+        marks = [];
+        idx = -1;
+    }
+
+    function markText(query) {
+        var results = [];
+        var lower = query.toLowerCase();
+        var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null);
+        var nodes = [];
+        var n;
+        while ((n = walker.nextNode())) {
+            if (n.nodeValue.toLowerCase().includes(lower)) nodes.push(n);
+        }
+        nodes.forEach(function (textNode) {
+            var text  = textNode.nodeValue;
+            var ltext = text.toLowerCase();
+            var par   = textNode.parentNode;
+            if (!par) return;
+            var frag = document.createDocumentFragment();
+            var last = 0, i;
+            while ((i = ltext.indexOf(lower, last)) !== -1) {
+                if (i > last) frag.appendChild(document.createTextNode(text.slice(last, i)));
+                var m = document.createElement('mark');
+                m.className = 'dsm';
+                m.style.cssText = 'background:#ffe066;color:inherit;border-radius:2px;';
+                m.textContent = text.slice(i, i + query.length);
+                frag.appendChild(m);
+                results.push(m);
+                last = i + query.length;
+            }
+            if (last < text.length) frag.appendChild(document.createTextNode(text.slice(last)));
+            par.replaceChild(frag, textNode);
+        });
+        return results;
+    }
+
+    function highlight() {
+        marks.forEach(function (m, i) {
+            m.style.background = i === idx ? '#ff9900' : '#ffe066';
+            m.style.outline    = i === idx ? '2px solid #e65c00' : 'none';
+        });
+        if (marks[idx]) marks[idx].scrollIntoView({ block: 'center' });
+    }
+
+    function reply(src) {
+        src.postMessage({ type: 'searchResult', count: marks.length, current: idx }, '*');
+    }
+
+    window.addEventListener('message', function (e) {
+        var d = e.data;
+        if (!d || !d.type) return;
+        if (d.type === 'search') {
+            clearMarks();
+            if (d.query) {
+                marks = markText(d.query);
+                if (marks.length) idx = 0;
+                highlight();
+            }
+            reply(e.source);
+        } else if (d.type === 'searchNav') {
+            if (!marks.length) return;
+            idx = d.dir === 'next'
+                ? (idx + 1) % marks.length
+                : (idx - 1 + marks.length) % marks.length;
+            highlight();
+            reply(e.source);
+        } else if (d.type === 'searchClear') {
+            clearMarks();
+        }
+    });
+})();</script>
+</body>
+</html>

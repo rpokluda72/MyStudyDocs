@@ -42,8 +42,7 @@ dispList.accept(list); // 4 2 6
         Predicate&lt;Integer&gt; lowerThanTwenty = (i) -&gt; i &lt; 20; 
         boolean result = greaterThanTen.and(lowerThanTwenty).test(15);
         System.out.println(result); // true</code></pre>
-<p><strong>3. Function</strong></p><p>The <a href="https://www.geeksforgeeks.org/java/function-interface-in-java/" target="_blank" rel="noopener noreferrer">function</a> interface takes one argument and returns a result. It is commonly used for transforming data. Several variations exist:</p><pre><code>In Java 8, <a href="https://docs.oracle.com/javase/8/docs/api/java/util/function/Function.html" target="_blank" rel="noopener noreferrer">Function</a> is a functional interface; it takes an argument (object of type T) and returns an object (object of type R). The argument and output can be a different type.</code></pre>
-<p>Function.java</p><pre><code>@FunctionalInterface
+<p><strong>3. Function</strong></p><p>The <a href="https://www.geeksforgeeks.org/java/function-interface-in-java/" target="_blank" rel="noopener noreferrer">function</a> interface takes one argument and returns a result. It is commonly used for transforming data. Several variations exist:</p><p>In Java 8, <a href="https://docs.oracle.com/javase/8/docs/api/java/util/function/Function.html" target="_blank" rel="noopener noreferrer">Function</a> is a functional interface; it takes an argument (object of type T) and returns an object (object of type R). The argument and output can be a different type.</p><p>Function.java</p><pre><code>@FunctionalInterface
 public interface Function&lt;T, R&gt; {
       R apply(T t);
 }</code></pre>

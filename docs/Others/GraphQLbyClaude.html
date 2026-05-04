@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GraphQLbyClaude</title>
+  <link rel="stylesheet" href="../assets/content.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+</head>
+<body>
+  <h1>GraphQLbyClaude</h1>
+  <p>GraphQL Study Guide</p><p><em>A comprehensive learning document by Claude</em></p><h1>1. What is GraphQL?</h1><p>GraphQL is an open-source data query and manipulation language for APIs, and a runtime for fulfilling those queries with your existing data. Developed internally by Facebook in 2012 and open-sourced in 2015, it gives clients the power to ask for exactly what they need — nothing more, nothing less.</p><p>Key facts:</p><ul><li>Created by Facebook (Meta) in 2012, open-sourced in 2015</li><li>Now maintained by the GraphQL Foundation under the Linux Foundation</li><li>A query language for your API — not a database query language</li><li>Works over HTTP — typically a single POST endpoint (/graphql)</li><li>Language-agnostic: servers available in Node.js, Python, Java, Go, Ruby, and more</li></ul><h1>2. Core Problems GraphQL Solves</h1><h2>2.1 Over-fetching</h2><p>With REST, GET /users might return id, name, email, address, birthday, and avatar — even if you only need name and email. GraphQL lets you request only the fields you actually need.</p><h2>2.2 Under-fetching (N+1 Problem)</h2><p>With REST, getting a user and their posts might require two requests: GET /users/1, then GET /users/1/posts. With GraphQL you fetch all related data in a single round-trip.</p><h2>2.3 Rapid Product Iteration</h2><p>Front-end teams can request new fields without waiting for back-end API changes. Schema introspection also provides a self-documented API at all times.</p><h1>3. GraphQL vs REST</h1><table><tr><td><p><strong>Aspect</strong></p></td><td><p><strong>REST</strong></p></td><td><p><strong>GraphQL</strong></p></td></tr><tr><td><p>Endpoints</p></td><td><p>Multiple (one per resource)</p></td><td><p>Single endpoint (/graphql)</p></td></tr><tr><td><p>Data fetching</p></td><td><p>Fixed response shape</p></td><td><p>Client specifies exact fields</p></td></tr><tr><td><p>Over-fetching</p></td><td><p>Common</p></td><td><p>Eliminated</p></td></tr><tr><td><p>Under-fetching</p></td><td><p>Common (multiple requests needed)</p></td><td><p>Eliminated (nested queries)</p></td></tr><tr><td><p>Versioning</p></td><td><p>v1, v2, v3 URLs</p></td><td><p>Evolve schema without versions</p></td></tr><tr><td><p>Real-time</p></td><td><p>Polling or manual WebSockets</p></td><td><p>Built-in Subscriptions</p></td></tr><tr><td><p>Caching</p></td><td><p>Easy (HTTP GET cache headers)</p></td><td><p>Requires persisted queries</p></td></tr><tr><td><p>Learning curve</p></td><td><p>Low (widely known)</p></td><td><p>Moderate</p></td></tr><tr><td><p>Best for</p></td><td><p>Simple CRUD, public APIs</p></td><td><p>Complex data, mobile, micro-frontends</p></td></tr></table><h1>4. Core Concepts</h1><h2>4.1 Schema</h2><p>The schema is the central contract of a GraphQL API written in Schema Definition Language (SDL). It defines all available types, queries, mutations, and subscriptions, plus the relationships between types.</p><pre><code>type Query {
+  user(id: ID!): User
+  users: [User!]!
+}
+
+type User {
+  id: ID!
+  name: String!
+  email: String!
+  posts: [Post!]!
+}
+
+type Post {
+  id: ID!
+  title: String!
+  body: String
+  author: User!
+}</code></pre>
+<h2>4.2 Type System</h2><p>GraphQL defines 6 named type categories:</p><h3>Scalar Types (built-in primitives)</h3><ul><li>Int       — 32-bit signed integer</li><li>Float     — double-precision floating point</li><li>String    — UTF-8 character sequence</li><li>Boolean   — true or false</li><li>ID        — unique identifier (serialized as String)</li></ul><p>You can also define custom scalars:  scalar Date  |  scalar JSON  |  scalar URL</p><h3>Object Types</h3><p>The most common type — groups named fields together:</p><pre><code>type Product {
+  id: ID!
+  name: String!
+  price: Float!
+  inStock: Boolean!
+}</code></pre>
+<h3>Enum Types</h3><p>A set of allowed string values:</p><pre><code>enum Status {
+  ACTIVE
+  INACTIVE
+  PENDING
+}</code></pre>
+<h3>Interface Types</h3><p>An abstract type that concrete types must implement:</p><pre><code>interface Node {
+  id: ID!
+}
+
+type User implements Node {
+  id: ID!
+  name: String!
+}
+
+type Post implements Node {
+  id: ID!
+  title: String!
+}</code></pre>
+<h3>Union Types</h3><p>A field that can return one of several object types (no shared fields required):</p><pre><code>union SearchResult = User | Post | Product
+
+type Query {
+  search(term: String!): [SearchResult!]!
+}</code></pre>
+<h3>Input Object Types</h3><p>Used to pass complex arguments into mutations and queries:</p><pre><code>input CreateUserInput {
+  name: String!
+  email: String!
+  password: String!
+}
+
+type Mutation {
+  createUser(input: CreateUserInput!): User!
+}</code></pre>
+<h3>Non-Null and List Modifiers</h3><ul><li>String    — nullable string (can be null)</li><li>String!   — non-null string (never null)</li><li>[String]  — nullable list of nullable strings</li><li>[String!]! — non-null list of non-null strings</li></ul><h1>5. Queries</h1><p>Queries are read operations. The client specifies exactly what fields it wants.</p><h2>5.1 Basic Query</h2><pre><code># Request
+query {
+  user(id: "1") {
+    name
+    email
+  }
+}
+
+# Response
+{
+  "data": {
+    "user": {
+      "name": "Alice",
+      "email": "alice@example.com"
+    }
+  }
+}</code></pre>
+<h2>5.2 Arguments</h2><p>Any field can accept arguments:</p><pre><code>query {
+  users(limit: 10, offset: 20) {
+    id
+    name
+  }
+}</code></pre>
+<h2>5.3 Aliases</h2><p>Rename fields in the response to avoid conflicts:</p><pre><code>query {
+  adminUser: user(id: "1") { name }
+  guestUser: user(id: "2") { name }
+}</code></pre>
+<h2>5.4 Fragments</h2><p>Reusable field selections:</p><pre><code>fragment UserFields on User {
+  id
+  name
+  email
+}
+
+query {
+  user(id: "1") { ...UserFields }
+}</code></pre>
+<h2>5.5 Variables</h2><p>Pass dynamic values safely — avoids string interpolation vulnerabilities:</p><pre><code># Query definition
+query GetUser($userId: ID!) {
+  user(id: $userId) {
+    name
+    email
+  }
+}
+
+# Variables (sent as JSON alongside the query)
+{ "userId": "42" }</code></pre>
+<h2>5.6 Directives</h2><p>Modify execution dynamically using built-in directives:</p><pre><code>query GetUser($withEmail: Boolean!, $skipPosts: Boolean!) {
+  user(id: "1") {
+    name
+    email   @include(if: $withEmail)
+    posts   @skip(if: $skipPosts) {
+      title
+    }
+  }
+}</code></pre>
+<ul><li>@include(if: Boolean) — include the field only if the argument is true</li><li>@skip(if: Boolean)    — skip the field if the argument is true</li><li>@deprecated(reason: String) — marks a schema field as deprecated</li></ul><h1>6. Mutations</h1><p>Mutations are write operations (create, update, delete). Unlike query fields which run in parallel, mutation fields execute serially to avoid race conditions.</p><h2>6.1 Basic Mutation</h2><pre><code>mutation {
+  createUser(input: {
+    name: "Bob"
+    email: "bob@example.com"
+  }) {
+    id
+    name
+    email
+  }
+}</code></pre>
+<h2>6.2 Mutation with Variables</h2><pre><code>mutation CreateUser($input: CreateUserInput!) {
+  createUser(input: $input) {
+    id
+    name
+  }
+}
+
+# Variables
+{
+  "input": {
+    "name": "Bob",
+    "email": "bob@example.com"
+  }
+}</code></pre>
+<h2>6.3 Update and Delete</h2><pre><code>mutation {
+  updateUser(id: "1", input: { name: "Robert" }) {
+    id
+    name
+  }
+}
+
+mutation {
+  deleteUser(id: "1") {
+    success
+    message
+  }
+}</code></pre>
+<h1>7. Subscriptions</h1><p>Subscriptions enable real-time updates. The client opens a persistent WebSocket connection; the server pushes data whenever a specified event occurs.</p><pre><code>subscription {
+  messageAdded(channelId: "general") {
+    id
+    text
+    author {
+      name
+    }
+    createdAt
+  }
+}</code></pre>
+<p>How it works:</p><ul><li>1. Client sends subscription operation over WebSocket</li><li>2. Server registers the subscription</li><li>3. When the event fires, the server pushes the payload to all subscribed clients</li><li>4. Client receives real-time updates without polling</li><li>Common libraries: graphql-ws, subscriptions-transport-ws</li></ul><h1>8. Resolvers</h1><p>A resolver is a server-side function that returns data for a specific field. Every field in your schema has a resolver (default resolvers return the property matching the field name).</p><pre><code>// Node.js / Apollo Server example
+const resolvers = {
+  Query: {
+    user: async (parent, { id }, context) =&gt; {
+      return await context.db.users.findById(id);
+    },
+    users: async (parent, args, context) =&gt; {
+      return await context.db.users.findAll();
+    },
+  },
+  Mutation: {
+    createUser: async (parent, { input }, context) =&gt; {
+      return await context.db.users.create(input);
+    },
+  },
+  User: {
+    // field-level resolver: runs for every User returned
+    posts: async (parent, args, context) =&gt; {
+      return await context.db.posts.findByUserId(parent.id);
+    },
+  },
+};</code></pre>
+<p>Resolver arguments:</p><ul><li>parent  — result of the parent field resolver</li><li>args    — arguments provided in the query/mutation</li><li>context — shared object (auth token, DB connection, DataLoaders)</li><li>info    — field name, schema info, query AST (advanced use)</li></ul><h1>9. Introspection</h1><p>GraphQL APIs are self-documenting. Any client can query the schema itself using introspection — this powers GraphiQL autocomplete and Apollo Studio documentation.</p><pre><code>{
+  __schema {
+    types {
+      name
+      kind
+    }
+  }
+}
+
+# Query a specific type
+{
+  __type(name: "User") {
+    fields {
+      name
+      type { name }
+    }
+  }
+}</code></pre>
+<h1>10. Error Handling</h1><p>GraphQL always returns HTTP 200. Errors appear in the errors array alongside any partial data:</p><pre><code>{
+  "data": {
+    "user": null
+  },
+  "errors": [
+    {
+      "message": "User not found",
+      "locations": [{ "line": 2, "column": 3 }],
+      "path": ["user"],
+      "extensions": {
+        "code": "NOT_FOUND"
+      }
+    }
+  ]
+}</code></pre>
+<ul><li>data       — partial data for successfully resolved fields</li><li>errors     — array of errors with message, locations, path, and extensions</li><li>A request can return BOTH data and errors (partial success is valid)</li></ul><h1>11. Best Practices</h1><h2>11.1 Schema Design</h2><ul><li>Design your schema around client needs, not the database structure</li><li>Use descriptive camelCase field names</li><li>Use Input types for mutation arguments (not inline scalars)</li><li>Paginate large lists — prefer cursor-based (Relay Connections) over offset</li><li>Implement the Node interface for globally unique IDs</li><li>Mark fields non-null (!) when they always have a value</li></ul><h2>11.2 Performance</h2><ul><li>Use DataLoader to batch and cache DB calls — solves the N+1 query problem</li><li>Set query depth and complexity limits to prevent resource exhaustion</li><li>Use persisted queries in production to enable caching and reduce payload size</li><li>Cache at the resolver level (e.g., Redis) for expensive computations</li></ul><h2>11.3 Security</h2><ul><li>Disable or restrict introspection in production</li><li>Enforce query depth limits (typically max 5-7 levels)</li><li>Enforce query complexity limits</li><li>Validate and sanitize all input arguments</li><li>Handle authentication in context (middleware), not in individual resolvers</li><li>Use allow-lists of known queries (persisted queries) for public APIs</li></ul><h1>12. Popular Tools &amp; Ecosystem</h1><h2>12.1 Server Libraries</h2><ul><li>Apollo Server (Node.js)  — most popular, full-featured, great docs</li><li>GraphQL Yoga (Node.js)   — lightweight, modern, Fetch API based</li><li>Strawberry (Python)      — code-first, type-annotation driven</li><li>Ariadne (Python)         — schema-first</li><li>graphql-java (Java)      — official Java library</li><li>Juniper (Rust)           — high-performance, macro-based</li><li>Hot Chocolate (.NET)     — feature-rich C# server</li></ul><h2>12.2 Client Libraries</h2><ul><li>Apollo Client  — most popular; integrates with React, Vue, Angular</li><li>Relay          — Facebooks production client; highly optimized, opinionated</li><li>urql           — lightweight and extensible</li><li>graphql-request — minimal; great for server-side or scripts</li></ul><h2>12.3 Developer Tools</h2><ul><li>GraphiQL           — in-browser IDE; uses introspection for autocomplete</li><li>Apollo Studio      — enterprise explorer, schema registry, metrics</li><li>Postman            — supports GraphQL requests</li><li>GraphQL Inspector  — schema diffing and breaking-change detection</li><li>GraphQL Code Generator — auto-generate TypeScript types from schema</li></ul><h1>13. Quick Reference Cheat Sheet</h1><pre><code># QUERY (read)
+query [OperationName]($var: Type) {
+  fieldName(arg: $var) {
+    subField
+  }
+}
+
+# MUTATION (write)
+mutation [OperationName]($input: InputType!) {
+  mutationField(input: $input) {
+    returnedField
+  }
+}
+
+# SUBSCRIPTION (real-time)
+subscription {
+  eventName {
+    field
+  }
+}
+
+# FRAGMENT (reusable selection)
+fragment FragName on TypeName {
+  field1
+  field2
+}
+
+# DIRECTIVES
+@include(if: Boolean)        # include field if true
+@skip(if: Boolean)           # skip field if true
+@deprecated(reason: String)  # schema only
+
+# TYPE MODIFIERS
+String     # nullable
+String!    # non-null
+[String]   # nullable list
+[String!]! # non-null list of non-null strings
+
+# BUILT-IN SCALAR TYPES
+Int | Float | String | Boolean | ID</code></pre>
+<h1>14. Learning Resources</h1><ul><li>Official Docs &amp; Learn:   <a href="https://graphql.org/learn/" target="_blank" rel="noopener noreferrer">https://graphql.org/learn/</a></li><li>How to GraphQL:          <a href="https://www.howtographql.com/" target="_blank" rel="noopener noreferrer">https://www.howtographql.com/</a></li><li>Apollo Tutorials:        <a href="https://www.apollographql.com/tutorials/" target="_blank" rel="noopener noreferrer">https://www.apollographql.com/tutorials/</a></li><li>GraphQL Specification:   <a href="https://spec.graphql.org/" target="_blank" rel="noopener noreferrer">https://spec.graphql.org/</a></li><li>GraphQL Foundation:      <a href="https://graphql.org/foundation/" target="_blank" rel="noopener noreferrer">https://graphql.org/foundation/</a></li><li>FreeCodeCamp guide:      <a href="https://www.freecodecamp.org/news/a-beginners-guide-to-graphql-86f849ce1bec/" target="_blank" rel="noopener noreferrer">https://www.freecodecamp.org/news/a-beginners-guide-to-graphql-86f849ce1bec/</a></li></ul><p><em>Document generated by Claude  |  April 2026</em></p>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>
+    
+    document.querySelectorAll('pre code').forEach(function(el){ hljs.highlightElement(el); });
+  </script>
+  <script>(function () {
+    var marks = [];
+    var idx = -1;
+
+    function clearMarks() {
+        marks.forEach(function (m) {
+            var p = m.parentNode;
+            if (p) { p.replaceChild(document.createTextNode(m.textContent), m); p.normalize(); }
+        });
+        marks = [];
+        idx = -1;
+    }
+
+    function markText(query) {
+        var results = [];
+        var lower = query.toLowerCase();
+        var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null);
+        var nodes = [];
+        var n;
+        while ((n = walker.nextNode())) {
+            if (n.nodeValue.toLowerCase().includes(lower)) nodes.push(n);
+        }
+        nodes.forEach(function (textNode) {
+            var text  = textNode.nodeValue;
+            var ltext = text.toLowerCase();
+            var par   = textNode.parentNode;
+            if (!par) return;
+            var frag = document.createDocumentFragment();
+            var last = 0, i;
+            while ((i = ltext.indexOf(lower, last)) !== -1) {
+                if (i > last) frag.appendChild(document.createTextNode(text.slice(last, i)));
+                var m = document.createElement('mark');
+                m.className = 'dsm';
+                m.style.cssText = 'background:#ffe066;color:inherit;border-radius:2px;';
+                m.textContent = text.slice(i, i + query.length);
+                frag.appendChild(m);
+                results.push(m);
+                last = i + query.length;
+            }
+            if (last < text.length) frag.appendChild(document.createTextNode(text.slice(last)));
+            par.replaceChild(frag, textNode);
+        });
+        return results;
+    }
+
+    function highlight() {
+        marks.forEach(function (m, i) {
+            m.style.background = i === idx ? '#ff9900' : '#ffe066';
+            m.style.outline    = i === idx ? '2px solid #e65c00' : 'none';
+        });
+        if (marks[idx]) marks[idx].scrollIntoView({ block: 'center' });
+    }
+
+    function reply(src) {
+        src.postMessage({ type: 'searchResult', count: marks.length, current: idx }, '*');
+    }
+
+    window.addEventListener('message', function (e) {
+        var d = e.data;
+        if (!d || !d.type) return;
+        if (d.type === 'search') {
+            clearMarks();
+            if (d.query) {
+                marks = markText(d.query);
+                if (marks.length) idx = 0;
+                highlight();
+            }
+            reply(e.source);
+        } else if (d.type === 'searchNav') {
+            if (!marks.length) return;
+            idx = d.dir === 'next'
+                ? (idx + 1) % marks.length
+                : (idx - 1 + marks.length) % marks.length;
+            highlight();
+            reply(e.source);
+        } else if (d.type === 'searchClear') {
+            clearMarks();
+        }
+    });
+})();</script>
+</body>
+</html>

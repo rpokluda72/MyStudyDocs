@@ -117,8 +117,9 @@ function isCodeLine(plain) {
   if (/::/.test(t)) return true;
   // Strip HTML entities (e.g. &lt; &gt; contain ';') before semicolon check
   const tStripped = t.replace(/&[a-z]+;/gi, '');
-  // Contains semicolon (Java/JS/TS statement terminator, even mid-line before comments)
-  if (/;/.test(tStripped)) return true;
+  // Ends with semicolon, or semicolon before comment (Java/JS/TS statement terminator)
+  // Require the semicolon to appear near the end (not mid-sentence prose)
+  if (/;\s*(\/[/*].*)?$/.test(tStripped)) return true;
   // Ends with {
   if (/\{$/.test(tStripped)) return true;
   // Starts with closing brace/bracket
@@ -202,6 +203,14 @@ function getCodeParagraphTexts(docxPath) {
   }
 }
 
+function isMultiLineCodeParagraph(plain) {
+  if (!plain.includes('\n')) return false;
+  const lines = plain.split('\n').filter(l => l.trim());
+  if (lines.length < 2) return false;
+  const codeCount = lines.filter(isCodeLine).length;
+  return codeCount >= Math.ceil(lines.length * 0.5);
+}
+
 function wrapCodeBlocks(html, codeTexts = null) {
   const segments = [];
   let lastIndex = 0;
@@ -235,7 +244,7 @@ function wrapCodeBlocks(html, codeTexts = null) {
     if (seg.type === 'raw') {
       flush();
       result += seg.text;
-    } else if (isCodeLine(seg.plain) || (codeTexts && codeTexts.has(decodeHtml(seg.plain.trim())))) {
+    } else if (isCodeLine(seg.plain) || isMultiLineCodeParagraph(seg.plain) || (codeTexts && codeTexts.has(decodeHtml(seg.plain.trim())))) {
       buf.push(seg.inner);
     } else {
       flush();

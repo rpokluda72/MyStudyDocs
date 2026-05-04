@@ -341,13 +341,11 @@ of(1, 2, 3, 4, 5)
 </td><td><p>Converts array, Promise, iterable, or Observable-like into Observable</p></td></tr><tr><td><pre><code>fromEvent(target, event)</code></pre>
 </td><td><p>Creates Observable from DOM/Node events</p></td></tr><tr><td><pre><code>interval(period)</code></pre>
 </td><td><p>Emits 0, 1, 2, ... every period ms (uses asyncScheduler)</p></td></tr><tr><td><pre><code>timer(delay, period?)</code></pre>
-</td><td><pre><code>Emits once after delay; optionally repeats every period ms</code></pre>
-</td></tr><tr><td><pre><code>range(start, count)</code></pre>
+</td><td><p>Emits once after delay; optionally repeats every period ms</p></td></tr><tr><td><pre><code>range(start, count)</code></pre>
 </td><td><p>Emits a sequential range of integers</p></td></tr><tr><td><pre><code>defer(() =&gt; obs)</code></pre>
 </td><td><p>Creates Observable lazily – factory called per subscriber</p></td></tr><tr><td><p>EMPTY</p></td><td><p>Observable that immediately completes with no items</p></td></tr><tr><td><pre><code>throwError(() =&gt; err)</code></pre>
 </td><td><p>Observable that immediately errors</p></td></tr><tr><td><pre><code>forkJoin([o1, o2])</code></pre>
-</td><td><pre><code>Waits for all to complete; emits array of last values</code></pre>
-</td></tr><tr><td><pre><code>combineLatest([o1, o2])</code></pre>
+</td><td><p>Waits for all to complete; emits array of last values</p></td></tr><tr><td><pre><code>combineLatest([o1, o2])</code></pre>
 </td><td><p>When any emits, combine latest from all into array</p></td></tr><tr><td><pre><code>zip([o1, o2])</code></pre>
 </td><td><p>Pair nth emissions from each Observable into array</p></td></tr></table><pre><code>import { forkJoin, of, timer } from 'rxjs';
 
@@ -441,10 +439,8 @@ interval(1000)
   .pipe(takeUntil(destroy$))
   .subscribe(console.log);</code></pre>
 <h2><strong>7.4 Combination Operators</strong></h2><table><tr><td><p><strong>Operator</strong></p></td><td><p><strong>Description</strong></p></td></tr><tr><td><pre><code>merge(o1, o2, ...)</code></pre>
-</td><td><pre><code>Subscribe to all concurrently; emit values as they arrive</code></pre>
-</td></tr><tr><td><pre><code>concat(o1, o2, ...)</code></pre>
-</td><td><pre><code>Subscribe sequentially; wait for each to complete before next</code></pre>
-</td></tr><tr><td><pre><code>combineLatest([o1, o2])</code></pre>
+</td><td><p>Subscribe to all concurrently; emit values as they arrive</p></td></tr><tr><td><pre><code>concat(o1, o2, ...)</code></pre>
+</td><td><p>Subscribe sequentially; wait for each to complete before next</p></td></tr><tr><td><pre><code>combineLatest([o1, o2])</code></pre>
 </td><td><p>When any source emits, combine with latest from all others</p></td></tr><tr><td><pre><code>zip([o1, o2])</code></pre>
 </td><td><p>Pair nth emissions from all sources into an array</p></td></tr><tr><td><pre><code>forkJoin([o1, o2])</code></pre>
 </td><td><p>Wait for all to complete, emit array of last values</p></td></tr><tr><td><pre><code>startWith(...values)</code></pre>
@@ -510,8 +506,7 @@ someApiCall$
 </td><td><p>Error if no value is emitted within each ms</p></td></tr><tr><td><pre><code>toArray()</code></pre>
 </td><td><p>Collect all values into a single array emission on complete</p></td></tr><tr><td><pre><code>finalize(fn)</code></pre>
 </td><td><p>Run fn on complete, error, or unsubscribe (cleanup)</p></td></tr><tr><td><pre><code>share()</code></pre>
-</td><td><pre><code>Multicast using a Subject; auto-connect on first subscriber</code></pre>
-</td></tr><tr><td><pre><code>shareReplay(n)</code></pre>
+</td><td><p>Multicast using a Subject; auto-connect on first subscriber</p></td></tr><tr><td><pre><code>shareReplay(n)</code></pre>
 </td><td><p>Multicast + replay last n values to new subscribers</p></td></tr><tr><td><pre><code>observeOn(sched)</code></pre>
 </td><td><p>Change the scheduler for downstream operators</p></td></tr><tr><td><pre><code>subscribeOn(sched)</code></pre>
 </td><td><p>Change the scheduler for the subscription itself</p></td></tr></table><pre><code>import { interval, of } from 'rxjs';

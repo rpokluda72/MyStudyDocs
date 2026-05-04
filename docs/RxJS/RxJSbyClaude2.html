@@ -423,8 +423,7 @@ const fileObservable = urlObservable.pipe(
 </td><td><p>Subscribes to each inner Observable sequentially, waits for completion before next</p></td></tr><tr><td><pre><code>mergeAll()</code></pre>
 </td><td><p>Subscribes to each inner Observable as it arrives, emits each value as it arrives</p></td></tr><tr><td><pre><code>switchAll()</code></pre>
 </td><td><p>On each new inner Observable, unsubscribes from previous and subscribes to new one</p></td></tr><tr><td><pre><code>exhaustAll()</code></pre>
-</td><td><pre><code>Subscribes to first inner Observable; ignores new ones until it completes</code></pre>
-</td></tr></table><p>Convenience operators that combine map + flatten: concatMap(), mergeMap(), switchMap(), exhaustMap().</p><h2><strong>7.4 Creating Custom Operators</strong></h2><h3><strong>Using pipe() to make new operators</strong></h3><pre><code>import { pipe, filter, map } from 'rxjs';
+</td><td><p>Subscribes to first inner Observable; ignores new ones until it completes</p></td></tr></table><p>Convenience operators that combine map + flatten: concatMap(), mergeMap(), switchMap(), exhaustMap().</p><h2><strong>7.4 Creating Custom Operators</strong></h2><h3><strong>Using pipe() to make new operators</strong></h3><pre><code>import { pipe, filter, map } from 'rxjs';
 
 function discardOddDoubleEven() {
   return pipe(

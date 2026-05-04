@@ -664,8 +664,7 @@ Object obj = 42;
 java -XX:+UseZGC -XX:+ZGenerational -jar app.jar
 # Java 23+ — generational is default when ZGC is selected
 java -XX:+UseZGC -jar app.jar</code></pre>
-<h2><strong>Java 24</strong></h2><h3><strong>1. Stream Gatherers *(Final — JEP 485)*</strong></h3><pre><code>Custom intermediate Stream operations via Stream.gather(Gatherer). The built-in Gatherers class provides common ones; you can also write your own.</code></pre>
-<p><strong>Before Java 24 — no clean way to do sliding windows:</strong></p><pre><code>// Had to collect to list first, then manually slice
+<h2><strong>Java 24</strong></h2><h3><strong>1. Stream Gatherers *(Final — JEP 485)*</strong></h3><p>Custom intermediate Stream operations via Stream.gather(Gatherer). The built-in Gatherers class provides common ones; you can also write your own.</p><p><strong>Before Java 24 — no clean way to do sliding windows:</strong></p><pre><code>// Had to collect to list first, then manually slice
 List&lt;Integer&gt; nums = List.of(1, 2, 3, 4, 5);
 List&lt;List&lt;Integer&gt;&gt; windows = <strong>new</strong> ArrayList&lt;&gt;();
 <strong>for</strong> (<strong>int</strong> i = 0; i &lt;= nums.size() - 3; i++) {
