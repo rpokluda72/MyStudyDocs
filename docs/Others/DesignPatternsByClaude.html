@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DesignPatternsByClaude</title>
+  <link rel="stylesheet" href="../assets/content.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+</head>
+<body>
+  <h1>DesignPatternsByClaude</h1>
+  <p><strong>Design Patterns in OOP</strong></p><p>Java Reference  |  GoF Patterns</p><p><strong>1. Introduction</strong></p><p>Design patterns are reusable solutions to commonly occurring problems in software design. They were popularised by the "Gang of Four" (GoF) book — Design Patterns: Elements of Reusable Object-Oriented Software (Gamma, Helm, Johnson, Vlissides, 1994). A pattern is not a finished piece of code, but a template describing how to solve a problem in many different situations.</p><p>Patterns are grouped into three categories depending on their purpose:</p><ul><li>Creational — how objects are created</li><li>Structural — how objects are composed/assembled</li><li>Behavioral — how objects communicate and share responsibilities</li></ul><p><strong>1.1  Pattern Categories — Overview</strong></p><pre><code>  +---------------------------------------------------------------------------+
+  |                       Design Patterns (GoF)                               |
+  +------------------+--------------------+----------------------------------+
+                     |                    |                    |              
+        +------------+------+  +----------+---------+  +-------+-----------+ 
+        |   CREATIONAL      |  |   STRUCTURAL       |  |    BEHAVIORAL     | 
+        |-------------------|  |--------------------|  |-------------------| 
+        | * Singleton       |  | * Adapter          |  | * Chain of Resp.  | 
+        | * Factory Method  |  | * Bridge           |  | * Command         | 
+        | * Abstract Factory|  | * Composite        |  | * Interpreter     | 
+        | * Builder         |  | * Decorator        |  | * Iterator        | 
+        | * Prototype       |  | * Facade           |  | * Mediator        | 
+        +-------------------+  | * Flyweight        |  | * Memento         | 
+                               | * Proxy            |  | * Observer        | 
+                               +--------------------+  | * State           | 
+                                                        | * Strategy        | 
+                                                        | * Template Method | 
+                                                        | * Visitor         | 
+                                                        +-------------------+ </code></pre>
+<p><strong>1.2  All 23 GoF Patterns — Quick Reference</strong></p><table><tr><td><p><strong>Category</strong></p></td><td><p><strong>Pattern</strong></p></td><td><p><strong>One-line purpose</strong></p></td></tr><tr><td><p>Creational</p></td><td><p>Singleton</p></td><td><p>Ensure only one instance of a class exists</p></td></tr><tr><td><p>Creational</p></td><td><p>Factory Method</p></td><td><p>Let subclasses decide which class to instantiate</p></td></tr><tr><td><p>Creational</p></td><td><p>Abstract Factory</p></td><td><p>Create families of related objects without specifying classes</p></td></tr><tr><td><p>Creational</p></td><td><p>Builder</p></td><td><p>Construct complex objects step by step</p></td></tr><tr><td><p>Creational</p></td><td><p>Prototype</p></td><td><p>Clone existing objects instead of creating from scratch</p></td></tr><tr><td><p>Structural</p></td><td><p>Adapter</p></td><td><p>Make incompatible interfaces work together</p></td></tr><tr><td><p>Structural</p></td><td><p>Bridge</p></td><td><p>Separate abstraction from implementation</p></td></tr><tr><td><p>Structural</p></td><td><p>Composite</p></td><td><p>Treat individual objects and compositions uniformly</p></td></tr><tr><td><p>Structural</p></td><td><p>Decorator</p></td><td><p>Add behaviour to objects dynamically</p></td></tr><tr><td><p>Structural</p></td><td><p>Facade</p></td><td><p>Provide a simplified interface to a complex subsystem</p></td></tr><tr><td><p>Structural</p></td><td><p>Flyweight</p></td><td><p>Share fine-grained objects to save memory</p></td></tr><tr><td><p>Structural</p></td><td><p>Proxy</p></td><td><p>Control access to another object</p></td></tr><tr><td><p>Behavioral</p></td><td><p>Chain of Resp.</p></td><td><p>Pass a request along a chain of handlers</p></td></tr><tr><td><p>Behavioral</p></td><td><p>Command</p></td><td><p>Encapsulate a request as an object</p></td></tr><tr><td><p>Behavioral</p></td><td><p>Interpreter</p></td><td><p>Define a grammar and interpret sentences</p></td></tr><tr><td><p>Behavioral</p></td><td><p>Iterator</p></td><td><p>Sequentially access elements without exposing internals</p></td></tr><tr><td><p>Behavioral</p></td><td><p>Mediator</p></td><td><p>Define how objects interact via a mediator</p></td></tr><tr><td><p>Behavioral</p></td><td><p>Memento</p></td><td><p>Capture and restore an object's state</p></td></tr><tr><td><p>Behavioral</p></td><td><p>Observer</p></td><td><p>Notify dependents when an object changes state</p></td></tr><tr><td><p>Behavioral</p></td><td><p>State</p></td><td><p>Allow an object to change behaviour when state changes</p></td></tr><tr><td><p>Behavioral</p></td><td><p>Strategy</p></td><td><p>Define a family of algorithms and make them interchangeable</p></td></tr><tr><td><p>Behavioral</p></td><td><p>Template Method</p></td><td><p>Skeleton of algorithm in base class; steps in subclasses</p></td></tr><tr><td><p>Behavioral</p></td><td><p>Visitor</p></td><td><p>Add operations to objects without modifying them</p></td></tr></table><p><strong>2. Creational Patterns</strong></p><p>Creational patterns abstract the instantiation process, making a system independent of how its objects are created, composed, and represented.</p><p><strong>2.1  Singleton</strong></p><p><strong>Intent</strong></p><p>Ensure a class has only one instance and provide a global access point to it.</p><p><strong>UML Diagram</strong></p><pre><code>  +----------------------------------------------+
+  |                 Singleton                    |
+  |----------------------------------------------|
+  | - instance: Singleton  (static)              |
+  |----------------------------------------------|
+  | - Singleton()                                |
+  | + getInstance(): Singleton  (static)         |
+  | + businessLogic()                            |
+  +----------------------------------------------+</code></pre>
+<p> </p><pre><code>  Client ---uses---&gt; Singleton.getInstance()</code></pre>
+<p><strong>Java Example</strong></p><pre><code><strong>public</strong> <strong>class</strong> Singleton {
+    <em>// volatile ensures visibility across threads</em>
+    <strong>private</strong> <strong>static</strong> <strong>volatile</strong> Singleton instance;</code></pre>
+<p> </p><pre><code>    <strong>private</strong> Singleton() {}   <em>// prevent direct instantiation</em></code></pre>
+<p> </p><pre><code>    <strong>public</strong> <strong>static</strong> Singleton getInstance() {
+        <strong>if</strong> (instance == <strong>null</strong>) {
+            <strong>synchronized</strong> (Singleton.class) {
+                <strong>if</strong> (instance == <strong>null</strong>) {       <em>// double-checked locking</em>
+                    instance = <strong>new</strong> Singleton();
+                }
+            }
+        }
+        <strong>return</strong> instance;
+    }</code></pre>
+<p> </p><pre><code>    <strong>public</strong> <strong>void</strong> businessLogic() {
+        System.out.println("Singleton logic running.");
+    }
+}</code></pre>
+<p> </p><pre><code><em>// Usage</em>
+Singleton s1 = Singleton.getInstance();
+Singleton s2 = Singleton.getInstance();
+System.out.println(s1 == s2);  <em>// true</em></code></pre>
+<p><strong>When to Use</strong></p><ul><li>Exactly one object is needed to coordinate actions (Logger, Config, ConnectionPool)</li><li>You need strict control over global state</li><li>Lazy initialisation is desired</li></ul><p><strong>Pros / Cons</strong></p><table><tr><td><p><strong>Pros</strong></p></td><td><p><strong>Cons</strong></p></td></tr><tr><td><p>Controlled single instance</p></td><td><p>Violates Single Responsibility Principle</p></td></tr><tr><td><p>Global access point</p></td><td><p>Hard to unit-test (hidden global state)</p></td></tr><tr><td><p>Lazy initialisation possible</p></td><td><p>Tricky to implement correctly in multithreaded code</p></td></tr></table><p><strong>2.2  Factory Method</strong></p><p><strong>Intent</strong></p><p>Define an interface for creating an object, but let subclasses decide which class to instantiate.</p><p><strong>UML Diagram</strong></p><pre><code>  +---------------------+         +---------------------+
+  |  &lt;&lt;abstract&gt;&gt;       |         |  &lt;&lt;interface&gt;&gt;      |
+  |  Creator            |         |  Product            |
+  |---------------------|         |---------------------|
+  | + factoryMethod()   +---------+ + operation()       |
+  | + someOperation()   |  creates+---------------------+
+  +----------+----------+                 ^
+             | extends                    | implements
+  +----------v----------+         +-------+-------------+
+  |  ConcreteCreator    |         |  ConcreteProduct    |
+  |---------------------|  creates|---------------------|
+  | + factoryMethod() --+--------&gt;| + operation()       |
+  +---------------------+         +---------------------+</code></pre>
+<p><strong>Java Example</strong></p><pre><code><em>// Product interface</em>
+<strong>interface</strong> Button {
+    <strong>void</strong> render();
+    <strong>void</strong> onClick();
+}</code></pre>
+<p> </p><pre><code><em>// Concrete products</em>
+<strong>class</strong> WindowsButton <strong>implements</strong> Button {
+    <strong>public</strong> <strong>void</strong> render()  { System.out.println("Rendering Windows button"); }
+    <strong>public</strong> <strong>void</strong> onClick() { System.out.println("Windows click"); }
+}</code></pre>
+<p> </p><pre><code><strong>class</strong> WebButton <strong>implements</strong> Button {
+    <strong>public</strong> <strong>void</strong> render()  { System.out.println("Rendering HTML button"); }
+    <strong>public</strong> <strong>void</strong> onClick() { System.out.println("Web click"); }
+}</code></pre>
+<p> </p><pre><code><em>// Creator (abstract)</em>
+<strong>abstract</strong> <strong>class</strong> Dialog {
+    <strong>public</strong> <strong>abstract</strong> Button createButton();   <em>// factory method</em></code></pre>
+<p> </p><pre><code>    <strong>public</strong> <strong>void</strong> renderWindow() {
+        Button btn = createButton();
+        btn.render();
+    }
+}</code></pre>
+<p> </p><pre><code><em>// Concrete creators</em>
+<strong>class</strong> WindowsDialog <strong>extends</strong> Dialog {
+    <strong>public</strong> Button createButton() { <strong>return</strong> <strong>new</strong> WindowsButton(); }
+}</code></pre>
+<p> </p><pre><code><strong>class</strong> WebDialog <strong>extends</strong> Dialog {
+    <strong>public</strong> Button createButton() { <strong>return</strong> <strong>new</strong> WebButton(); }
+}</code></pre>
+<p> </p><pre><code><em>// Client</em>
+Dialog dialog = <strong>new</strong> WebDialog();
+dialog.renderWindow();</code></pre>
+<p><strong>When to Use</strong></p><ul><li>The class cannot anticipate the type of objects it needs to create</li><li>Subclasses should specify the objects they create</li><li>You want to encapsulate object creation logic</li></ul><p><strong>Pros / Cons</strong></p><table><tr><td><p><strong>Pros</strong></p></td><td><p><strong>Cons</strong></p></td></tr><tr><td><p>Avoids tight coupling between creator and concrete products</p></td><td><p>Code may become complex with many subclasses</p></td></tr><tr><td><p>Single Responsibility: creation in one place</p></td><td><p>Requires subclassing for each new product type</p></td></tr><tr><td><p>Open/Closed: add products without changing creator</p></td><td></td></tr></table><p><strong>2.3  Abstract Factory</strong></p><p><strong>Intent</strong></p><p>Provide an interface for creating families of related or dependent objects without specifying their concrete classes.</p><p><strong>UML Diagram</strong></p><pre><code>  &lt;&lt;interface&gt;&gt; AbstractFactory              &lt;&lt;interface&gt;&gt; ProductA
+  +--------------------------+               +------------------+
+  | + createProductA()       +--------------&gt;| + featureA()     |
+  | + createProductB()       |               +--------+---------+
+  +------------+-------------+                        | implements
+               | implements              +-----------++------------------+
+   +-----------+-----------+        WinProductA            MacProductA
+   |                       |
+ WinFactory             MacFactory      &lt;&lt;interface&gt;&gt; ProductB
+ + createProductA()     + createProductA()  +------------------+
+ + createProductB()     + createProductB()  | + featureB()     |
+                                            +------------------+</code></pre>
+<p><strong>Java Example</strong></p><pre><code><em>// Abstract products</em>
+<strong>interface</strong> Checkbox { <strong>void</strong> paint(); }
+<strong>interface</strong> Button   { <strong>void</strong> render(); }</code></pre>
+<p> </p><pre><code><em>// Windows family</em>
+<strong>class</strong> WinCheckbox <strong>implements</strong> Checkbox { <strong>public</strong> <strong>void</strong> paint()  { System.out.println("Win checkbox"); } }
+<strong>class</strong> WinButton   <strong>implements</strong> Button   { <strong>public</strong> <strong>void</strong> render() { System.out.println("Win button");   } }</code></pre>
+<p> </p><pre><code><em>// Mac family</em>
+<strong>class</strong> MacCheckbox <strong>implements</strong> Checkbox { <strong>public</strong> <strong>void</strong> paint()  { System.out.println("Mac checkbox"); } }
+<strong>class</strong> MacButton   <strong>implements</strong> Button   { <strong>public</strong> <strong>void</strong> render() { System.out.println("Mac button");   } }</code></pre>
+<p> </p><pre><code><em>// Abstract factory</em>
+<strong>interface</strong> GUIFactory {
+    Button   createButton();
+    Checkbox createCheckbox();
+}</code></pre>
+<p> </p><pre><code><em>// Concrete factories</em>
+<strong>class</strong> WinFactory <strong>implements</strong> GUIFactory {
+    <strong>public</strong> Button   createButton()   { <strong>return</strong> <strong>new</strong> WinButton();   }
+    <strong>public</strong> Checkbox createCheckbox() { <strong>return</strong> <strong>new</strong> WinCheckbox(); }
+}</code></pre>
+<p> </p><pre><code><strong>class</strong> MacFactory <strong>implements</strong> GUIFactory {
+    <strong>public</strong> Button   createButton()   { <strong>return</strong> <strong>new</strong> MacButton();   }
+    <strong>public</strong> Checkbox createCheckbox() { <strong>return</strong> <strong>new</strong> MacCheckbox(); }
+}</code></pre>
+<p> </p><pre><code><em>// Client -- works with any factory</em>
+<strong>class</strong> Application {
+    <strong>private</strong> Button   btn;
+    <strong>private</strong> Checkbox cb;</code></pre>
+<p> </p><pre><code>    Application(GUIFactory factory) {
+        btn = factory.createButton();
+        cb  = factory.createCheckbox();
+    }
+    <strong>void</strong> paint() { btn.render(); cb.paint(); }
+}</code></pre>
+<p> </p><pre><code><em>// Bootstrap</em>
+GUIFactory factory = System.getProperty("os.name").contains("Win")
+        ? <strong>new</strong> WinFactory() : <strong>new</strong> MacFactory();
+<strong>new</strong> Application(factory).paint();</code></pre>
+<p><strong>When to Use</strong></p><ul><li>System must be independent of how its products are created</li><li>System should work with multiple families of products</li><li>You want to enforce constraints between related objects (same family)</li></ul><p><strong>Pros / Cons</strong></p><table><tr><td><p><strong>Pros</strong></p></td><td><p><strong>Cons</strong></p></td></tr><tr><td><p>Products from the same family work together</p></td><td><p>Adding new product kinds requires changing the abstract factory interface</p></td></tr><tr><td><p>Reduces coupling between client and concrete classes</p></td><td><p>Can result in many classes</p></td></tr><tr><td><p>Easy to swap whole product families</p></td><td></td></tr></table><p><strong>2.4  Builder</strong></p><p><strong>Intent</strong></p><p>Separate the construction of a complex object from its representation so the same process can create different representations.</p><p><strong>UML Diagram</strong></p><pre><code>  +-------------+  builds   +--------------------+
+  |  Director   +----------&gt;|  &lt;&lt;interface&gt;&gt;     |
+  |-------------|           |  Builder           |
+  | + construct()|          |--------------------|
+  +-------------+           | + buildPartA()     |
+                            | + buildPartB()     |
+                            | + getResult()      |
+                            +--------+-----------+
+                                     | implements
+                         +-----------+-----------+
+                    ConcreteBuilder1         ConcreteBuilder2
+                    -&gt; Product1              -&gt; Product2</code></pre>
+<p><strong>Java Example</strong></p><pre><code><em>// Product</em>
+<strong>class</strong> Car {
+    <strong>private</strong> String  engine;
+    <strong>private</strong> <strong>int</strong>     seats;
+    <strong>private</strong> <strong>boolean</strong> gps;</code></pre>
+<p> </p><pre><code>    <em>// Builder (static inner class)</em>
+    <strong>public</strong> <strong>static</strong> <strong>class</strong> Builder {
+        <strong>private</strong> String  engine = "standard";
+        <strong>private</strong> <strong>int</strong>     seats  = 4;
+        <strong>private</strong> <strong>boolean</strong> gps    = <strong>false</strong>;</code></pre>
+<p> </p><pre><code>        <strong>public</strong> Builder engine(String engine) { <strong>this</strong>.engine = engine; <strong>return</strong> <strong>this</strong>; }
+        <strong>public</strong> Builder seats(int seats)      { <strong>this</strong>.seats  = seats;  <strong>return</strong> <strong>this</strong>; }
+        <strong>public</strong> Builder gps(boolean gps)      { <strong>this</strong>.gps    = gps;    <strong>return</strong> <strong>this</strong>; }</code></pre>
+<p> </p><pre><code>        <strong>public</strong> Car build() {
+            Car car    = <strong>new</strong> Car();
+            car.engine = <strong>this</strong>.engine;
+            car.seats  = <strong>this</strong>.seats;
+            car.gps    = <strong>this</strong>.gps;
+            <strong>return</strong> car;
+        }
+    }</code></pre>
+<p> </p><pre><code>    @Override
+    <strong>public</strong> String toString() {
+        <strong>return</strong> "Car[engine=" + engine + ", seats=" + seats + ", gps=" + gps + "]";
+    }
+}</code></pre>
+<p> </p><pre><code><em>// Usage -- fluent API</em>
+Car sportsCar = <strong>new</strong> Car.Builder()
+        .engine("V8 Turbo")
+        .seats(2)
+        .gps(true)
+        .build();</code></pre>
+<p> </p><pre><code>System.out.println(sportsCar);
+<em>// Car[engine=V8 Turbo, seats=2, gps=true]</em></code></pre>
+<p><strong>When to Use</strong></p><ul><li>Object construction requires many optional parameters (avoids telescoping constructors)</li><li>Construction must create different representations of the same type</li><li>You need step-by-step control over construction</li></ul><p><strong>Pros / Cons</strong></p><table><tr><td><p><strong>Pros</strong></p></td><td><p><strong>Cons</strong></p></td></tr><tr><td><p>Fluent, readable construction</p></td><td><p>Extra classes required</p></td></tr><tr><td><p>Immutable objects can be built step-by-step</p></td><td><p>Builder must be kept in sync with the product class</p></td></tr><tr><td><p>Isolates complex construction code from business logic</p></td><td></td></tr></table><p><strong>3. Structural Patterns</strong></p><p>Structural patterns explain how to assemble objects and classes into larger structures while keeping the structure flexible and efficient.</p><p><strong>3.1  Adapter</strong></p><p><strong>Intent</strong></p><p>Convert the interface of a class into another interface that clients expect. Lets classes work together that otherwise could not because of incompatible interfaces.</p><p><strong>UML Diagram</strong></p><pre><code>  +-------------+     +---------------------+     +------------------+
+  |   Client    +----&gt;|  &lt;&lt;interface&gt;&gt;      |     |  Adaptee         |
+  +-------------+     |  Target             |     |------------------|
+                      |---------------------|     | + specificReq()  |
+                      | + request()         |     +------------------+
+                      +----------+----------+              ^
+                                 | implements              | wraps
+                      +----------v----------+              |
+                      |  Adapter            +--------------+
+                      |---------------------|
+                      | + request()         |  // delegates to specificReq()
+                      +---------------------+</code></pre>
+<p><strong>Java Example</strong></p><pre><code><em>// Existing (legacy) class with incompatible interface</em>
+<strong>class</strong> XmlDataProvider {
+    <strong>public</strong> String getDataAsXml() {
+        <strong>return</strong> "&lt;user&gt;&lt;name&gt;Alice&lt;/name&gt;&lt;/user&gt;";
+    }
+}</code></pre>
+<p> </p><pre><code><em>// Target interface expected by the client</em>
+<strong>interface</strong> JsonDataProvider {
+    String getDataAsJson();
+}</code></pre>
+<p> </p><pre><code><em>// Adapter -- wraps XmlDataProvider, exposes JsonDataProvider</em>
+<strong>class</strong> XmlToJsonAdapter <strong>implements</strong> JsonDataProvider {
+    <strong>private</strong> <strong>final</strong> XmlDataProvider adaptee;</code></pre>
+<p> </p><pre><code>    XmlToJsonAdapter(XmlDataProvider adaptee) {
+        <strong>this</strong>.adaptee = adaptee;
+    }</code></pre>
+<p> </p><pre><code>    @Override
+    <strong>public</strong> String getDataAsJson() {
+        String xml = adaptee.getDataAsXml();
+        <em>// simplified conversion for demo purposes</em>
+        <strong>return</strong> xml.replaceAll("&lt;user&gt;&lt;name&gt;(.*?)&lt;/name&gt;&lt;/user&gt;",
+                              "{\"name\": \"$1\"}");
+    }
+}</code></pre>
+<p> </p><pre><code><em>// Client code -- only knows JsonDataProvider</em>
+JsonDataProvider provider = <strong>new</strong> XmlToJsonAdapter(new XmlDataProvider());
+System.out.println(provider.getDataAsJson());
+<em>// {"name": "Alice"}</em></code></pre>
+<p><strong>When to Use</strong></p><ul><li>You want to use an existing class but its interface is incompatible</li><li>Integrating third-party or legacy libraries</li><li>You want a reusable class that cooperates with classes with incompatible interfaces</li></ul><p><strong>Pros / Cons</strong></p><table><tr><td><p><strong>Pros</strong></p></td><td><p><strong>Cons</strong></p></td></tr><tr><td><p>Lets incompatible classes work together</p></td><td><p>Overall complexity increases with extra classes</p></td></tr><tr><td><p>Open/Closed: add new adapters without changing existing code</p></td><td><p>Can mask poor initial API design</p></td></tr></table><p><strong>3.2  Decorator</strong></p><p><strong>Intent</strong></p><p>Attach additional responsibilities to an object dynamically. Decorators provide a flexible alternative to subclassing for extending functionality.</p><p><strong>UML Diagram</strong></p><pre><code>  &lt;&lt;interface&gt;&gt; Component
+  +----------------------+
+  | + operation()        |
+  +----------+-----------+
+             | implements
+   +---------+---------------------------------------+
+   |                                                 |
+ ConcreteComponent             +-----------+---------+------+
+ + operation()                 |  BaseDecorator              |
+                               |  - wrappee: Component       |
+                               |  + operation()              |
+                               |    calls wrappee.operation()|
+                               +----------+------------------+
+                                          | extends
+                             +-----------+-----------+
+                      ConcreteDecoratorA     ConcreteDecoratorB
+                      + operation()          + operation()
+                      + extraBehavior()      + extraBehavior()</code></pre>
+<p><strong>Java Example</strong></p><pre><code><em>// Component interface</em>
+<strong>interface</strong> TextProcessor {
+    String process(String text);
+}</code></pre>
+<p> </p><pre><code><em>// Concrete component</em>
+<strong>class</strong> PlainTextProcessor <strong>implements</strong> TextProcessor {
+    <strong>public</strong> String process(String text) { <strong>return</strong> text; }
+}</code></pre>
+<p> </p><pre><code><em>// Base decorator</em>
+<strong>abstract</strong> <strong>class</strong> TextDecorator <strong>implements</strong> TextProcessor {
+    <strong>protected</strong> <strong>final</strong> TextProcessor wrapped;
+    TextDecorator(TextProcessor wrapped) { <strong>this</strong>.wrapped = wrapped; }
+}</code></pre>
+<p> </p><pre><code><em>// Concrete decorators</em>
+<strong>class</strong> TrimDecorator <strong>extends</strong> TextDecorator {
+    TrimDecorator(TextProcessor wrapped) { <strong>super</strong>(wrapped); }
+    <strong>public</strong> String process(String text) { <strong>return</strong> wrapped.process(text).trim(); }
+}</code></pre>
+<p> </p><pre><code><strong>class</strong> UpperCaseDecorator <strong>extends</strong> TextDecorator {
+    UpperCaseDecorator(TextProcessor wrapped) { <strong>super</strong>(wrapped); }
+    <strong>public</strong> String process(String text) { <strong>return</strong> wrapped.process(text).toUpperCase(); }
+}</code></pre>
+<p> </p><pre><code><strong>class</strong> ExclamationDecorator <strong>extends</strong> TextDecorator {
+    ExclamationDecorator(TextProcessor wrapped) { <strong>super</strong>(wrapped); }
+    <strong>public</strong> String process(String text) { <strong>return</strong> wrapped.process(text) + "!"; }
+}</code></pre>
+<p> </p><pre><code><em>// Usage -- chain decorators at runtime</em>
+TextProcessor processor = <strong>new</strong> ExclamationDecorator(
+        <strong>new</strong> UpperCaseDecorator(
+        <strong>new</strong> TrimDecorator(
+        <strong>new</strong> PlainTextProcessor())));</code></pre>
+<p> </p><pre><code>System.out.println(processor.process("  hello world  "));
+<em>// HELLO WORLD!</em></code></pre>
+<p><strong>When to Use</strong></p><ul><li>You need to add behaviour to individual objects without affecting others of the same class</li><li>Extension by subclassing is impractical due to an explosion of subclasses</li><li>You want to add/remove responsibilities at runtime</li></ul><p><strong>Pros / Cons</strong></p><table><tr><td><p><strong>Pros</strong></p></td><td><p><strong>Cons</strong></p></td></tr><tr><td><p>Extend behaviour without subclassing</p></td><td><p>Many small objects complicate debugging</p></td></tr><tr><td><p>Combine behaviours by wrapping multiple decorators</p></td><td><p>Order of decoration matters and can be confusing</p></td></tr><tr><td><p>Follows Single Responsibility and Open/Closed principles</p></td><td><p>Hard to remove a specific decorator from the middle of a chain</p></td></tr></table><p><strong>3.3  Facade</strong></p><p><strong>Intent</strong></p><p>Provide a simplified interface to a complex subsystem.</p><p><strong>UML Diagram</strong></p><pre><code>          Client
+             |
+             v
+  +----------------------+
+  |       Facade         |   &lt;- simple API
+  +----------+-----------+
+             | uses internally
+   +---------+---------+---------+
+   v         v                   v
+ SubsystemA  SubsystemB    SubsystemC
+ (complex)   (complex)     (complex)</code></pre>
+<p><strong>Java Example</strong></p><pre><code><em>// Complex subsystem classes</em>
+<strong>class</strong> AudioDecoder  { <strong>public</strong> <strong>void</strong> decode(String file) { System.out.println("Decoding " + file); } }
+<strong>class</strong> VideoDecoder  { <strong>public</strong> <strong>void</strong> decode(String file) { System.out.println("Decoding video");    } }
+<strong>class</strong> BufferManager { <strong>public</strong> <strong>void</strong> allocate(int mb)    { System.out.println("Allocating " + mb + "MB"); } }
+<strong>class</strong> Display       { <strong>public</strong> <strong>void</strong> show()              { System.out.println("Displaying frame");   } }</code></pre>
+<p> </p><pre><code><em>// Facade -- hides complexity</em>
+<strong>class</strong> VideoPlayerFacade {
+    <strong>private</strong> <strong>final</strong> AudioDecoder  audio  = <strong>new</strong> AudioDecoder();
+    <strong>private</strong> <strong>final</strong> VideoDecoder  video  = <strong>new</strong> VideoDecoder();
+    <strong>private</strong> <strong>final</strong> BufferManager buffer = <strong>new</strong> BufferManager();
+    <strong>private</strong> <strong>final</strong> Display       display= <strong>new</strong> Display();</code></pre>
+<p> </p><pre><code>    <strong>public</strong> <strong>void</strong> play(String file) {
+        buffer.allocate(256);
+        audio.decode(file);
+        video.decode(file);
+        display.show();
+        System.out.println("Playing: " + file);
+    }
+}</code></pre>
+<p> </p><pre><code><em>// Client -- uses only the Facade</em>
+VideoPlayerFacade player = <strong>new</strong> VideoPlayerFacade();
+player.play("movie.mp4");</code></pre>
+<p><strong>When to Use</strong></p><ul><li>You want a simple interface to a complex subsystem</li><li>You want to layer your subsystems and define entry points</li><li>To decouple client code from complex internal dependencies</li></ul><p><strong>Pros / Cons</strong></p><table><tr><td><p><strong>Pros</strong></p></td><td><p><strong>Cons</strong></p></td></tr><tr><td><p>Isolates clients from subsystem complexity</p></td><td><p>Facade can become a "god object" coupled to all classes</p></td></tr><tr><td><p>Promotes weak coupling</p></td><td><p>May hide useful subsystem features</p></td></tr><tr><td><p>Easy to introduce layering</p></td><td></td></tr></table><p><strong>3.4  Proxy</strong></p><p><strong>Intent</strong></p><p>Provide a surrogate or placeholder for another object to control access to it.</p><p><strong>UML Diagram</strong></p><pre><code>  &lt;&lt;interface&gt;&gt; Subject
+  +----------------------+
+  | + request()          |
+  +----------+-----------+
+             | implements
+   +---------+------------------------+
+   |                                  |
+ RealSubject                      Proxy
+ + request()                      - realSubject: RealSubject
+                                  + request()  // controls access
+                                    optional: lazy init, logging,
+                                              caching, access check</code></pre>
+<p><strong>Java Example</strong></p><pre><code><em>// Subject interface</em>
+<strong>interface</strong> Image {
+    <strong>void</strong> display();
+}</code></pre>
+<p> </p><pre><code><em>// Real subject (expensive to create)</em>
+<strong>class</strong> RealImage <strong>implements</strong> Image {
+    <strong>private</strong> <strong>final</strong> String filename;</code></pre>
+<p> </p><pre><code>    RealImage(String filename) {
+        <strong>this</strong>.filename = filename;
+        loadFromDisk();   <em>// expensive!</em>
+    }</code></pre>
+<p> </p><pre><code>    <strong>private</strong> <strong>void</strong> loadFromDisk() {
+        System.out.println("Loading " + filename + " from disk...");
+    }</code></pre>
+<p> </p><pre><code>    <strong>public</strong> <strong>void</strong> display() {
+        System.out.println("Displaying " + filename);
+    }
+}</code></pre>
+<p> </p><pre><code><em>// Proxy -- lazy loading</em>
+<strong>class</strong> ProxyImage <strong>implements</strong> Image {
+    <strong>private</strong> <strong>final</strong> String filename;
+    <strong>private</strong> RealImage    realImage;   <em>// created on first use</em></code></pre>
+<p> </p><pre><code>    ProxyImage(String filename) { <strong>this</strong>.filename = filename; }</code></pre>
+<p> </p><pre><code>    <strong>public</strong> <strong>void</strong> display() {
+        <strong>if</strong> (realImage == <strong>null</strong>) {
+            realImage = <strong>new</strong> RealImage(filename);   <em>// lazy init</em>
+        }
+        realImage.display();
+    }
+}</code></pre>
+<p> </p><pre><code><em>// Client</em>
+Image img = <strong>new</strong> ProxyImage("photo.jpg");
+<em>// File NOT loaded yet</em>
+img.display();  <em>// loads now, then displays</em>
+img.display();  <em>// displays instantly (already loaded)</em></code></pre>
+<p><strong>When to Use</strong></p><ul><li>Lazy initialisation (virtual proxy) — delay creation of heavyweight objects</li><li>Access control (protection proxy) — check permissions before delegating</li><li>Caching proxy — cache results of expensive operations</li><li>Logging/monitoring proxy — record calls transparently</li></ul><p><strong>Pros / Cons</strong></p><table><tr><td><p><strong>Pros</strong></p></td><td><p><strong>Cons</strong></p></td></tr><tr><td><p>Control service object lifecycle</p></td><td><p>Extra indirection may add latency</p></td></tr><tr><td><p>Works even when service is unavailable</p></td><td><p>Response from service may be delayed</p></td></tr><tr><td><p>Open/Closed: new proxies without changing subject</p></td><td><p>Increases number of classes</p></td></tr></table><p><strong>3.5  Composite</strong></p><p><strong>Intent</strong></p><p>Compose objects into tree structures to represent part-whole hierarchies. Lets clients treat individual objects and compositions uniformly.</p><p><strong>UML Diagram</strong></p><pre><code>  &lt;&lt;interface&gt;&gt; Component
+  +--------------------------+
+  | + operation()            |
+  | + add(Component)         |
+  | + remove(Component)      |
+  +----------+---------------+
+             | implements
+   +---------+-----------------------------------+
+   |                                             |
+ Leaf                                     Composite
+ + operation()                            - children: List&lt;Component&gt;
+   // no children                         + operation()  // iterates children
+                                          + add(Component)
+                                          + remove(Component)</code></pre>
+<p> </p><pre><code>  Tree example:
+  Composite (root)
+   +-- Leaf A
+   +-- Composite (branch)
+   |    +-- Leaf B
+   |    +-- Leaf C
+   +-- Leaf D</code></pre>
+<p><strong>Java Example</strong></p><pre><code><strong>import</strong> java.util.ArrayList;
+<strong>import</strong> java.util.List;</code></pre>
+<p> </p><pre><code><em>// Component</em>
+<strong>interface</strong> FileSystemItem {
+    String getName();
+    <strong>int</strong>    getSize();
+    <strong>void</strong>   print(String indent);
+}</code></pre>
+<p> </p><pre><code><em>// Leaf</em>
+<strong>class</strong> File <strong>implements</strong> FileSystemItem {
+    <strong>private</strong> <strong>final</strong> String name;
+    <strong>private</strong> <strong>final</strong> <strong>int</strong>    size;</code></pre>
+<p> </p><pre><code>    File(String name, <strong>int</strong> size) { <strong>this</strong>.name = name; <strong>this</strong>.size = size; }</code></pre>
+<p> </p><pre><code>    <strong>public</strong> String getName()            { <strong>return</strong> name; }
+    <strong>public</strong> <strong>int</strong>    getSize()            { <strong>return</strong> size; }
+    <strong>public</strong> <strong>void</strong>   print(String indent) {
+        System.out.println(indent + "[F] " + name + " (" + size + "KB)");
+    }
+}</code></pre>
+<p> </p><pre><code><em>// Composite</em>
+<strong>class</strong> Directory <strong>implements</strong> FileSystemItem {
+    <strong>private</strong> <strong>final</strong> String               name;
+    <strong>private</strong> <strong>final</strong> List&lt;FileSystemItem&gt; children = <strong>new</strong> ArrayList&lt;&gt;();</code></pre>
+<p> </p><pre><code>    Directory(String name) { <strong>this</strong>.name = name; }</code></pre>
+<p> </p><pre><code>    <strong>public</strong> <strong>void</strong> add(FileSystemItem item)    { children.add(item);    }
+    <strong>public</strong> <strong>void</strong> remove(FileSystemItem item) { children.remove(item); }</code></pre>
+<p> </p><pre><code>    <strong>public</strong> String getName() { <strong>return</strong> name; }
+    <strong>public</strong> <strong>int</strong>    getSize() { <strong>return</strong> children.stream().mapToInt(FileSystemItem::getSize).sum(); }
+    <strong>public</strong> <strong>void</strong>   print(String indent) {
+        System.out.println(indent + "[D] " + name + " (" + getSize() + "KB)");
+        children.forEach(c -&gt; c.print(indent + "   "));
+    }
+}</code></pre>
+<p> </p><pre><code><em>// Client</em>
+Directory root = <strong>new</strong> Directory("root");
+root.add(new File("readme.txt", 2));</code></pre>
+<p> </p><pre><code>Directory src = <strong>new</strong> Directory("src");
+src.add(new File("Main.java", 10));
+src.add(new File("Utils.java", 8));
+root.add(src);</code></pre>
+<p> </p><pre><code>root.print("");
+<em>// [D] root (20KB)</em>
+<em>//    [F] readme.txt (2KB)</em>
+<em>//    [D] src (18KB)</em>
+<em>//       [F] Main.java (10KB)</em>
+<em>//       [F] Utils.java (8KB)</em></code></pre>
+<p><strong>When to Use</strong></p><ul><li>You need to represent hierarchies (file systems, UI trees, org charts)</li><li>You want clients to treat individual objects and compositions uniformly</li></ul><p><strong>Pros / Cons</strong></p><table><tr><td><p><strong>Pros</strong></p></td><td><p><strong>Cons</strong></p></td></tr><tr><td><p>Uniform treatment of leaf and composite objects</p></td><td><p>Can make design overly general</p></td></tr><tr><td><p>Easy to add new component types (Open/Closed)</p></td><td><p>Difficult to restrict component types in the tree</p></td></tr></table><p><strong>4. Behavioral Patterns</strong></p><p>Behavioral patterns are concerned with algorithms and the assignment of responsibilities between objects.</p><p><strong>4.1  Observer</strong></p><p><strong>Intent</strong></p><p>Define a one-to-many dependency so that when one object (subject) changes state, all its dependents (observers) are notified and updated automatically.</p><p><strong>UML Diagram</strong></p><pre><code>  +---------------------------------------+
+  |  Subject (Observable)                 |
+  |---------------------------------------|
+  | - observers: List&lt;Observer&gt;           |
+  | + attach(Observer)                    |
+  | + detach(Observer)                    |
+  | + notifyObservers()                   |
+  +-------------------+-------------------+
+                      | notifies 1..*
+           +----------v----------+
+           | &lt;&lt;interface&gt;&gt;       |
+           | Observer            |
+           |---------------------|
+           | + update(event)     |
+           +----------+----------+
+                      | implements
+         +------------+------------+
+    ConcreteObserverA          ConcreteObserverB
+    + update(event)            + update(event)</code></pre>
+<p><strong>Java Example</strong></p><pre><code><strong>import</strong> java.util.ArrayList;
+<strong>import</strong> java.util.List;</code></pre>
+<p> </p><pre><code><em>// Observer interface</em>
+<strong>interface</strong> StockObserver {
+    <strong>void</strong> update(String stockName, <strong>double</strong> price);
+}</code></pre>
+<p> </p><pre><code><em>// Subject</em>
+<strong>class</strong> StockMarket {
+    <strong>private</strong> <strong>final</strong> List&lt;StockObserver&gt; observers = <strong>new</strong> ArrayList&lt;&gt;();
+    <strong>private</strong> String stockName;
+    <strong>private</strong> <strong>double</strong> price;</code></pre>
+<p> </p><pre><code>    <strong>public</strong> <strong>void</strong> attach(StockObserver o) { observers.add(o);    }
+    <strong>public</strong> <strong>void</strong> detach(StockObserver o) { observers.remove(o); }</code></pre>
+<p> </p><pre><code>    <strong>public</strong> <strong>void</strong> setPrice(String name, <strong>double</strong> price) {
+        <strong>this</strong>.stockName = name;
+        <strong>this</strong>.price     = price;
+        notifyObservers();
+    }</code></pre>
+<p> </p><pre><code>    <strong>private</strong> <strong>void</strong> notifyObservers() {
+        observers.forEach(o -&gt; o.update(stockName, price));
+    }
+}</code></pre>
+<p> </p><pre><code><em>// Concrete observers</em>
+<strong>class</strong> MobileApp <strong>implements</strong> StockObserver {
+    <strong>public</strong> <strong>void</strong> update(String name, <strong>double</strong> price) {
+        System.out.println("[Mobile] " + name + " -&gt; $" + price);
+    }
+}</code></pre>
+<p> </p><pre><code><strong>class</strong> EmailAlert <strong>implements</strong> StockObserver {
+    <strong>public</strong> <strong>void</strong> update(String name, <strong>double</strong> price) {
+        System.out.println("[Email]  Sending alert: " + name + " = $" + price);
+    }
+}</code></pre>
+<p> </p><pre><code><em>// Usage</em>
+StockMarket market = <strong>new</strong> StockMarket();
+market.attach(new MobileApp());
+market.attach(new EmailAlert());
+market.setPrice("AAPL", 189.50);
+<em>// [Mobile] AAPL -&gt; $189.5</em>
+<em>// [Email]  Sending alert: AAPL = $189.5</em></code></pre>
+<p><strong>When to Use</strong></p><ul><li>A change in one object requires updating others, and you do not know how many objects need to change</li><li>Event systems, GUI listeners, MVC notifications</li><li>Loose coupling between subject and observers is required</li></ul><p><strong>Pros / Cons</strong></p><table><tr><td><p><strong>Pros</strong></p></td><td><p><strong>Cons</strong></p></td></tr><tr><td><p>Open/Closed: add observers without changing subject</p></td><td><p>Observers are notified in unpredictable order</p></td></tr><tr><td><p>Relationships established at runtime</p></td><td><p>Memory leaks if observers are not detached</p></td></tr><tr><td><p>Loose coupling between subject and observers</p></td><td><p>Cascading updates can be hard to trace</p></td></tr></table><p><strong>4.2  Strategy</strong></p><p><strong>Intent</strong></p><p>Define a family of algorithms, encapsulate each one, and make them interchangeable. Lets the algorithm vary independently from the clients that use it.</p><p><strong>UML Diagram</strong></p><pre><code>  +---------------------------+      +--------------------------+
+  |  Context                  |      |  &lt;&lt;interface&gt;&gt;           |
+  |---------------------------|      |  Strategy                |
+  | - strategy: Strategy      +-----&gt;|--------------------------|
+  | + setStrategy(Strategy)   |      | + execute(data): result  |
+  | + executeStrategy(data)   |      +------------+-------------+
+  +---------------------------+                   | implements
+                                   +--------------+---------------+
+                            ConcreteStrategyA  ConcreteStrategyB  ...
+                            + execute()        + execute()</code></pre>
+<p><strong>Java Example</strong></p><pre><code><em>// Strategy interface</em>
+<strong>interface</strong> SortStrategy {
+    <strong>void</strong> sort(int[] data);
+}</code></pre>
+<p> </p><pre><code><em>// Concrete strategies</em>
+<strong>class</strong> BubbleSort <strong>implements</strong> SortStrategy {
+    <strong>public</strong> <strong>void</strong> sort(int[] data) {
+        System.out.println("Sorting with BubbleSort");
+        <em>// ... bubble sort implementation</em>
+    }
+}</code></pre>
+<p> </p><pre><code><strong>class</strong> QuickSort <strong>implements</strong> SortStrategy {
+    <strong>public</strong> <strong>void</strong> sort(int[] data) {
+        System.out.println("Sorting with QuickSort");
+        <em>// ... quicksort implementation</em>
+    }
+}</code></pre>
+<p> </p><pre><code><strong>class</strong> MergeSort <strong>implements</strong> SortStrategy {
+    <strong>public</strong> <strong>void</strong> sort(int[] data) {
+        System.out.println("Sorting with MergeSort");
+        <em>// ... merge sort implementation</em>
+    }
+}</code></pre>
+<p> </p><pre><code><em>// Context</em>
+<strong>class</strong> Sorter {
+    <strong>private</strong> SortStrategy strategy;</code></pre>
+<p> </p><pre><code>    <strong>public</strong> Sorter(SortStrategy strategy) { <strong>this</strong>.strategy = strategy; }</code></pre>
+<p> </p><pre><code>    <strong>public</strong> <strong>void</strong> setStrategy(SortStrategy strategy) { <strong>this</strong>.strategy = strategy; }</code></pre>
+<p> </p><pre><code>    <strong>public</strong> <strong>void</strong> sort(int[] data) { strategy.sort(data); }
+}</code></pre>
+<p> </p><pre><code><em>// Client -- swap strategies at runtime</em>
+<strong>int</strong>[] data = {5, 1, 4, 2, 8};
+Sorter sorter = <strong>new</strong> Sorter(new QuickSort());
+sorter.sort(data);              <em>// uses QuickSort</em></code></pre>
+<p> </p><pre><code>sorter.setStrategy(new MergeSort());
+sorter.sort(data);              <em>// now uses MergeSort</em></code></pre>
+<p><strong>When to Use</strong></p><ul><li>You need to switch algorithms at runtime</li><li>You have many variants of an algorithm and want to eliminate conditionals</li><li>Different clients need different behaviours</li></ul><p><strong>Pros / Cons</strong></p><table><tr><td><p><strong>Pros</strong></p></td><td><p><strong>Cons</strong></p></td></tr><tr><td><p>Swap algorithms at runtime</p></td><td><p>Clients must know the strategies to pick one</p></td></tr><tr><td><p>Eliminates conditionals</p></td><td><p>Many strategy objects if there are many variants</p></td></tr><tr><td><p>Open/Closed: add strategies without touching context</p></td><td><p>Overhead if only a few algorithms are used</p></td></tr></table><p><strong>4.3  Command</strong></p><p><strong>Intent</strong></p><p>Encapsulate a request as an object, allowing parameterisation of clients, queuing of requests, logging, and support for undoable operations.</p><p><strong>UML Diagram</strong></p><pre><code>  +----------+  invokes  +---------------------+  executes  +--------------+
+  | Invoker  +----------&gt;|  &lt;&lt;interface&gt;&gt;      +-----------&gt;|  Receiver    |
+  +----------+           |  Command             |            | + action()   |
+                         |---------------------|            +--------------+
+  +----------+  creates  | + execute()          |
+  |  Client  +---------&gt; | + undo()             |
+  +----------+           +----------+-----------+
+                                    | implements
+                          ConcreteCommand
+                          - receiver: Receiver
+                          + execute() -&gt; receiver.action()
+                          + undo()    -&gt; receiver.undoAction()</code></pre>
+<p><strong>Java Example</strong></p><pre><code><strong>import</strong> java.util.ArrayDeque;
+<strong>import</strong> java.util.Deque;</code></pre>
+<p> </p><pre><code><em>// Receiver</em>
+<strong>class</strong> TextEditor {
+    <strong>private</strong> StringBuilder text = <strong>new</strong> StringBuilder();</code></pre>
+<p> </p><pre><code>    <strong>public</strong> <strong>void</strong> write(String word) { text.append(word); }
+    <strong>public</strong> <strong>void</strong> delete(int chars)  { text.delete(text.length() - chars, text.length()); }
+    <strong>public</strong> String getText()        { <strong>return</strong> text.toString(); }
+}</code></pre>
+<p> </p><pre><code><em>// Command interface</em>
+<strong>interface</strong> Command {
+    <strong>void</strong> execute();
+    <strong>void</strong> undo();
+}</code></pre>
+<p> </p><pre><code><em>// Concrete command</em>
+<strong>class</strong> WriteCommand <strong>implements</strong> Command {
+    <strong>private</strong> <strong>final</strong> TextEditor editor;
+    <strong>private</strong> <strong>final</strong> String     word;</code></pre>
+<p> </p><pre><code>    WriteCommand(TextEditor editor, String word) {
+        <strong>this</strong>.editor = editor;
+        <strong>this</strong>.word   = word;
+    }</code></pre>
+<p> </p><pre><code>    <strong>public</strong> <strong>void</strong> execute() { editor.write(word);           }
+    <strong>public</strong> <strong>void</strong> undo()    { editor.delete(word.length()); }
+}</code></pre>
+<p> </p><pre><code><em>// Invoker -- holds history for undo</em>
+<strong>class</strong> CommandInvoker {
+    <strong>private</strong> <strong>final</strong> Deque&lt;Command&gt; history = <strong>new</strong> ArrayDeque&lt;&gt;();</code></pre>
+<p> </p><pre><code>    <strong>public</strong> <strong>void</strong> executeCommand(Command cmd) {
+        cmd.execute();
+        history.push(cmd);
+    }</code></pre>
+<p> </p><pre><code>    <strong>public</strong> <strong>void</strong> undo() {
+        <strong>if</strong> (!history.isEmpty()) history.pop().undo();
+    }
+}</code></pre>
+<p> </p><pre><code><em>// Usage</em>
+TextEditor     editor  = <strong>new</strong> TextEditor();
+CommandInvoker invoker = <strong>new</strong> CommandInvoker();</code></pre>
+<p> </p><pre><code>invoker.executeCommand(new WriteCommand(editor, "Hello "));
+invoker.executeCommand(new WriteCommand(editor, "World"));
+System.out.println(editor.getText());  <em>// Hello World</em></code></pre>
+<p> </p><pre><code>invoker.undo();
+System.out.println(editor.getText());  <em>// Hello </em></code></pre>
+<p><strong>When to Use</strong></p><ul><li>You need undo/redo functionality</li><li>You want to queue operations, schedule their execution, or execute remotely</li><li>Implementing transactional behaviour</li></ul><p><strong>Pros / Cons</strong></p><table><tr><td><p><strong>Pros</strong></p></td><td><p><strong>Cons</strong></p></td></tr><tr><td><p>Undo/redo support built in</p></td><td><p>Code grows with many small command classes</p></td></tr><tr><td><p>Deferred or queued execution</p></td><td><p>Extra indirection can complicate simple workflows</p></td></tr><tr><td><p>Open/Closed: add new commands without changing invoker</p></td><td></td></tr></table><p><strong>4.4  Template Method</strong></p><p><strong>Intent</strong></p><p>Define the skeleton of an algorithm in a base class, deferring some steps to subclasses. Lets subclasses redefine certain steps without changing the overall structure.</p><p><strong>UML Diagram</strong></p><pre><code>  +-----------------------------------------------------+
+  |  AbstractClass                                      |
+  |-----------------------------------------------------|
+  | + templateMethod()  &lt;- FINAL (the skeleton)        |
+  |     step1()                                         |
+  |     step2()         &lt;- abstract -- must override   |
+  |     hook()          &lt;- optional -- can override    |
+  | + step1()           &lt;- concrete (common behaviour) |
+  | + abstract step2()                                  |
+  | + hook()            &lt;- empty default               |
+  +---------------------+-------------------------------+
+                        | extends
+             +----------+----------+
+       ConcreteClassA        ConcreteClassB
+       + step2()             + step2()
+       + hook()              // uses default hook</code></pre>
+<p><strong>Java Example</strong></p><pre><code><em>// Abstract class defining the algorithm skeleton</em>
+<strong>abstract</strong> <strong>class</strong> DataParser {</code></pre>
+<p> </p><pre><code>    <em>// Template method -- final: subclasses cannot change the order</em>
+    <strong>public</strong> <strong>final</strong> <strong>void</strong> parse(String source) {
+        String raw  = readData(source);   <em>// step 1</em>
+        String data = parseData(raw);     <em>// step 2 -- abstract</em>
+        saveData(data);                   <em>// step 3</em>
+        <strong>if</strong> (logEnabled()) {               <em>// hook</em>
+            System.out.println("[LOG] Parsed from: " + source);
+        }
+    }</code></pre>
+<p> </p><pre><code>    <strong>protected</strong> String readData(String source) {
+        <strong>return</strong> "raw:" + source;           <em>// default implementation</em>
+    }</code></pre>
+<p> </p><pre><code>    <strong>protected</strong> <strong>abstract</strong> String parseData(String raw);   <em>// must implement</em></code></pre>
+<p> </p><pre><code>    <strong>protected</strong> <strong>void</strong> saveData(String data) {
+        System.out.println("Saving: " + data);         <em>// default</em>
+    }</code></pre>
+<p> </p><pre><code>    <strong>protected</strong> <strong>boolean</strong> logEnabled() { <strong>return</strong> <strong>false</strong>; }   <em>// hook -- override to enable</em>
+}</code></pre>
+<p> </p><pre><code><em>// Concrete class A -- parses CSV</em>
+<strong>class</strong> CsvParser <strong>extends</strong> DataParser {
+    <strong>protected</strong> String parseData(String raw) {
+        <strong>return</strong> raw.replace(",", " | ");
+    }
+    <strong>protected</strong> <strong>boolean</strong> logEnabled() { <strong>return</strong> <strong>true</strong>; }    <em>// enables logging hook</em>
+}</code></pre>
+<p> </p><pre><code><em>// Concrete class B -- parses JSON</em>
+<strong>class</strong> JsonParser <strong>extends</strong> DataParser {
+    <strong>protected</strong> String parseData(String raw) {
+        <strong>return</strong> raw.replace("{", "[").replace("}", "]");
+    }
+}</code></pre>
+<p> </p><pre><code><em>// Usage</em>
+<strong>new</strong> CsvParser().parse("a,b,c");
+<strong>new</strong> JsonParser().parse("{key:value}");</code></pre>
+<p><strong>When to Use</strong></p><ul><li>Multiple classes share the same algorithm structure but differ in some steps</li><li>You want to avoid code duplication in related classes</li><li>You want to control which parts of an algorithm subclasses can customise</li></ul><p><strong>Pros / Cons</strong></p><table><tr><td><p><strong>Pros</strong></p></td><td><p><strong>Cons</strong></p></td></tr><tr><td><p>Eliminates code duplication</p></td><td><p>Liskov Substitution Principle can be violated by restricted subclasses</p></td></tr><tr><td><p>Controlled extension points via hooks</p></td><td><p>Algorithm skeleton is locked in base class</p></td></tr><tr><td><p>Enforces overall algorithm structure</p></td><td><p>Harder to follow than plain polymorphism</p></td></tr></table><p><strong>4.5  Chain of Responsibility</strong></p><p><strong>Intent</strong></p><p>Pass a request along a chain of handlers. Each handler decides whether to process the request or pass it to the next handler.</p><p><strong>UML Diagram</strong></p><pre><code>  Client --&gt; Handler1 --&gt; Handler2 --&gt; Handler3 --&gt; null
+             (process     (skip,        (process
+              or pass)     pass)         request)</code></pre>
+<p> </p><pre><code>  &lt;&lt;interface&gt;&gt; Handler
+  +----------------------------------+
+  | - next: Handler                  |
+  | + setNext(Handler): Handler      |
+  | + handle(request)                |
+  +----------------------------------+
+             | implements
+  BaseHandler (optional abstract) -&gt; ConcreteHandlerA, ConcreteHandlerB ...</code></pre>
+<p><strong>Java Example</strong></p><pre><code><em>// Handler interface</em>
+<strong>interface</strong> SupportHandler {
+    SupportHandler setNext(SupportHandler next);
+    <strong>void</strong> handle(int level, String issue);
+}</code></pre>
+<p> </p><pre><code><em>// Base handler</em>
+<strong>abstract</strong> <strong>class</strong> BaseSupport <strong>implements</strong> SupportHandler {
+    <strong>private</strong> SupportHandler next;</code></pre>
+<p> </p><pre><code>    <strong>public</strong> SupportHandler setNext(SupportHandler next) {
+        <strong>this</strong>.next = next;
+        <strong>return</strong> next;   <em>// enables fluent chaining</em>
+    }</code></pre>
+<p> </p><pre><code>    <strong>protected</strong> <strong>void</strong> passToNext(int level, String issue) {
+        <strong>if</strong> (next != <strong>null</strong>) next.handle(level, issue);
+        <strong>else</strong> System.out.println("Issue unresolved: " + issue);
+    }
+}</code></pre>
+<p> </p><pre><code><em>// Concrete handlers</em>
+<strong>class</strong> L1Support <strong>extends</strong> BaseSupport {
+    <strong>public</strong> <strong>void</strong> handle(int level, String issue) {
+        <strong>if</strong> (level &lt;= 1) System.out.println("[L1] Resolved: " + issue);
+        <strong>else</strong>            passToNext(level, issue);
+    }
+}</code></pre>
+<p> </p><pre><code><strong>class</strong> L2Support <strong>extends</strong> BaseSupport {
+    <strong>public</strong> <strong>void</strong> handle(int level, String issue) {
+        <strong>if</strong> (level &lt;= 2) System.out.println("[L2] Resolved: " + issue);
+        <strong>else</strong>            passToNext(level, issue);
+    }
+}</code></pre>
+<p> </p><pre><code><strong>class</strong> L3Support <strong>extends</strong> BaseSupport {
+    <strong>public</strong> <strong>void</strong> handle(int level, String issue) {
+        System.out.println("[L3] Escalated to engineering: " + issue);
+    }
+}</code></pre>
+<p> </p><pre><code><em>// Build chain</em>
+SupportHandler l1 = <strong>new</strong> L1Support();
+SupportHandler l2 = <strong>new</strong> L2Support();
+SupportHandler l3 = <strong>new</strong> L3Support();
+l1.setNext(l2).setNext(l3);   <em>// fluent chaining</em></code></pre>
+<p> </p><pre><code><em>// Send requests</em>
+l1.handle(1, "Password reset");    <em>// [L1] Resolved</em>
+l1.handle(2, "Account locked");    <em>// [L2] Resolved</em>
+l1.handle(3, "Data corruption");   <em>// [L3] Escalated</em></code></pre>
+<p><strong>When to Use</strong></p><ul><li>More than one object may handle a request and the handler is not known at compile time</li><li>You want to issue requests without specifying the receiver explicitly</li><li>Middleware pipelines, event bubbling, logging filters</li></ul><p><strong>Pros / Cons</strong></p><table><tr><td><p><strong>Pros</strong></p></td><td><p><strong>Cons</strong></p></td></tr><tr><td><p>Decouples sender from receivers</p></td><td><p>No guarantee a request will be handled</p></td></tr><tr><td><p>Dynamic chain composition at runtime</p></td><td><p>Chain must be assembled correctly -- easy to misconfigure</p></td></tr><tr><td><p>Follows Single Responsibility and Open/Closed principles</p></td><td><p>Can be hard to debug/trace</p></td></tr></table>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>
+    
+    document.querySelectorAll('pre code').forEach(function(el){ hljs.highlightElement(el); });
+  </script>
+  <script>(function () {
+    var marks = [];
+    var idx = -1;
+
+    function clearMarks() {
+        marks.forEach(function (m) {
+            var p = m.parentNode;
+            if (p) { p.replaceChild(document.createTextNode(m.textContent), m); p.normalize(); }
+        });
+        marks = [];
+        idx = -1;
+    }
+
+    function markText(query) {
+        var results = [];
+        var lower = query.toLowerCase();
+        var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null);
+        var nodes = [];
+        var n;
+        while ((n = walker.nextNode())) {
+            if (n.nodeValue.toLowerCase().includes(lower)) nodes.push(n);
+        }
+        nodes.forEach(function (textNode) {
+            var text  = textNode.nodeValue;
+            var ltext = text.toLowerCase();
+            var par   = textNode.parentNode;
+            if (!par) return;
+            var frag = document.createDocumentFragment();
+            var last = 0, i;
+            while ((i = ltext.indexOf(lower, last)) !== -1) {
+                if (i > last) frag.appendChild(document.createTextNode(text.slice(last, i)));
+                var m = document.createElement('mark');
+                m.className = 'dsm';
+                m.style.cssText = 'background:#ffe066;color:inherit;border-radius:2px;';
+                m.textContent = text.slice(i, i + query.length);
+                frag.appendChild(m);
+                results.push(m);
+                last = i + query.length;
+            }
+            if (last < text.length) frag.appendChild(document.createTextNode(text.slice(last)));
+            par.replaceChild(frag, textNode);
+        });
+        return results;
+    }
+
+    function highlight() {
+        marks.forEach(function (m, i) {
+            m.style.background = i === idx ? '#ff9900' : '#ffe066';
+            m.style.outline    = i === idx ? '2px solid #e65c00' : 'none';
+        });
+        if (marks[idx]) marks[idx].scrollIntoView({ block: 'center' });
+    }
+
+    function reply(src) {
+        src.postMessage({ type: 'searchResult', count: marks.length, current: idx }, '*');
+    }
+
+    window.addEventListener('message', function (e) {
+        var d = e.data;
+        if (!d || !d.type) return;
+        if (d.type === 'search') {
+            clearMarks();
+            if (d.query) {
+                marks = markText(d.query);
+                if (marks.length) idx = 0;
+                highlight();
+            }
+            reply(e.source);
+        } else if (d.type === 'searchNav') {
+            if (!marks.length) return;
+            idx = d.dir === 'next'
+                ? (idx + 1) % marks.length
+                : (idx - 1 + marks.length) % marks.length;
+            highlight();
+            reply(e.source);
+        } else if (d.type === 'searchClear') {
+            clearMarks();
+        }
+    });
+})();</script>
+</body>
+</html>
