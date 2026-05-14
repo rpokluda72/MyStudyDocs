@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SpringByClaude</title>
+  <link rel="stylesheet" href="../assets/content.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+</head>
+<body>
+  <h1>SpringByClaude</h1>
+  <p><strong>Spring Framework</strong></p><p>Comprehensive Study Guide</p><p>Spring Core  ·  Spring Boot  ·  Spring MVC  ·  Spring Data  ·  Spring Security  ·  Spring AOP</p><p><strong>1. Spring Ecosystem Overview</strong></p><p>Spring is an open-source Java application framework created by Rod Johnson in 2003. It solves core enterprise Java problems — complex configuration, tight coupling, boilerplate code — through Inversion of Control (IoC), Dependency Injection (DI), and aspect-oriented programming (AOP). Spring is modular: you use only the parts you need.</p><p><strong>Spring Projects Map</strong></p><pre><code>  ┌─────────────────────────────────────────────────────────────────────┐
+  │                      SPRING ECOSYSTEM                              │
+  │                                                                     │
+  │   ┌──────────────┐   ┌──────────────┐   ┌──────────────────────┐  │
+  │   │ Spring Core  │   │ Spring Boot  │   │   Spring Cloud       │  │
+  │   │  IoC / DI    │   │ Auto-config  │   │  Microservices glue  │  │
+  │   │  AOP         │   │  Starters    │   │  Config / Discovery  │  │
+  │   │  Events      │   │  Actuator    │   │  Gateway / Circuit   │  │
+  │   └──────┬───────┘   └──────┬───────┘   └──────────────────────┘  │
+  │          │                  │                                       │
+  │   ┌──────▼───────┐   ┌──────▼───────┐   ┌──────────────────────┐  │
+  │   │ Spring MVC   │   │ Spring Data  │   │  Spring Security     │  │
+  │   │ REST / Web   │   │ JPA / Mongo  │   │  Auth / OAuth2       │  │
+  │   │ DispServlet  │   │ Repositories │   │  Filter chain        │  │
+  │   └──────────────┘   └──────────────┘   └──────────────────────┘  │
+  └─────────────────────────────────────────────────────────────────────┘</code></pre>
+<p><strong>Spring vs Spring Boot</strong></p><table><tr><td><p><strong>Feature</strong></p></td><td><p><strong>Spring (plain)</strong></p></td><td><p><strong>Spring Boot</strong></p></td></tr><tr><td><p>Configuration</p></td><td><p>Manual XML or Java @Configuration</p></td><td><p>Auto-configured via @EnableAutoConfiguration</p></td></tr><tr><td><p>Server</p></td><td><p>Deploy WAR to external Tomcat/Jetty</p></td><td><p>Embedded Tomcat/Jetty/Undertow – just run the JAR</p></td></tr><tr><td><p>Dependency mgmt</p></td><td><p>Manually pick compatible library versions</p></td><td><p>Starters manage compatible dependency sets</p></td></tr><tr><td><p>Bootstrap</p></td><td><p>AnnotationConfigApplicationContext setup</p></td><td><p>SpringApplication.run() one-liner</p></td></tr><tr><td><p>Actuator</p></td><td><p>Not included</p></td><td><p>Built-in /actuator health, metrics, info endpoints</p></td></tr><tr><td><p>Production-ready</p></td><td><p>Requires extra setup</p></td><td><p>Sensible defaults; opinionated yet overridable</p></td></tr></table><p><strong>Spring Initializer</strong></p><p>One of the ways to Bootstrapping a Spring Boot application is by using Spring Initializer.</p><p>In simple terms, a main class in Spring Boot is essentially a bootstrapping class.</p><p><strong>What is Spring Boot Bootstrap?</strong></p><p>Think of bootstrap as the “startup sequence” of your Spring Boot application. Just like starting a car involves multiple steps (turn key, engine starts, systems initialize, ready to drive), Spring Boot goes through several phases to get your application ready to serve requests.</p><p><strong>2. Spring Core — IoC &amp; Dependency Injection</strong></p><p><strong>Inversion of Control (IoC)</strong></p><p>Normally your code creates its own dependencies (new Service()). With IoC, the framework creates and wires objects for you. Your classes declare what they need; the IoC container provides it. This decouples classes, making them easier to test and maintain.</p><pre><code>  Without IoC                        With Spring IoC
+  ─────────────────────────────────  ─────────────────────────────────
+  class OrderService {               class OrderService {
+    EmailService email =               EmailService email;   // injected
+      new EmailService();            }
+  }                                  IoC Container manages lifecycle
+                                     and wires EmailService in.</code></pre>
+<p><strong>Dependency Injection Types</strong></p><p><strong>Constructor Injection  (recommended)</strong></p><pre><code>@Service
+public class OrderService {
+    private final PaymentService paymentService;
+
+    @Autowired  // optional in modern Spring (single constructor)
+    public OrderService(PaymentService paymentService) {
+        this.paymentService = paymentService;
+    }
+}</code></pre>
+<p>Advantages: fields can be final, easy to unit-test, no partial object state, makes circular dependency visible at startup.</p><p><strong>Setter Injection</strong></p><pre><code>@Service
+public class ReportService {
+    private DataSource dataSource;
+
+    @Autowired
+    public void setDataSource(DataSource dataSource) {
+        this.dataSource = dataSource;
+    }
+}</code></pre>
+<p><strong>Field Injection  (avoid in production code)</strong></p><pre><code>@Service
+public class UserService {
+    @Autowired
+    private UserRepository userRepo;  // harder to test, can't be final
+}</code></pre>
+<p><strong>Stereotype Annotations</strong></p><p>These mark classes as Spring-managed beans and communicate their role:</p><table><tr><td><p><strong>Annotation</strong></p></td><td><p><strong>Layer</strong></p></td><td><p><strong>Purpose</strong></p></td></tr><tr><td><p>@Component</p></td><td><p>Any</p></td><td><p>Generic Spring-managed bean</p></td></tr><tr><td><p>@Service</p></td><td><p>Business logic</p></td><td><p>Marks service layer; no extra Spring magic, but communicates intent</p></td></tr><tr><td><p>@Repository</p></td><td><p>Data access</p></td><td><p>DAO layer; translates DB exceptions to DataAccessException hierarchy</p></td></tr><tr><td><p>@Controller</p></td><td><p>Web MVC</p></td><td><p>Request handler that returns views (ModelAndView)</p></td></tr><tr><td><p>@RestController</p></td><td><p>REST API</p></td><td><p>@Controller + @ResponseBody on every method; returns JSON/XML</p></td></tr><tr><td><p>@Configuration</p></td><td><p>Config</p></td><td><p>Defines beans via @Bean methods; replaces XML context</p></td></tr></table><pre><code><strong>@Autowired, @Qualifier, @Value</strong>
+@Service
+public class NotificationService {
+
+    // Inject by type; if multiple beans exist, add @Qualifier
+    @Autowired
+    @Qualifier("smsNotifier")          // disambiguate when multiple NotifierService beans
+    private NotifierService notifier;
+
+    @Value("${app.notification.retries:3}")  // property with default 3
+    private int maxRetries;
+
+    @Value("${spring.application.name}")
+    private String appName;
+}</code></pre>
+<p><strong>ApplicationContext vs BeanFactory</strong></p><table><tr><td><p><strong>Feature</strong></p></td><td><p><strong>BeanFactory</strong></p></td><td><p><strong>ApplicationContext</strong></p></td></tr><tr><td><p>Lazy loading</p></td><td><p>Yes (beans loaded on first access)</p></td><td><p>No (eager/dychtivý by default)</p></td></tr><tr><td><p>Internationalisation</p></td><td><p>No</p></td><td><p>Yes (MessageSource)</p></td></tr><tr><td><p>Event publishing</p></td><td><p>No</p></td><td><p>Yes (ApplicationEventPublisher)</p></td></tr><tr><td><p>AOP integration</p></td><td><p>Manual</p></td><td><p>Built-in auto-proxy support</p></td></tr><tr><td><p>Use case</p></td><td><p>Memory-constrained environments</p></td><td><p>Standard application choice</p></td></tr><tr><td><p>Common impl</p></td><td><p>XmlBeanFactory (deprecated)</p></td><td><p>AnnotationConfigApplicationContext,<br />ClassPathXmlApplicationContext</p></td></tr></table><p>In practice always use ApplicationContext (or let Spring Boot create it via SpringApplication.run()).</p><p><strong>ApplicationContext</strong></p><p>is an advanced interface in the Spring Framework that acts as a powerful IoC container for managing beans and their lifecycle. It extends BeanFactory and provides additional enterprise-level features like event handling, internationalization, and annotation-based configuration. It is widely used in modern Spring applications for efficient and scalable development.</p><ul><li>Supports advanced features like event publishing, i18n, and AOP integration.</li><li>Provides eager bean initialization for better runtime performance.</li><li>Enables easy integration with annotation-based configuration like @Component and @Autowired.</li></ul><p><em>    Note: Due to its advanced features, developers generally prefer using ApplicationContext over BeanFactory. BeanFactory provides only basic functionalities and is suitable for lightweight applications or memory-constrained environments.</em></p><p><strong>The ApplicationContext Interface</strong></p><p>One of the main features of the Spring framework is the IoC (Inversion of Control) container. The Spring IoC container is responsible for managing the objects of an application. It uses dependency injection to achieve inversion of control.</p><p>The interfaces <em>BeanFactory</em> and <em>ApplicationContext</em> <strong>represent the Spring IoC container</strong>. Here, BeanFactory is the root interface for accessing the Spring container. It provides basic functionalities for managing beans.</p><p>On the other hand, the ApplicationContext is a sub-interface of the BeanFactory. Therefore, it offers all the functionalities of BeanFactory.</p><p>Furthermore, <strong>it provides more enterprise-specific functionalities</strong>. The important features of ApplicationContext are <strong>resolving messages, supporting internationalization, publishing events, and application-layer specific contexts</strong>. This is why we use it as the default Spring container.</p><p> The Spring ApplicationContext provides developers direct access to the Spring framework’s Inversion of Control (IoC) container.</p><p>The ApplicationContext represents the heart and soul of Spring, as it makes features such as dependency injection, autowiring and Spring bean lifecycle management possible.</p><p><strong>How does the Spring ApplicationContext work?</strong></p><p>In order to benefit from Spring’s IoC container, developers must access their Java components through Spring’s ApplicationContext. When a Java component is obtained through Spring’s ApplicationContent, it is colloquially referred to as a Spring Bean.</p><p>When developers get Java components from the Spring ApplicationContext, they gain access to various productivity enhancing features including:</p><ul><li>Dependency injection and autowiring</li><li>Spring bean lifecycle management</li><li>Simplified property file access</li><li>Access to container triggered events</li><li>Use of Spring’s Inversion of Control (IoC) features</li></ul><p><strong>How to access Spring’s ApplicationContext	</strong></p><p>The Spring IoC container eliminates the need to instantiate Java components with the new keyword.</p><p>Without Spring, if a developer wanted an instance of a HappyMeal, they’d normally write code like this:</p><pre><code>HappyMeal happyMeal = new HappyMeal();</code></pre>
+<p>However, with the ApplicationContext, the developer asks the Spring IoC container for the instance instead:</p><pre><code>ApplicationContext context = SpringApplication.run(App.class, args);
+HappyMeal happyMeal = context.getBean(HappyMeal.class);</code></pre>
+<p><strong>Full Spring ApplicationContext example</strong></p><p>If you think going through the Spring <em>ApplicationContext</em> seems like a lot of work to obtain an instance of a class, especially when a call to the <a href="https://www.theserverside.com/video/Full-Java-constructors-tutorial" target="_blank" rel="noopener noreferrer">Java class’ constructor</a> would suffice, you’d be right. </p><p>In fact, to fully implement the example above, the <em>HappyMeal</em> class would require a special </p><pre><code><em>@Component</em> annotation so that the Spring framework would be aware of it. 
+@Component
+public class HappyMeal  { }</code></pre>
+<p>Furthermore, the class referenced by the run method would </p><p>(Alternatively, the more modern <em>@SpringBootApplication</em> annotation could be used on the instead, as it envelops both <em>@Configuration</em> and <em>@ComponentScan</em>, while providing additional, enterprise-ready functionality.) </p><pre><code>//@Configuration
+//@ComponentScan("com.mcnz.spring.ioc")
+@SpringBootApplication
+public class <strong>App</strong> {
+       public static void main(String args[]) {
+            ApplicationContext <strong><em>context</em></strong><em> </em>= SpringApplication.run(<strong>App</strong>.class, args);
+            HappyMeal happyMeal = <strong><em>context</em></strong>.getBean(HappyMeal.class);
+    }
+}
+<strong>@Configuration and @Bean</strong>
+@Configuration
+public class AppConfig {
+
+    @Bean                               // method name becomes bean name
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder(12);
+    }
+
+    @Bean
+    @Scope("prototype")                 // new instance every time
+    public HttpClient httpClient() {
+        return HttpClient.newBuilder().build();
+    }
+}</code></pre>
+<p><strong>Bean Scopes</strong></p><table><tr><td><p><strong>Scope</strong></p></td><td><p><strong>When used</strong></p></td><td><p><strong>New instance created</strong></p></td></tr><tr><td><p>singleton  (default)</p></td><td><p>Stateless services, repositories</p></td><td><p>Once per IoC container</p></td></tr><tr><td><p>prototype</p></td><td><p>Stateful / command objects</p></td><td><p>Every time getBean() / @Autowired resolves</p></td></tr><tr><td><p>request</p></td><td><p>Web: per HTTP request</p></td><td><p>Once per HTTP request (Spring MVC)</p></td></tr><tr><td><p>session</p></td><td><p>Web: per user HTTP session</p></td><td><p>Once per HTTP session</p></td></tr><tr><td><p>application</p></td><td><p>Web: per ServletContext</p></td><td><p>Once per web app lifetime</p></td></tr><tr><td><p>websocket</p></td><td><p>WebSocket scope</p></td><td><p>Once per WebSocket session</p></td></tr></table><p><strong>Bean Lifecycle</strong></p><pre><code>  Container starts
+       │
+       ▼
+  Instantiate bean  ──▶  Constructor called
+       │
+       ▼
+  Inject dependencies  ──▶  @Autowired / setter injection
+       │
+       ▼
+  BeanPostProcessor.postProcessBeforeInitialization()
+       │
+       ▼
+  @PostConstruct  /  afterPropertiesSet()  /  init-method
+       │
+       ▼
+  Bean is READY ──────────────────────────────────────────────────────▶ in use
+                                                                         │
+                                                              Container shuts down
+                                                                         │
+                                                                         ▼
+                                                            @PreDestroy  /  destroy()</code></pre>
+<p><strong>3. Spring Boot</strong></p><p>Spring Boot is an opinionated layer on top of Spring that eliminates boilerplate setup. Convention over configuration: if you add a dependency, Spring Boot tries to auto-configure it.</p><pre><code><strong>@SpringBootApplication</strong></code></pre>
+<p>This single annotation on the main class combines three annotations:</p><pre><code>  @SpringBootApplication
+       ├── @SpringBootConfiguration    (@Configuration specialisation)
+       ├── @EnableAutoConfiguration    trigger auto-config for classpath libraries
+       └── @ComponentScan              scan current package and sub-packages for beans
+@SpringBootApplication
+public class MyApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(MyApplication.class, args);
+    }
+}</code></pre>
+<p><strong>Auto-Configuration</strong></p><p>Spring Boot scans META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports inside each starter JAR. Each entry is a @Configuration class that activates only when its @ConditionalOn* conditions are met.</p><pre><code>  You add spring-boot-starter-data-jpa to pom.xml
+        │
+        ▼
+  JpaAutoConfiguration activates because:
+    @ConditionalOnClass(DataSource.class)   ──▶  DataSource is on classpath  ✓
+    @ConditionalOnMissingBean(DataSource)   ──▶  you haven't defined one yet  ✓
+        │
+        ▼
+  Spring Boot creates DataSource, EntityManagerFactory, TransactionManager for you</code></pre>
+<p><strong>Spring Boot Starters</strong></p><table><tr><td><p><strong>Starter</strong></p></td><td><p><strong>What it includes</strong></p></td></tr><tr><td><p>spring-boot-starter-web</p></td><td><p>Spring MVC, Jackson (JSON), embedded Tomcat</p></td></tr><tr><td><p>spring-boot-starter-data-jpa</p></td><td><p>Spring Data JPA, Hibernate, HikariCP</p></td></tr><tr><td><p>spring-boot-starter-security</p></td><td><p>Spring Security (auth/authz)</p></td></tr><tr><td><p>spring-boot-starter-test</p></td><td><p>JUnit 5, Mockito, AssertJ, Spring Test</p></td></tr><tr><td><p>spring-boot-starter-actuator</p></td><td><p>Health, metrics, info endpoints</p></td></tr><tr><td><p>spring-boot-starter-validation</p></td><td><p>Hibernate Validator (Bean Validation 3.0)</p></td></tr><tr><td><p>spring-boot-starter-data-mongodb</p></td><td><p>Spring Data MongoDB, MongoDB driver</p></td></tr><tr><td><p>spring-boot-starter-cache</p></td><td><p>Spring Cache abstraction, ConcurrentMap default</p></td></tr><tr><td><p>spring-boot-starter-webflux</p></td><td><p>Spring WebFlux reactive stack (Project Reactor)</p></td></tr></table><p><strong>Spring Boot Starters</strong></p><p> are pre-configured dependency packages that simplify project setup in <a href="https://www.geeksforgeeks.org/springboot/introduction-to-spring-boot/" target="_blank" rel="noopener noreferrer">Spring Boot.</a> They bundle commonly used libraries together so developers don’t need to manually add and manage multiple dependencies. Starters help in faster development and reduce configuration complexity.</p><ul><li>Provide ready-made dependency bundles for specific features (web, data, security, etc.).</li><li>Automatically manage compatible library versions.</li><li>Reduce boilerplate configuration in pom.xml or build. gradle.</li></ul><p><strong>Advantages of Spring Boot Staters</strong></p><p>The advantages of using Starters are as mentioned below:</p><ul><li>Increase productivity by decreasing the Configuration time for developers.</li><li>Managing the POM is easier since the number of dependencies to be added is decreased.</li><li>Tested, Production-ready, and supported dependency configurations.</li><li>No need to remember the name and version of the dependencies.</li></ul><p><strong>Example:</strong> Spring Boot Starter Data JPA </p><ul><li>This single dependency includes Hibernate, Spring Data JPA, transaction management, and other required libraries automatically.</li><li>Earlier, developers had to manually include each related dependency. Now, a single starter handles everything.</li></ul><p><strong>Key Benefits of Spring Boot Starters:</strong></p><ul><li><strong>Reduced Complexity:</strong> Instead of listing dozens of libraries in your pom.xml or build.gradle, you add one starter dependency.</li><li><strong>Version Management:</strong> Starters ensure that all included libraries are compatible with each other and with the specific Spring Boot version being used.</li><li><strong>Faster Development:</strong> They enable rapid prototyping and project setup, allowing developers to focus on business logic. [<a href="https://medium.com/@aravindcsebe/understanding-spring-boot-starter-parent-a-complete-guide-4c1db36c02e3" target="_blank" rel="noopener noreferrer">1</a>, <a href="https://medium.com/@idiotN/what-are-spring-boot-starters-7a9cadfdbc0a" target="_blank" rel="noopener noreferrer">2</a>, <a href="https://www.geeksforgeeks.org/springboot/spring-boot-starters/" target="_blank" rel="noopener noreferrer">3</a>, <a href="https://www.linkedin.com/posts/chhayakant14_springboot-java-springframework-activity-7362088785741828097-zlfi" target="_blank" rel="noopener noreferrer">4</a>]</li></ul><p><strong>Common Types of Starters:</strong></p><ul><li><strong>Application Starters:</strong> E.g., spring-boot-starter-web (for RESTful apps), spring-boot-starter-data-jpa (for database access), spring-boot-starter-security.</li><li><strong>Production Starters:</strong> E.g., spring-boot-starter-actuator for monitoring app health.</li><li><strong>Technical Starters:</strong> E.g., spring-boot-starter-jetty or spring-boot-starter-log4j2 for swapping default technologies. [<a href="https://www.geeksforgeeks.org/springboot/spring-boot-starters/" target="_blank" rel="noopener noreferrer">1</a>, <a href="https://www.linkedin.com/posts/chhayakant14_springboot-java-springframework-activity-7362088785741828097-zlfi" target="_blank" rel="noopener noreferrer">2</a>]</li></ul><p><strong>Important Notes:</strong></p><ul><li><strong>Naming Convention:</strong> Official starters follow the pattern spring-boot-starter-*.</li><li><strong>Third-Party Starters:</strong> Third-party libraries can provide their own starters, but they should not use the spring-boot-starter prefix.</li><li><strong>Best Practice:</strong> Use starters to maintain a clean project structure and avoid dependency conflicts. [<a href="https://medium.com/@idiotN/what-are-spring-boot-starters-7a9cadfdbc0a" target="_blank" rel="noopener noreferrer">1</a>, <a href="https://www.geeksforgeeks.org/springboot/spring-boot-starters/" target="_blank" rel="noopener noreferrer">2</a>]</li></ul><p><strong>application.properties / application.yml</strong></p><p><strong>application.properties</strong></p><pre><code># Server
+server.port=8080
+server.servlet.context-path=/api
+
+# DataSource
+spring.datasource.url=jdbc:postgresql://localhost:5432/mydb
+spring.datasource.username=user
+spring.datasource.password=secret
+
+# JPA
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true
+
+# Custom property
+app.max-retries=3</code></pre>
+<p><strong>application.yml  (equivalent)</strong></p><pre><code>server:
+  port: 8080
+  servlet:
+    context-path: /api
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/mydb
+    username: user
+    password: secret
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+app:
+  max-retries: 3</code></pre>
+<p><strong>Spring Boot Actuator — Key Endpoints</strong></p><table><tr><td><p><strong>Endpoint</strong></p></td><td><p><strong>Description</strong></p></td></tr><tr><td><p>/actuator/health</p></td><td><p>Application health (UP/DOWN), datasource, disk, custom checks</p></td></tr><tr><td><p>/actuator/info</p></td><td><p>App info from application.properties (info.*)</p></td></tr><tr><td><p>/actuator/metrics</p></td><td><p>JVM, HTTP, custom Micrometer metrics</p></td></tr><tr><td><p>/actuator/env</p></td><td><p>Environment properties and their sources</p></td></tr><tr><td><p>/actuator/beans</p></td><td><p>All beans in the IoC container</p></td></tr><tr><td><p>/actuator/mappings</p></td><td><p>All @RequestMapping paths</p></td></tr><tr><td><p>/actuator/loggers</p></td><td><p>View and change log levels at runtime</p></td></tr><tr><td><p>/actuator/threaddump</p></td><td><p>Current JVM thread state</p></td></tr></table><p><strong>Spring Boot Actuator</strong></p><p>Monitoring and managing applications in production is essential to ensure stability and performance. <a href="https://www.geeksforgeeks.org/advance-java/spring-boot/" target="_blank" rel="noopener noreferrer">Spring Boot</a> Actuator provides built-in features to track application health, metrics, and internal state through easy-to-use endpoints.</p><ul><li>Exposes production-ready endpoints (like /actuator/health) to check application status</li><li>Supports monitoring via HTTP endpoints and JMX integration</li><li>Helps track metrics, performance, and system behavior for better management</li></ul><p><strong>Advantages of Actuator Application</strong></p><ul><li>It increases customer satisfaction.</li><li>It reduces downtime.</li><li>It boosts productivity.</li><li>It improves Cybersecurity Management.</li><li>It increases the conversion rate.</li></ul><p><strong>What Is an Actuator?</strong></p><p>In essence, Actuator brings production-ready features to our application.</p><p><strong>Monitoring our app, gathering metrics, and understanding traffic or the state of our database becomes trivial with this dependency.</strong></p><p>The main benefit of this library is that we can get production-grade tools without actually having to implement these features ourselves.</p><p>The actuator mainly exposes<strong> operational information about the running application</strong> — health, metrics, info, dump, env, etc. It uses HTTP endpoints or JMX beans to enable us to interact with it.</p><p>Once this dependency is on the classpath, several endpoints are available for us out of the box. As with most Spring modules, we can easily configure or extend it in many ways.</p><p><strong>Profiles</strong></p><pre><code># application-dev.yml  ─ active when: spring.profiles.active=dev
+spring:
+  datasource:
+    url: jdbc:h2:mem:testdb   # in-memory for dev
+// Activate in code or via VM arg  -Dspring.profiles.active=dev
+@SpringBootApplication
+public class App {
+    public static void main(String[] args) {
+        System.setProperty("spring.profiles.active", "dev");
+        SpringApplication.run(App.class, args);
+    }
+}</code></pre>
+<p><strong>4. Spring MVC</strong></p><p>Spring MVC implements the Model-View-Controller pattern over the Servlet API. A single Front Controller — DispatcherServlet — receives all requests and delegates to handlers.</p><p><strong>Request Flow</strong></p><pre><code>  Client
+    │  HTTP Request
+    ▼
+  ┌─────────────────────┐
+  │   DispatcherServlet  │  (Front Controller)
+  └────────┬────────────┘
+           │  1. consults HandlerMapping
+           ▼
+  ┌─────────────────────┐
+  │   HandlerMapping    │  finds @Controller method for the URL
+  └────────┬────────────┘
+           │  2. invokes handler via
+           ▼
+  ┌─────────────────────┐
+  │  HandlerAdapter     │  resolves @RequestParam, @RequestBody …
+  └────────┬────────────┘
+           │  3. calls
+           ▼
+  ┌─────────────────────┐
+  │  @Controller method │  executes business logic
+  └────────┬────────────┘
+           │  returns ModelAndView  OR  @ResponseBody object
+           ▼
+  ┌─────────────────────┐
+  │  ViewResolver       │  (for MVC views: Thymeleaf, JSP …)
+  │  MessageConverter   │  (for REST: Jackson JSON, XML …)
+  └────────┬────────────┘
+           │  HTTP Response
+           ▼
+  Client
+<strong>@Controller vs @RestController</strong></code></pre>
+<table><tr><td><p><strong>Feature</strong></p></td><td><p><strong>@Controller</strong></p></td><td><p><strong>@RestController</strong></p></td></tr><tr><td><p>Inherits</p></td><td><p>@Component</p></td><td><p>@Controller + @ResponseBody</p></td></tr><tr><td><p>Return type</p></td><td><p>View name (String) or ModelAndView</p></td><td><p>Object serialised to JSON/XML directly</p></td></tr><tr><td><p>@ResponseBody</p></td><td><p>Needed per-method</p></td><td><p>Implicit on every method</p></td></tr><tr><td><p>Use case</p></td><td><p>Traditional MVC with HTML views</p></td><td><p>REST APIs</p></td></tr></table><p><strong>Request Mapping Annotations</strong></p><table><tr><td><p><strong>Annotation</strong></p></td><td><p><strong>HTTP Method</strong></p></td><td><p><strong>Equivalent of</strong></p></td></tr><tr><td><p>@RequestMapping(method=GET)</p></td><td><p>GET</p></td><td><p>@GetMapping</p></td></tr><tr><td><p>@GetMapping</p></td><td><p>GET</p></td><td><p>@RequestMapping(method=RequestMethod.GET)</p></td></tr><tr><td><p>@PostMapping</p></td><td><p>POST</p></td><td><p>@RequestMapping(method=RequestMethod.POST)</p></td></tr><tr><td><p>@PutMapping</p></td><td><p>PUT</p></td><td><p>@RequestMapping(method=RequestMethod.PUT)</p></td></tr><tr><td><p>@PatchMapping</p></td><td><p>PATCH</p></td><td><p>@RequestMapping(method=RequestMethod.PATCH)</p></td></tr><tr><td><p>@DeleteMapping</p></td><td><p>DELETE</p></td><td><p>@RequestMapping(method=RequestMethod.DELETE)</p></td></tr></table><p><strong>Parameter Annotations</strong></p><table><tr><td><p><strong>Annotation</strong></p></td><td><p><strong>Binds to</strong></p></td><td><p><strong>Example</strong></p></td></tr><tr><td><p>@PathVariable</p></td><td><p>URL path segment</p></td><td><p>/users/{id}  →  @PathVariable Long id</p></td></tr><tr><td><p>@RequestParam</p></td><td><p>Query string parameter</p></td><td><p>/search?q=spring  →  @RequestParam String q</p></td></tr><tr><td><p>@RequestBody</p></td><td><p>Request body (JSON → POJO)</p></td><td><p>POST body JSON  →  @RequestBody UserDto dto</p></td></tr><tr><td><p>@RequestHeader</p></td><td><p>HTTP header value</p></td><td><p>@RequestHeader("X-Auth") String token</p></td></tr><tr><td><p>@CookieValue</p></td><td><p>Cookie value</p></td><td><p>@CookieValue("JSESSIONID") String session</p></td></tr><tr><td><p>@ModelAttribute</p></td><td><p>Form data / URL params</p></td><td><p>HTML form  →  @ModelAttribute UserForm form</p></td></tr></table><p><strong>REST Controller Example</strong></p><pre><code>@RestController
+@RequestMapping("/api/v1/users")
+public class UserController {
+
+    private final UserService userService;
+
+    public UserController(UserService userService) {
+        this.userService = userService;
+    }
+
+    @GetMapping
+    public List&lt;UserDto&gt; getAllUsers() {
+        return userService.findAll();
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity&lt;UserDto&gt; getUser(@PathVariable Long id) {
+        return userService.findById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public UserDto createUser(@RequestBody @Valid CreateUserRequest request) {
+        return userService.create(request);
+    }
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteUser(@PathVariable Long id) {
+        userService.delete(id);
+    }
+}</code></pre>
+<p><strong>Global Exception Handling</strong></p><pre><code>@ControllerAdvice                         // applies to all controllers
+public class GlobalExceptionHandler {
+
+    @ExceptionHandler(UserNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ResponseBody
+    public ErrorResponse handleNotFound(UserNotFoundException ex) {
+        return new ErrorResponse("NOT_FOUND", ex.getMessage());
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseBody
+    public ErrorResponse handleValidation(MethodArgumentNotValidException ex) {
+        String msg = ex.getBindingResult().getFieldErrors().stream()
+                .map(e -&gt; e.getField() + ": " + e.getDefaultMessage())
+                .collect(Collectors.joining(", "));
+        return new ErrorResponse("VALIDATION_ERROR", msg);
+    }
+}</code></pre>
+<p><strong>5. Spring Data JPA</strong></p><p>Spring Data JPA eliminates boilerplate DAO code. You define an interface extending a repository marker, and Spring generates the implementation at runtime using JPA (Hibernate by default).</p><p><strong>Entity Mapping</strong></p><pre><code>@Entity
+@Table(name = "users")
+public class User {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false, length = 100)
+    private String name;
+
+    @Column(unique = true, nullable = false)
+    private String email;
+
+    @Enumerated(EnumType.STRING)
+    private UserStatus status;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List&lt;Order&gt; orders = new ArrayList&lt;&gt;();
+
+    // getters / setters / constructors
+}</code></pre>
+<p><strong>Repository Hierarchy</strong></p><pre><code>  Repository&lt;T, ID&gt;                 (marker interface — Spring Data)
+       │
+       └──▶ CrudRepository&lt;T, ID&gt;   save, findById, findAll, delete …
+                 │
+                 └──▶ PagingAndSortingRepository&lt;T, ID&gt;  + pagination / sorting
+                            │
+                            └──▶ JpaRepository&lt;T, ID&gt;    + flush, saveAndFlush,
+                                                              findAll(Specification), …
+  Your interface:   extends JpaRepository&lt;User, Long&gt;
+  Spring generates: all CRUD + paging + JPA extras at startup</code></pre>
+<p><strong>Query Method Naming</strong></p><p>Spring Data derives JPQL queries from method names automatically:</p><table><tr><td><p><strong>Method name</strong></p></td><td><p><strong>Generated query equivalent</strong></p></td></tr><tr><td><p>findByEmail(String email)</p></td><td><p>WHERE u.email = ?1</p></td></tr><tr><td><p>findByNameAndStatus(String n, UserStatus s)</p></td><td><p>WHERE u.name = ?1 AND u.status = ?2</p></td></tr><tr><td><p>findByNameContainingIgnoreCase(String keyword)</p></td><td><p>WHERE LOWER(u.name) LIKE %?1%</p></td></tr><tr><td><p>findByCreatedAtBetween(LocalDate from, LocalDate to)</p></td><td><p>WHERE u.createdAt BETWEEN ?1 AND ?2</p></td></tr><tr><td><p>countByStatus(UserStatus s)</p></td><td><p>SELECT COUNT(u) WHERE u.status = ?1</p></td></tr><tr><td><p>deleteByEmail(String email)</p></td><td><p>DELETE WHERE u.email = ?1</p></td></tr><tr><td><p>findTop3ByStatusOrderByCreatedAtDesc(UserStatus s)</p></td><td><p>WHERE status=? ORDER BY createdAt DESC LIMIT 3</p></td></tr><tr><td><p>existsByEmail(String email)</p></td><td><p>SELECT CASE WHEN COUNT(u)&gt;0 …</p></td></tr></table><p><strong>Custom @Query</strong></p><pre><code>public interface UserRepository extends JpaRepository&lt;User, Long&gt; {
+
+    // JPQL (entity / field names, not table / column names)
+    @Query("SELECT u FROM User u WHERE u.email = :email AND u.status = :status")
+    Optional&lt;User&gt; findActiveByEmail(@Param("email") String email,
+                                     @Param("status") UserStatus status);
+
+    // Native SQL query
+    @Query(value = "SELECT * FROM users WHERE LOWER(name) LIKE %:keyword%",
+           nativeQuery = true)
+    List&lt;User&gt; searchByName(@Param("keyword") String keyword);
+
+    // Modifying query (requires @Transactional on calling service)
+    @Modifying
+    @Query("UPDATE User u SET u.status = :status WHERE u.id = :id")
+    int updateStatus(@Param("id") Long id, @Param("status") UserStatus status);
+}</code></pre>
+<p><strong>Pagination and Sorting</strong></p><pre><code>// Service
+public Page&lt;UserDto&gt; getUsers(int page, int size, String sortBy) {
+    Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy).descending());
+    return userRepository.findAll(pageable).map(userMapper::toDto);
+}
+
+// Controller
+@GetMapping
+public Page&lt;UserDto&gt; list(
+        @RequestParam(defaultValue = "0")  int page,
+        @RequestParam(defaultValue = "20") int size,
+        @RequestParam(defaultValue = "id") String sort) {
+    return userService.getUsers(page, size, sort);
+}</code></pre>
+<p><strong>6. Spring AOP — Aspect-Oriented Programming</strong></p><p>AOP separates cross-cutting concerns (logging, security, transactions, caching) from business logic. You write the concern once in an Aspect, and Spring weaves it around target methods without changing them.</p><p><strong>Core Concepts</strong></p><table><tr><td><p><strong>Term</strong></p></td><td><p><strong>Meaning</strong></p></td></tr><tr><td><p>Aspect</p></td><td><p>A class annotated @Aspect that encapsulates a cross-cutting concern</p></td></tr><tr><td><p>Advice</p></td><td><p>The code that runs at a join point (before, after, around …)</p></td></tr><tr><td><p>Pointcut</p></td><td><p>An expression that selects which join points to advise</p></td></tr><tr><td><p>JoinPoint</p></td><td><p>A point in program execution — in Spring AOP always a method call</p></td></tr><tr><td><p>Weaving</p></td><td><p>Linking aspects to target objects. Spring uses runtime proxy weaving</p></td></tr><tr><td><p>Target</p></td><td><p>The object whose method is being intercepted</p></td></tr></table><p><strong>Advice Types</strong></p><table><tr><td><p><strong>Annotation</strong></p></td><td><p><strong>Runs</strong></p></td><td><p><strong>Typical use</strong></p></td></tr><tr><td><p>@Before</p></td><td><p>Before method executes</p></td><td><p>Security checks, parameter logging</p></td></tr><tr><td><p>@AfterReturning</p></td><td><p>After method returns normally</p></td><td><p>Log return value, cache result</p></td></tr><tr><td><p>@AfterThrowing</p></td><td><p>After method throws exception</p></td><td><p>Error tracking, alerting</p></td></tr><tr><td><p>@After</p></td><td><p>After method (normal or exception) — finally</p></td><td><p>Cleanup, release resources</p></td></tr><tr><td><p>@Around</p></td><td><p>Wraps the method – full control</p></td><td><p>Timing, retries, transactions</p></td></tr></table><p><strong>Execution Pointcut Syntax</strong></p><pre><code>  execution([modifier] returnType [className.]methodName(params) [throws])
+  execution(* com.example.service.*.*(..))   ← all methods in service package
+  execution(public * UserService.find*(..))   ← public find* methods in UserService
+  execution(* *.*(..))                        ← every method everywhere
+  @annotation(org.springframework.transaction.annotation.Transactional)
+                                              ← methods annotated @Transactional</code></pre>
+<p><strong>Logging Aspect Example</strong></p><pre><code>@Aspect
+@Component
+public class LoggingAspect {
+
+    private static final Logger log = LoggerFactory.getLogger(LoggingAspect.class);
+
+    // pointcut: all public methods in any service class
+    @Pointcut("execution(public * com.example.service..*(..))")
+    public void serviceMethods() {}
+
+    @Before("serviceMethods()")
+    public void logBefore(JoinPoint jp) {
+        log.debug("Calling {} with args {}", jp.getSignature(), jp.getArgs());
+    }
+
+    @Around("serviceMethods()")
+    public Object timeMethod(ProceedingJoinPoint pjp) throws Throwable {
+        long start = System.currentTimeMillis();
+        Object result = pjp.proceed();                // calls the actual method
+        long elapsed = System.currentTimeMillis() - start;
+        log.info("{} took {} ms", pjp.getSignature().getName(), elapsed);
+        return result;
+    }
+
+    @AfterThrowing(pointcut = "serviceMethods()", throwing = "ex")
+    public void logError(JoinPoint jp, Exception ex) {
+        log.error("Exception in {}: {}", jp.getSignature(), ex.getMessage());
+    }
+}</code></pre>
+<p><strong>7. Spring Transactions</strong></p><p>Spring provides a unified transaction abstraction over JPA, JDBC, JTA, etc. The @Transactional annotation — implemented via AOP proxy — wraps the method in a transaction.</p><pre><code>@Service
+@Transactional          // class-level default: all public methods are transactional
+public class OrderService {
+
+    @Transactional(readOnly = true)          // optimisation: flush/dirty-check skipped
+    public List&lt;Order&gt; findAll() { ... }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW,
+                   rollbackFor = PaymentException.class)
+    public Order placeOrder(OrderRequest req) { ... }
+}</code></pre>
+<p><strong>Propagation Modes</strong></p><table><tr><td><p><strong>Propagation</strong></p></td><td><p><strong>Behaviour</strong></p></td></tr><tr><td><p>REQUIRED  (default)</p></td><td><p>Join existing transaction; create new one if none exists</p></td></tr><tr><td><p>REQUIRES_NEW</p></td><td><p>Always create a new transaction; suspend existing one</p></td></tr><tr><td><p>SUPPORTS</p></td><td><p>Join existing if present; run non-transactionally if none</p></td></tr><tr><td><p>NOT_SUPPORTED</p></td><td><p>Run non-transactionally; suspend existing transaction</p></td></tr><tr><td><p>MANDATORY</p></td><td><p>Must join existing transaction; throws if none</p></td></tr><tr><td><p>NEVER</p></td><td><p>Must NOT run in a transaction; throws if one exists</p></td></tr><tr><td><p>NESTED</p></td><td><p>Execute in nested savepoint within existing transaction</p></td></tr></table><p><strong>Isolation Levels</strong></p><table><tr><td><p><strong>Isolation Level</strong></p></td><td><p><strong>Prevents</strong></p></td><td><p><strong>Performance</strong></p></td></tr><tr><td><p>READ_UNCOMMITTED</p></td><td><p>Nothing – dirty reads possible</p></td><td><p>Fastest</p></td></tr><tr><td><p>READ_COMMITTED</p></td><td><p>Dirty reads</p></td><td><p>Fast (default in most DBs)</p></td></tr><tr><td><p>REPEATABLE_READ</p></td><td><p>Dirty reads + non-repeatable reads</p></td><td><p>Moderate</p></td></tr><tr><td><p>SERIALIZABLE</p></td><td><p>Dirty, non-repeatable, and phantom reads</p></td><td><p>Slowest – full serialisation</p></td></tr></table><p>Spring's DEFAULT isolation uses the database default (usually READ_COMMITTED).</p><p><strong>8. Spring Security — Basics</strong></p><p>Spring Security is a powerful, customisable authentication and access-control framework. It intercepts requests through a chain of servlet filters before they reach your controllers.</p><p><strong>Security Filter Chain</strong></p><pre><code>  HTTP Request
+       │
+       ▼
+  ┌────────────────────────────────────────────────────────────────┐
+  │               SecurityFilterChain (ordered filters)           │
+  │                                                                │
+  │   UsernamePasswordAuthenticationFilter  (form login)          │
+  │   BasicAuthenticationFilter             (HTTP Basic)          │
+  │   BearerTokenAuthenticationFilter       (JWT / OAuth2)        │
+  │   ExceptionTranslationFilter            (401 / 403 handling)  │
+  │   AuthorizationFilter                   (access decisions)    │
+  └───────────────────────────┬────────────────────────────────────┘
+                              │  authenticated &amp; authorised
+                              ▼
+                    DispatcherServlet  →  @Controller</code></pre>
+<p><strong>Security Configuration (Spring Boot 3+)</strong></p><pre><code>@Configuration
+@EnableWebSecurity
+public class SecurityConfig {
+
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http
+            .csrf(csrf -&gt; csrf.disable())       // disable for stateless REST APIs
+            .authorizeHttpRequests(auth -&gt; auth
+                .requestMatchers("/api/public/**").permitAll()
+                .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                .anyRequest().authenticated()
+            )
+            .sessionManagement(sm -&gt;
+                sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+            )
+            .httpBasic(Customizer.withDefaults());  // or use JWT filter
+        return http.build();
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public UserDetailsService users(PasswordEncoder encoder) {
+        UserDetails admin = User.withUsername("admin")
+            .password(encoder.encode("secret"))
+            .roles("ADMIN")
+            .build();
+        return new InMemoryUserDetailsManager(admin);
+    }
+}</code></pre>
+<p><strong>Method-Level Security</strong></p><pre><code>@EnableMethodSecurity        // on @Configuration class to enable method security
+
+@Service
+public class ArticleService {
+
+    @PreAuthorize("hasRole('ADMIN') or #userId == authentication.principal.id")
+    public Article update(Long userId, ArticleDto dto) { ... }
+
+    @PostAuthorize("returnObject.owner == authentication.name")
+    public Article findById(Long id) { ... }
+
+    @Secured("ROLE_ADMIN")   // simpler, no SpEL
+    public void delete(Long id) { ... }
+}</code></pre>
+<p><strong>9. Annotations Quick Reference</strong></p><p><strong>Core / Configuration</strong></p><table><tr><td><p><strong>Annotation</strong></p></td><td><p><strong>Description</strong></p></td></tr><tr><td><p>@Component</p></td><td><p>Generic Spring bean; base for @Service, @Repository, @Controller</p></td></tr><tr><td><p>@Service</p></td><td><p>Business-layer bean</p></td></tr><tr><td><p>@Repository</p></td><td><p>DAO bean; wraps DB exceptions in DataAccessException</p></td></tr><tr><td><p>@Controller</p></td><td><p>Web MVC handler returning views</p></td></tr><tr><td><p>@RestController</p></td><td><p>@Controller + @ResponseBody on all methods</p></td></tr><tr><td><p>@Configuration</p></td><td><p>Source of @Bean definitions; full CGLIB proxy by default</p></td></tr><tr><td><p>@Bean</p></td><td><p>Declares a bean inside a @Configuration class</p></td></tr><tr><td><p>@Autowired</p></td><td><p>Injects dependency by type</p></td></tr><tr><td><p>@Qualifier("name")</p></td><td><p>Disambiguates @Autowired when multiple beans exist</p></td></tr><tr><td><p>@Value("${prop}")</p></td><td><p>Injects property/SpEL value</p></td></tr><tr><td><p>@Scope</p></td><td><p>Overrides default singleton scope</p></td></tr><tr><td><p>@Primary</p></td><td><p>Preferred bean when multiple candidates exist</p></td></tr><tr><td><p>@Lazy</p></td><td><p>Delay bean initialisation until first use</p></td></tr><tr><td><p>@PostConstruct</p></td><td><p>Run method after DI is complete</p></td></tr><tr><td><p>@PreDestroy</p></td><td><p>Run method before bean is destroyed</p></td></tr><tr><td><p>@Profile("dev")</p></td><td><p>Register bean only in specified profile</p></td></tr><tr><td><p>@PropertySource</p></td><td><p>Load additional .properties file</p></td></tr><tr><td><p>@ComponentScan</p></td><td><p>Configure which packages to scan for beans</p></td></tr></table><p><strong>Spring Boot</strong></p><table><tr><td><p><strong>Annotation</strong></p></td><td><p><strong>Description</strong></p></td></tr><tr><td><p>@SpringBootApplication</p></td><td><p>=@Configuration+@EnableAutoConfiguration+@ComponentScan</p></td></tr><tr><td><p>@EnableAutoConfiguration</p></td><td><p>Activate auto-config based on classpath</p></td></tr><tr><td><p>@ConditionalOnClass</p></td><td><p>Register bean only if class is on classpath</p></td></tr><tr><td><p>@ConditionalOnMissingBean</p></td><td><p>Register bean only if no bean of that type exists</p></td></tr><tr><td><p>@ConditionalOnProperty</p></td><td><p>Register bean only if property has specified value</p></td></tr><tr><td><p>@ConfigurationProperties</p></td><td><p>Bind prefix of properties to a POJO</p></td></tr></table><p><strong>Spring MVC / REST</strong></p><table><tr><td><p><strong>Annotation</strong></p></td><td><p><strong>Description</strong></p></td></tr><tr><td><p>@RequestMapping</p></td><td><p>Map URL (and optionally HTTP method) to handler method/class</p></td></tr><tr><td><p>@GetMapping</p></td><td><p>Shortcut for @RequestMapping(method=GET)</p></td></tr><tr><td><p>@PostMapping</p></td><td><p>Shortcut for @RequestMapping(method=POST)</p></td></tr><tr><td><p>@PutMapping</p></td><td><p>Shortcut for @RequestMapping(method=PUT)</p></td></tr><tr><td><p>@DeleteMapping</p></td><td><p>Shortcut for @RequestMapping(method=DELETE)</p></td></tr><tr><td><p>@PatchMapping</p></td><td><p>Shortcut for @RequestMapping(method=PATCH)</p></td></tr><tr><td><p>@PathVariable</p></td><td><p>Bind URL template variable to method parameter</p></td></tr><tr><td><p>@RequestParam</p></td><td><p>Bind query string parameter</p></td></tr><tr><td><p>@RequestBody</p></td><td><p>Deserialise request body into a Java object</p></td></tr><tr><td><p>@ResponseBody</p></td><td><p>Serialise return value to response body</p></td></tr><tr><td><p>@ResponseStatus</p></td><td><p>Set HTTP status code for normal return</p></td></tr><tr><td><p>@ExceptionHandler</p></td><td><p>Handle specific exception thrown by controllers</p></td></tr><tr><td><p>@ControllerAdvice</p></td><td><p>Global @ExceptionHandler / @ModelAttribute across controllers</p></td></tr><tr><td><p>@CrossOrigin</p></td><td><p>Allow cross-origin requests (CORS)</p></td></tr><tr><td><p>@Valid / @Validated</p></td><td><p>Trigger Bean Validation on request body / parameters</p></td></tr></table><p><strong>Spring Data JPA</strong></p><table><tr><td><p><strong>Annotation</strong></p></td><td><p><strong>Description</strong></p></td></tr><tr><td><p>@Entity</p></td><td><p>JPA managed entity class</p></td></tr><tr><td><p>@Table(name="…")</p></td><td><p>Override table name</p></td></tr><tr><td><p>@Id</p></td><td><p>Primary key field</p></td></tr><tr><td><p>@GeneratedValue</p></td><td><p>Primary key generation strategy</p></td></tr><tr><td><p>@Column</p></td><td><p>Column mapping (name, nullable, unique, length)</p></td></tr><tr><td><p>@OneToMany</p></td><td><p>One-to-many relationship mapping</p></td></tr><tr><td><p>@ManyToOne</p></td><td><p>Many-to-one (owning side with FK)</p></td></tr><tr><td><p>@ManyToMany</p></td><td><p>Many-to-many with join table</p></td></tr><tr><td><p>@JoinColumn</p></td><td><p>Specify FK column name</p></td></tr><tr><td><p>@Transient</p></td><td><p>Field not persisted to DB</p></td></tr><tr><td><p>@Query</p></td><td><p>Custom JPQL or native SQL on repository method</p></td></tr><tr><td><p>@Modifying</p></td><td><p>Mark @Query as INSERT/UPDATE/DELETE</p></td></tr><tr><td><p>@Transactional</p></td><td><p>Wrap method in DB transaction</p></td></tr></table><p><strong>Spring AOP</strong></p><table><tr><td><p><strong>Annotation</strong></p></td><td><p><strong>Description</strong></p></td></tr><tr><td><p>@Aspect</p></td><td><p>Mark class as an aspect (combined with @Component)</p></td></tr><tr><td><p>@Pointcut</p></td><td><p>Named reusable pointcut expression</p></td></tr><tr><td><p>@Before</p></td><td><p>Advice runs before method execution</p></td></tr><tr><td><p>@After</p></td><td><p>Advice runs after method (always, like finally)</p></td></tr><tr><td><p>@AfterReturning</p></td><td><p>Advice runs after successful return</p></td></tr><tr><td><p>@AfterThrowing</p></td><td><p>Advice runs after exception is thrown</p></td></tr><tr><td><p>@Around</p></td><td><p>Surrounds method; call pjp.proceed() to invoke original</p></td></tr></table><p><strong>Spring Security</strong></p><table><tr><td><p><strong>Annotation</strong></p></td><td><p><strong>Description</strong></p></td></tr><tr><td><p>@EnableWebSecurity</p></td><td><p>Activate Spring Security auto-config (Spring Boot does this)</p></td></tr><tr><td><p>@EnableMethodSecurity</p></td><td><p>Enable @PreAuthorize, @PostAuthorize, @Secured on methods</p></td></tr><tr><td><p>@PreAuthorize</p></td><td><p>SpEL access-control check before method executes</p></td></tr><tr><td><p>@PostAuthorize</p></td><td><p>SpEL access-control check on return value</p></td></tr><tr><td><p>@Secured</p></td><td><p>Role-based access; simpler than @PreAuthorize, no SpEL</p></td></tr></table><p><strong>10. Comparison Tables &amp; Common Patterns</strong></p><p><strong>Bean Scopes — When to Use</strong></p><table><tr><td><p><strong>Scope</strong></p></td><td><p><strong>Good for</strong></p></td><td><p><strong>Watch out for</strong></p></td></tr><tr><td><p>singleton</p></td><td><p>Stateless services, repositories, config</p></td><td><p>Don't hold mutable per-request state</p></td></tr><tr><td><p>prototype</p></td><td><p>Stateful command objects, task runners</p></td><td><p>Not managed after injection — you own lifecycle</p></td></tr><tr><td><p>request</p></td><td><p>Per-request context data (user locale, etc.)</p></td><td><p>Only valid inside a web request</p></td></tr><tr><td><p>session</p></td><td><p>Shopping cart, user preferences</p></td><td><p>Session memory can grow large</p></td></tr></table><pre><code><strong>@Transactional — Common Gotchas</strong></code></pre>
+<table><tr><td><p><strong>Gotcha</strong></p></td><td><p><strong>Why</strong></p></td><td><p><strong>Fix</strong></p></td></tr><tr><td><p>Self-invocation</p></td><td><p>Calling @Transactional method from same class bypasses proxy</p></td><td><p>Inject self or restructure</p></td></tr><tr><td><p>private methods</p></td><td><p>Spring AOP proxy can't intercept private methods</p></td><td><p>Make method public</p></td></tr><tr><td><p>checked exceptions</p></td><td><p>By default only RuntimeException triggers rollback</p></td><td><p>Use rollbackFor=Exception.class</p></td></tr><tr><td><p>readOnly on wrong tier</p></td><td><p>Only JPA/Hibernate honours readOnly — JDBC ignores it</p></td><td><p>Verify DB driver support</p></td></tr></table><p><strong>CrudRepository vs JpaRepository</strong></p><table><tr><td><p><strong>Method group</strong></p></td><td><p><strong>CrudRepository</strong></p></td><td><p><strong>JpaRepository adds</strong></p></td></tr><tr><td><p>Save</p></td><td><p>save(entity), saveAll(iterable)</p></td><td><p>saveAndFlush, saveAllAndFlush</p></td></tr><tr><td><p>Find</p></td><td><p>findById, findAll, findAllById</p></td><td><p>findAll(Sort), findAll(Pageable), getReferenceById</p></td></tr><tr><td><p>Delete</p></td><td><p>delete, deleteById, deleteAll</p></td><td><p>deleteAllInBatch, deleteInBatch</p></td></tr><tr><td><p>Count</p></td><td><p>count()</p></td><td><p>—</p></td></tr><tr><td><p>Flush</p></td><td><p>—</p></td><td><p>flush(), deleteAllInBatch()</p></td></tr><tr><td><p>Spec query</p></td><td><p>—</p></td><td><p>findAll(Specification), count(Specification)</p></td></tr></table><p><strong>Spring Boot Test Slices</strong></p><p>Use slice annotations to load only the relevant part of the context — much faster than @SpringBootTest:</p><table><tr><td><p><strong>Annotation</strong></p></td><td><p><strong>Loads</strong></p></td><td><p><strong>Typical use</strong></p></td></tr><tr><td><p>@WebMvcTest</p></td><td><p>Spring MVC, controllers, filters</p></td><td><p>Unit-test controllers; mock services</p></td></tr><tr><td><p>@DataJpaTest</p></td><td><p>JPA, repositories, H2 in-memory</p></td><td><p>Test repositories against real SQL</p></td></tr><tr><td><p>@JsonTest</p></td><td><p>Jackson ObjectMapper</p></td><td><p>Test JSON serialisation</p></td></tr><tr><td><p>@WebFluxTest</p></td><td><p>Spring WebFlux stack</p></td><td><p>Test reactive controllers</p></td></tr><tr><td><p>@SpringBootTest</p></td><td><p>Full application context</p></td><td><p>Integration tests; slow but complete</p></td></tr></table><p><strong>Testing Example</strong></p><pre><code>@WebMvcTest(UserController.class)
+class UserControllerTest {
+
+    @Autowired MockMvc mvc;
+
+    @MockBean UserService userService;  // mock the service layer
+
+    @Test
+    void getUser_whenExists_returns200() throws Exception {
+        given(userService.findById(1L))
+            .willReturn(Optional.of(new UserDto(1L, "Alice")));
+
+        mvc.perform(get("/api/v1/users/1")
+                .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.name").value("Alice"));
+    }
+
+    @Test
+    void getUser_whenMissing_returns404() throws Exception {
+        given(userService.findById(99L)).willReturn(Optional.empty());
+
+        mvc.perform(get("/api/v1/users/99"))
+            .andExpect(status().isNotFound());
+    }
+}</code></pre>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>
+    document.querySelectorAll('pre code').forEach(function(el){if(!el.className)el.classList.add('language-java');});
+    document.querySelectorAll('pre code').forEach(function(el){ hljs.highlightElement(el); });
+  </script>
+  <script>(function () {
+    var marks = [];
+    var idx = -1;
+
+    function clearMarks() {
+        marks.forEach(function (m) {
+            var p = m.parentNode;
+            if (p) { p.replaceChild(document.createTextNode(m.textContent), m); p.normalize(); }
+        });
+        marks = [];
+        idx = -1;
+    }
+
+    function markText(query) {
+        var results = [];
+        var lower = query.toLowerCase();
+        var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null);
+        var nodes = [];
+        var n;
+        while ((n = walker.nextNode())) {
+            if (n.nodeValue.toLowerCase().includes(lower)) nodes.push(n);
+        }
+        nodes.forEach(function (textNode) {
+            var text  = textNode.nodeValue;
+            var ltext = text.toLowerCase();
+            var par   = textNode.parentNode;
+            if (!par) return;
+            var frag = document.createDocumentFragment();
+            var last = 0, i;
+            while ((i = ltext.indexOf(lower, last)) !== -1) {
+                if (i > last) frag.appendChild(document.createTextNode(text.slice(last, i)));
+                var m = document.createElement('mark');
+                m.className = 'dsm';
+                m.style.cssText = 'background:#ffe066;color:inherit;border-radius:2px;';
+                m.textContent = text.slice(i, i + query.length);
+                frag.appendChild(m);
+                results.push(m);
+                last = i + query.length;
+            }
+            if (last < text.length) frag.appendChild(document.createTextNode(text.slice(last)));
+            par.replaceChild(frag, textNode);
+        });
+        return results;
+    }
+
+    function highlight() {
+        marks.forEach(function (m, i) {
+            m.style.background = i === idx ? '#ff9900' : '#ffe066';
+            m.style.outline    = i === idx ? '2px solid #e65c00' : 'none';
+        });
+        if (marks[idx]) marks[idx].scrollIntoView({ block: 'center' });
+    }
+
+    function reply(src) {
+        src.postMessage({ type: 'searchResult', count: marks.length, current: idx }, '*');
+    }
+
+    window.addEventListener('message', function (e) {
+        var d = e.data;
+        if (!d || !d.type) return;
+        if (d.type === 'search') {
+            clearMarks();
+            if (d.query) {
+                marks = markText(d.query);
+                if (marks.length) idx = 0;
+                highlight();
+            }
+            reply(e.source);
+        } else if (d.type === 'searchNav') {
+            if (!marks.length) return;
+            idx = d.dir === 'next'
+                ? (idx + 1) % marks.length
+                : (idx - 1 + marks.length) % marks.length;
+            highlight();
+            reply(e.source);
+        } else if (d.type === 'searchClear') {
+            clearMarks();
+        }
+    });
+})();</script>
+</body>
+</html>

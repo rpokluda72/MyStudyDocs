@@ -54,10 +54,7 @@ console.log('after subscribe');
 // after subscribe
 // got value 4   (after ~1 second)
 // done</code></pre>
-<h2><strong>2.3 Executing Observables</strong></h2><p>The code inside the Observable constructor is the "Observable execution". It can deliver three types of notifications:</p><table><tr><td><p><strong>Notification</strong></p></td><td><p><strong>Method</strong></p></td><td><p><strong>Description</strong></p></td></tr><tr><td><p>Next</p></td><td><pre><code>subscriber.next(value)</code></pre>
-</td><td><p>Sends a value to the observer. Can be called multiple times.</p></td></tr><tr><td><p>Error</p></td><td><pre><code>subscriber.error(err)</code></pre>
-</td><td><p>Sends an error. Terminates the execution – no further notifications.</p></td></tr><tr><td><p>Complete</p></td><td><pre><code>subscriber.complete()</code></pre>
-</td><td><p>Signals completion. No more next() calls after this.</p></td></tr></table><pre><code>import { Observable } from 'rxjs';
+<h2><strong>2.3 Executing Observables</strong></h2><p>The code inside the Observable constructor is the "Observable execution". It can deliver three types of notifications:</p><table><tr><td><p><strong>Notification</strong></p></td><td><p><strong>Method</strong></p></td><td><p><strong>Description</strong></p></td></tr><tr><td><p>Next</p></td><td><p>subscriber.next(value)</p></td><td><p>Sends a value to the observer. Can be called multiple times.</p></td></tr><tr><td><p>Error</p></td><td><p>subscriber.error(err)</p></td><td><p>Sends an error. Terminates the execution – no further notifications.</p></td></tr><tr><td><p>Complete</p></td><td><p>subscriber.complete()</p></td><td><p>Signals completion. No more next() calls after this.</p></td></tr></table><pre><code>import { Observable } from 'rxjs';
 
 const observable = new Observable((subscriber) =&gt; {
   subscriber.next(1);
@@ -90,16 +87,7 @@ setTimeout(() =&gt; subscription.unsubscribe(), 1500);
   // Teardown logic – runs on unsubscribe or complete
   return () =&gt; clearInterval(id);
 });</code></pre>
-<h2><strong>2.5 Creation Helper Functions</strong></h2><table><tr><td><p><strong>Function</strong></p></td><td><p><strong>Description</strong></p></td></tr><tr><td><pre><code>of(...values)</code></pre>
-</td><td><p>Emits each argument synchronously then completes</p></td></tr><tr><td><pre><code>from(iterable | Promise)</code></pre>
-</td><td><p>Converts array, iterable, or Promise into Observable</p></td></tr><tr><td><pre><code>fromEvent(target, event)</code></pre>
-</td><td><p>Creates Observable from DOM or Node.js events</p></td></tr><tr><td><pre><code>interval(ms)</code></pre>
-</td><td><p>Emits 0, 1, 2, ... every ms milliseconds</p></td></tr><tr><td><pre><code>timer(delay, interval?)</code></pre>
-</td><td><p>Emits once after delay, optionally repeating</p></td></tr><tr><td><pre><code>range(start, count)</code></pre>
-</td><td><p>Emits a range of sequential integers</p></td></tr><tr><td><p>EMPTY</p></td><td><p>Observable that completes immediately with no items</p></td></tr><tr><td><p>NEVER</p></td><td><p>Observable that never emits, errors, or completes</p></td></tr><tr><td><pre><code>throwError(() =&gt; err)</code></pre>
-</td><td><p>Observable that immediately errors</p></td></tr><tr><td><pre><code>defer(() =&gt; observable)</code></pre>
-</td><td><p>Defers creation of Observable until subscription</p></td></tr><tr><td><pre><code>forkJoin([o1, o2, ...])</code></pre>
-</td><td><p>Waits for all Observables to complete, emits last values</p></td></tr></table><pre><code>import { of, from, fromEvent, interval } from 'rxjs';
+<h2><strong>2.5 Creation Helper Functions</strong></h2><table><tr><td><p><strong>Function</strong></p></td><td><p><strong>Description</strong></p></td></tr><tr><td><p>of(...values)</p></td><td><p>Emits each argument synchronously then completes</p></td></tr><tr><td><p>from(iterable | Promise)</p></td><td><p>Converts array, iterable, or Promise into Observable</p></td></tr><tr><td><p>fromEvent(target, event)</p></td><td><p>Creates Observable from DOM or Node.js events</p></td></tr><tr><td><p>interval(ms)</p></td><td><p>Emits 0, 1, 2, ... every ms milliseconds</p></td></tr><tr><td><p>timer(delay, interval?)</p></td><td><p>Emits once after delay, optionally repeating</p></td></tr><tr><td><p>range(start, count)</p></td><td><p>Emits a range of sequential integers</p></td></tr><tr><td><p>EMPTY</p></td><td><p>Observable that completes immediately with no items</p></td></tr><tr><td><p>NEVER</p></td><td><p>Observable that never emits, errors, or completes</p></td></tr><tr><td><p>throwError(() =&gt; err)</p></td><td><p>Observable that immediately errors</p></td></tr><tr><td><p>defer(() =&gt; observable)</p></td><td><p>Defers creation of Observable until subscription</p></td></tr><tr><td><p>forkJoin([o1, o2, ...])</p></td><td><p>Waits for all Observables to complete, emits last values</p></td></tr></table><pre><code>import { of, from, fromEvent, interval } from 'rxjs';
 
 // of – synchronous values
 of(1, 2, 3).subscribe(console.log);         // 1, 2, 3
@@ -137,10 +125,7 @@ observable.subscribe(
   (err)   =&gt; console.error(err),    // error
   ()      =&gt; console.log('done')    // complete
 );</code></pre>
-<h2><strong>3.2 The Observer Interface</strong></h2><table><tr><td><p><strong>Method</strong></p></td><td><p><strong>Called when</strong></p></td><td><p><strong>After this…</strong></p></td></tr><tr><td><pre><code>next(value)</code></pre>
-</td><td><p>Observable emits a new value</p></td><td><p>Observable continues normally</p></td></tr><tr><td><pre><code>error(err)</code></pre>
-</td><td><p>Observable encounters an error</p></td><td><p>Observable stops – no further callbacks</p></td></tr><tr><td><pre><code>complete()</code></pre>
-</td><td><p>Observable finishes successfully</p></td><td><p>Observable stops – no further callbacks</p></td></tr></table><p>If an error occurs and no error handler is provided, it is thrown as an uncaught exception. Always handle errors in long-lived streams.</p><pre><code>import { throwError } from 'rxjs';
+<h2><strong>3.2 The Observer Interface</strong></h2><table><tr><td><p><strong>Method</strong></p></td><td><p><strong>Called when</strong></p></td><td><p><strong>After this…</strong></p></td></tr><tr><td><p>next(value)</p></td><td><p>Observable emits a new value</p></td><td><p>Observable continues normally</p></td></tr><tr><td><p>error(err)</p></td><td><p>Observable encounters an error</p></td><td><p>Observable stops – no further callbacks</p></td></tr><tr><td><p>complete()</p></td><td><p>Observable finishes successfully</p></td><td><p>Observable stops – no further callbacks</p></td></tr></table><p>If an error occurs and no error handler is provided, it is thrown as an uncaught exception. Always handle errors in long-lived streams.</p><pre><code>import { throwError } from 'rxjs';
 
 // Always provide error handler for production code
 throwError(() =&gt; new Error('Something went wrong'))
@@ -274,8 +259,7 @@ subject.complete();
 // Logs:
 // observerA: 5
 // observerB: 5</code></pre>
-<h2><strong>5.6 Subject Variants Summary</strong></h2><table><tr><td><p><strong>Subject type</strong></p></td><td><p><strong>Emits to late subscriber</strong></p></td><td><p><strong>Typical use case</strong></p></td></tr><tr><td><p>Subject</p></td><td><p>Nothing (misses past values)</p></td><td><p>Event bus, manual multicast</p></td></tr><tr><td><p>BehaviorSubject</p></td><td><p>Current (latest) value</p></td><td><p>Shared state, form fields, current user</p></td></tr><tr><td><pre><code>ReplaySubject(N)</code></pre>
-</td><td><p>Last N values (optionally by time)</p></td><td><p>Cache recent events, late-loading consumers</p></td></tr><tr><td><p>AsyncSubject</p></td><td><p>Last value only when complete() fires</p></td><td><p>Single async result (like a Promise)</p></td></tr></table><h1><strong>6. Scheduler</strong></h1><p>A Scheduler controls when a subscription starts and when notifications are delivered. It has three components: a data structure (task queue), an execution context (where/when tasks run), and a virtual clock (now()).</p><h2><strong>6.1 Scheduler Types</strong></h2><table><tr><td><p><strong>Scheduler</strong></p></td><td><p><strong>Execution context</strong></p></td><td><p><strong>Use for</strong></p></td></tr><tr><td><p>null / undefined</p></td><td><p>Synchronous, recursive</p></td><td><p>Constant-time or tail-recursive operations</p></td></tr><tr><td><p>queueScheduler</p></td><td><p>Current event frame queue (trampoline)</p></td><td><p>Iteration operations</p></td></tr><tr><td><p>asapScheduler</p></td><td><p>Micro-task queue (like Promise.then)</p></td><td><p>Async conversions, run before next macro-task</p></td></tr><tr><td><p>asyncScheduler</p></td><td><p>setInterval / setTimeout</p></td><td><p>Time-based operations (delay, interval, timer)</p></td></tr><tr><td><p>animationFrameScheduler</p></td><td><p>requestAnimationFrame</p></td><td><p>Smooth browser animations</p></td></tr></table><h2><strong>6.2 observeOn – Scheduling Notifications</strong></h2><pre><code>observeOn() controls on which scheduler downstream operators and the subscriber run. The example below shows how asyncScheduler defers delivery to the next event loop tick:
+<h2><strong>5.6 Subject Variants Summary</strong></h2><table><tr><td><p><strong>Subject type</strong></p></td><td><p><strong>Emits to late subscriber</strong></p></td><td><p><strong>Typical use case</strong></p></td></tr><tr><td><p>Subject</p></td><td><p>Nothing (misses past values)</p></td><td><p>Event bus, manual multicast</p></td></tr><tr><td><p>BehaviorSubject</p></td><td><p>Current (latest) value</p></td><td><p>Shared state, form fields, current user</p></td></tr><tr><td><p>ReplaySubject(N)</p></td><td><p>Last N values (optionally by time)</p></td><td><p>Cache recent events, late-loading consumers</p></td></tr><tr><td><p>AsyncSubject</p></td><td><p>Last value only when complete() fires</p></td><td><p>Single async result (like a Promise)</p></td></tr></table><h1><strong>6. Scheduler</strong></h1><p>A Scheduler controls when a subscription starts and when notifications are delivered. It has three components: a data structure (task queue), an execution context (where/when tasks run), and a virtual clock (now()).</p><h2><strong>6.1 Scheduler Types</strong></h2><table><tr><td><p><strong>Scheduler</strong></p></td><td><p><strong>Execution context</strong></p></td><td><p><strong>Use for</strong></p></td></tr><tr><td><p>null / undefined</p></td><td><p>Synchronous, recursive</p></td><td><p>Constant-time or tail-recursive operations</p></td></tr><tr><td><p>queueScheduler</p></td><td><p>Current event frame queue (trampoline)</p></td><td><p>Iteration operations</p></td></tr><tr><td><p>asapScheduler</p></td><td><p>Micro-task queue (like Promise.then)</p></td><td><p>Async conversions, run before next macro-task</p></td></tr><tr><td><p>asyncScheduler</p></td><td><p>setInterval / setTimeout</p></td><td><p>Time-based operations (delay, interval, timer)</p></td></tr><tr><td><p>animationFrameScheduler</p></td><td><p>requestAnimationFrame</p></td><td><p>Smooth browser animations</p></td></tr></table><h2><strong>6.2 observeOn – Scheduling Notifications</strong></h2><pre><code>observeOn() controls on which scheduler downstream operators and the subscriber run. The example below shows how asyncScheduler defers delivery to the next event loop tick:
 import { Observable, observeOn, asyncScheduler } from 'rxjs';
 
 const observable = new Observable((observer) =&gt; {
@@ -336,18 +320,7 @@ of(1, 2, 3, 4, 5)
     map((n) =&gt; n * n)              // 1, 9, 25
   )
   .subscribe((n) =&gt; console.log(n));</code></pre>
-<h2><strong>7.1 Creation Operators</strong></h2><table><tr><td><p><strong>Operator</strong></p></td><td><p><strong>Description</strong></p></td></tr><tr><td><pre><code>of(...values)</code></pre>
-</td><td><p>Emits each argument synchronously then completes</p></td></tr><tr><td><pre><code>from(input)</code></pre>
-</td><td><p>Converts array, Promise, iterable, or Observable-like into Observable</p></td></tr><tr><td><pre><code>fromEvent(target, event)</code></pre>
-</td><td><p>Creates Observable from DOM/Node events</p></td></tr><tr><td><pre><code>interval(period)</code></pre>
-</td><td><p>Emits 0, 1, 2, ... every period ms (uses asyncScheduler)</p></td></tr><tr><td><pre><code>timer(delay, period?)</code></pre>
-</td><td><p>Emits once after delay; optionally repeats every period ms</p></td></tr><tr><td><pre><code>range(start, count)</code></pre>
-</td><td><p>Emits a sequential range of integers</p></td></tr><tr><td><pre><code>defer(() =&gt; obs)</code></pre>
-</td><td><p>Creates Observable lazily – factory called per subscriber</p></td></tr><tr><td><p>EMPTY</p></td><td><p>Observable that immediately completes with no items</p></td></tr><tr><td><pre><code>throwError(() =&gt; err)</code></pre>
-</td><td><p>Observable that immediately errors</p></td></tr><tr><td><pre><code>forkJoin([o1, o2])</code></pre>
-</td><td><p>Waits for all to complete; emits array of last values</p></td></tr><tr><td><pre><code>combineLatest([o1, o2])</code></pre>
-</td><td><p>When any emits, combine latest from all into array</p></td></tr><tr><td><pre><code>zip([o1, o2])</code></pre>
-</td><td><p>Pair nth emissions from each Observable into array</p></td></tr></table><pre><code>import { forkJoin, of, timer } from 'rxjs';
+<h2><strong>7.1 Creation Operators</strong></h2><table><tr><td><p><strong>Operator</strong></p></td><td><p><strong>Description</strong></p></td></tr><tr><td><p>of(...values)</p></td><td><p>Emits each argument synchronously then completes</p></td></tr><tr><td><p>from(input)</p></td><td><p>Converts array, Promise, iterable, or Observable-like into Observable</p></td></tr><tr><td><p>fromEvent(target, event)</p></td><td><p>Creates Observable from DOM/Node events</p></td></tr><tr><td><p>interval(period)</p></td><td><p>Emits 0, 1, 2, ... every period ms (uses asyncScheduler)</p></td></tr><tr><td><p>timer(delay, period?)</p></td><td><p>Emits once after delay; optionally repeats every period ms</p></td></tr><tr><td><p>range(start, count)</p></td><td><p>Emits a sequential range of integers</p></td></tr><tr><td><p>defer(() =&gt; obs)</p></td><td><p>Creates Observable lazily – factory called per subscriber</p></td></tr><tr><td><p>EMPTY</p></td><td><p>Observable that immediately completes with no items</p></td></tr><tr><td><p>throwError(() =&gt; err)</p></td><td><p>Observable that immediately errors</p></td></tr><tr><td><p>forkJoin([o1, o2])</p></td><td><p>Waits for all to complete; emits array of last values</p></td></tr><tr><td><p>combineLatest([o1, o2])</p></td><td><p>When any emits, combine latest from all into array</p></td></tr><tr><td><p>zip([o1, o2])</p></td><td><p>Pair nth emissions from each Observable into array</p></td></tr></table><pre><code>import { forkJoin, of, timer } from 'rxjs';
 
 // forkJoin – wait for all to complete (like Promise.all)
 forkJoin([
@@ -366,20 +339,7 @@ combineLatest([
   interval(1500),
 ]).subscribe(([a, b]) =&gt; console.log(a, b));
 // [0,0]  [1,0]  [1,1]  [2,1]  ...</code></pre>
-<h2><strong>7.2 Transformation Operators</strong></h2><table><tr><td><p><strong>Operator</strong></p></td><td><p><strong>Description</strong></p></td></tr><tr><td><pre><code>map(fn)</code></pre>
-</td><td><p>Apply fn to every emitted value</p></td></tr><tr><td><pre><code>mergeMap(fn)</code></pre>
-</td><td><p>Map to Observable, merge all inner subscriptions concurrently</p></td></tr><tr><td><pre><code>switchMap(fn)</code></pre>
-</td><td><p>Map to Observable, cancel previous inner Observable on each emission</p></td></tr><tr><td><pre><code>concatMap(fn)</code></pre>
-</td><td><p>Map to Observable, subscribe sequentially (wait for each to complete)</p></td></tr><tr><td><pre><code>exhaustMap(fn)</code></pre>
-</td><td><p>Map to Observable, ignore new emissions while inner is still running</p></td></tr><tr><td><pre><code>scan(fn, seed)</code></pre>
-</td><td><p>Accumulate values like Array.reduce, emitting each intermediate result</p></td></tr><tr><td><pre><code>reduce(fn, seed)</code></pre>
-</td><td><p>Like scan but emits only the final accumulated value on complete</p></td></tr><tr><td><pre><code>buffer(obs)</code></pre>
-</td><td><p>Collect values into arrays, emit array when boundary Observable fires</p></td></tr><tr><td><pre><code>bufferTime(ms)</code></pre>
-</td><td><p>Collect values into arrays every ms milliseconds</p></td></tr><tr><td><pre><code>bufferCount(n)</code></pre>
-</td><td><p>Collect n values, emit array, repeat</p></td></tr><tr><td><pre><code>groupBy(keyFn)</code></pre>
-</td><td><p>Split into GroupedObservables keyed by keyFn result</p></td></tr><tr><td><pre><code>expand(fn)</code></pre>
-</td><td><p>Recursively apply fn and merge results (like flatMap with recursion)</p></td></tr><tr><td><pre><code>pairwise()</code></pre>
-</td><td><p>Emit [prev, curr] pairs for each new value</p></td></tr></table><pre><code>import { of, fromEvent, interval } from 'rxjs';
+<h2><strong>7.2 Transformation Operators</strong></h2><table><tr><td><p><strong>Operator</strong></p></td><td><p><strong>Description</strong></p></td></tr><tr><td><p>map(fn)</p></td><td><p>Apply fn to every emitted value</p></td></tr><tr><td><p>mergeMap(fn)</p></td><td><p>Map to Observable, merge all inner subscriptions concurrently</p></td></tr><tr><td><p>switchMap(fn)</p></td><td><p>Map to Observable, cancel previous inner Observable on each emission</p></td></tr><tr><td><p>concatMap(fn)</p></td><td><p>Map to Observable, subscribe sequentially (wait for each to complete)</p></td></tr><tr><td><p>exhaustMap(fn)</p></td><td><p>Map to Observable, ignore new emissions while inner is still running</p></td></tr><tr><td><p>scan(fn, seed)</p></td><td><p>Accumulate values like Array.reduce, emitting each intermediate result</p></td></tr><tr><td><p>reduce(fn, seed)</p></td><td><p>Like scan but emits only the final accumulated value on complete</p></td></tr><tr><td><p>buffer(obs)</p></td><td><p>Collect values into arrays, emit array when boundary Observable fires</p></td></tr><tr><td><p>bufferTime(ms)</p></td><td><p>Collect values into arrays every ms milliseconds</p></td></tr><tr><td><p>bufferCount(n)</p></td><td><p>Collect n values, emit array, repeat</p></td></tr><tr><td><p>groupBy(keyFn)</p></td><td><p>Split into GroupedObservables keyed by keyFn result</p></td></tr><tr><td><p>expand(fn)</p></td><td><p>Recursively apply fn and merge results (like flatMap with recursion)</p></td></tr><tr><td><p>pairwise()</p></td><td><p>Emit [prev, curr] pairs for each new value</p></td></tr></table><pre><code>import { of, fromEvent, interval } from 'rxjs';
 import { map, mergeMap, switchMap, concatMap, scan } from 'rxjs/operators';
 
 // map – double each value
@@ -405,21 +365,7 @@ fromEvent(searchInput, 'input')
 clicks$
   .pipe(concatMap(() =&gt; interval(1000).pipe(take(3))))
   .subscribe(console.log);</code></pre>
-<p><strong>Choosing a mapping operator: </strong>mergeMap = parallel/concurrent | switchMap = cancel previous | concatMap = sequential | exhaustMap = ignore while busy</p><h2><strong>7.3 Filtering Operators</strong></h2><table><tr><td><p><strong>Operator</strong></p></td><td><p><strong>Description</strong></p></td></tr><tr><td><pre><code>filter(predicate)</code></pre>
-</td><td><p>Emit only values where predicate returns true</p></td></tr><tr><td><pre><code>take(n)</code></pre>
-</td><td><p>Emit first n values then complete</p></td></tr><tr><td><pre><code>takeUntil(notifier$)</code></pre>
-</td><td><p>Emit until notifier$ emits, then complete</p></td></tr><tr><td><pre><code>takeWhile(predicate)</code></pre>
-</td><td><p>Emit while predicate is true, then complete</p></td></tr><tr><td><pre><code>skip(n)</code></pre>
-</td><td><p>Skip first n values, then emit the rest</p></td></tr><tr><td><pre><code>skipUntil(notifier$)</code></pre>
-</td><td><p>Skip until notifier$ emits</p></td></tr><tr><td><pre><code>first(predicate?)</code></pre>
-</td><td><p>Emit first value (or first matching predicate), then complete</p></td></tr><tr><td><pre><code>last(predicate?)</code></pre>
-</td><td><p>Emit last value on complete (or last matching)</p></td></tr><tr><td><pre><code>debounceTime(ms)</code></pre>
-</td><td><p>Emit only after ms of silence (great for input fields)</p></td></tr><tr><td><pre><code>throttleTime(ms)</code></pre>
-</td><td><p>Emit first value in each ms-wide window</p></td></tr><tr><td><pre><code>distinctUntilChanged()</code></pre>
-</td><td><p>Skip value if it equals previous emitted value</p></td></tr><tr><td><pre><code>distinct()</code></pre>
-</td><td><p>Skip any value already emitted before</p></td></tr><tr><td><pre><code>sampleTime(ms)</code></pre>
-</td><td><p>Emit the most recent value every ms</p></td></tr><tr><td><pre><code>audit(durationSelector)</code></pre>
-</td><td><p>Emit last value after silence period from selector Observable</p></td></tr></table><pre><code>import { fromEvent, interval } from 'rxjs';
+<p><strong>Choosing a mapping operator: </strong>mergeMap = parallel/concurrent | switchMap = cancel previous | concatMap = sequential | exhaustMap = ignore while busy</p><h2><strong>7.3 Filtering Operators</strong></h2><table><tr><td><p><strong>Operator</strong></p></td><td><p><strong>Description</strong></p></td></tr><tr><td><p>filter(predicate)</p></td><td><p>Emit only values where predicate returns true</p></td></tr><tr><td><p>take(n)</p></td><td><p>Emit first n values then complete</p></td></tr><tr><td><p>takeUntil(notifier$)</p></td><td><p>Emit until notifier$ emits, then complete</p></td></tr><tr><td><p>takeWhile(predicate)</p></td><td><p>Emit while predicate is true, then complete</p></td></tr><tr><td><p>skip(n)</p></td><td><p>Skip first n values, then emit the rest</p></td></tr><tr><td><p>skipUntil(notifier$)</p></td><td><p>Skip until notifier$ emits</p></td></tr><tr><td><p>first(predicate?)</p></td><td><p>Emit first value (or first matching predicate), then complete</p></td></tr><tr><td><p>last(predicate?)</p></td><td><p>Emit last value on complete (or last matching)</p></td></tr><tr><td><p>debounceTime(ms)</p></td><td><p>Emit only after ms of silence (great for input fields)</p></td></tr><tr><td><p>throttleTime(ms)</p></td><td><p>Emit first value in each ms-wide window</p></td></tr><tr><td><p>distinctUntilChanged()</p></td><td><p>Skip value if it equals previous emitted value</p></td></tr><tr><td><p>distinct()</p></td><td><p>Skip any value already emitted before</p></td></tr><tr><td><p>sampleTime(ms)</p></td><td><p>Emit the most recent value every ms</p></td></tr><tr><td><p>audit(durationSelector)</p></td><td><p>Emit last value after silence period from selector Observable</p></td></tr></table><pre><code>import { fromEvent, interval } from 'rxjs';
 import { debounceTime, distinctUntilChanged, takeUntil, filter } from 'rxjs/operators';
 
 // debounceTime + distinctUntilChanged – classic search box pattern
@@ -438,16 +384,7 @@ const destroy$ = new Subject&lt;void&gt;();
 interval(1000)
   .pipe(takeUntil(destroy$))
   .subscribe(console.log);</code></pre>
-<h2><strong>7.4 Combination Operators</strong></h2><table><tr><td><p><strong>Operator</strong></p></td><td><p><strong>Description</strong></p></td></tr><tr><td><pre><code>merge(o1, o2, ...)</code></pre>
-</td><td><p>Subscribe to all concurrently; emit values as they arrive</p></td></tr><tr><td><pre><code>concat(o1, o2, ...)</code></pre>
-</td><td><p>Subscribe sequentially; wait for each to complete before next</p></td></tr><tr><td><pre><code>combineLatest([o1, o2])</code></pre>
-</td><td><p>When any source emits, combine with latest from all others</p></td></tr><tr><td><pre><code>zip([o1, o2])</code></pre>
-</td><td><p>Pair nth emissions from all sources into an array</p></td></tr><tr><td><pre><code>forkJoin([o1, o2])</code></pre>
-</td><td><p>Wait for all to complete, emit array of last values</p></td></tr><tr><td><pre><code>startWith(...values)</code></pre>
-</td><td><p>Prepend static values before source begins</p></td></tr><tr><td><pre><code>withLatestFrom(o2)</code></pre>
-</td><td><p>Combine source emission with latest value from o2</p></td></tr><tr><td><pre><code>race(o1, o2, ...)</code></pre>
-</td><td><p>Mirror the first Observable to emit</p></td></tr><tr><td><pre><code>partition(pred)</code></pre>
-</td><td><p>Split one Observable into two: [pass, fail]</p></td></tr></table><pre><code>import { merge, concat, combineLatest, of, interval } from 'rxjs';
+<h2><strong>7.4 Combination Operators</strong></h2><table><tr><td><p><strong>Operator</strong></p></td><td><p><strong>Description</strong></p></td></tr><tr><td><p>merge(o1, o2, ...)</p></td><td><p>Subscribe to all concurrently; emit values as they arrive</p></td></tr><tr><td><p>concat(o1, o2, ...)</p></td><td><p>Subscribe sequentially; wait for each to complete before next</p></td></tr><tr><td><p>combineLatest([o1, o2])</p></td><td><p>When any source emits, combine with latest from all others</p></td></tr><tr><td><p>zip([o1, o2])</p></td><td><p>Pair nth emissions from all sources into an array</p></td></tr><tr><td><p>forkJoin([o1, o2])</p></td><td><p>Wait for all to complete, emit array of last values</p></td></tr><tr><td><p>startWith(...values)</p></td><td><p>Prepend static values before source begins</p></td></tr><tr><td><p>withLatestFrom(o2)</p></td><td><p>Combine source emission with latest value from o2</p></td></tr><tr><td><p>race(o1, o2, ...)</p></td><td><p>Mirror the first Observable to emit</p></td></tr><tr><td><p>partition(pred)</p></td><td><p>Split one Observable into two: [pass, fail]</p></td></tr></table><pre><code>import { merge, concat, combineLatest, of, interval } from 'rxjs';
 import { withLatestFrom, startWith } from 'rxjs/operators';
 
 // merge – interleave multiple streams
@@ -468,10 +405,7 @@ clicks$
 interval(1000)
   .pipe(startWith('Ready!'))
   .subscribe(console.log);   // Ready!, 0, 1, 2, ...</code></pre>
-<h2><strong>7.5 Error Handling Operators</strong></h2><table><tr><td><p><strong>Operator</strong></p></td><td><p><strong>Description</strong></p></td></tr><tr><td><pre><code>catchError(fn)</code></pre>
-</td><td><p>Intercept error and return a replacement Observable (or rethrow)</p></td></tr><tr><td><pre><code>retry(n)</code></pre>
-</td><td><p>Resubscribe on error, up to n times</p></td></tr><tr><td><pre><code>retryWhen(fn)</code></pre>
-</td><td><p>Resubscribe with custom logic (e.g. delay, exponential back-off)</p></td></tr></table><pre><code>import { of, throwError, interval } from 'rxjs';
+<h2><strong>7.5 Error Handling Operators</strong></h2><table><tr><td><p><strong>Operator</strong></p></td><td><p><strong>Description</strong></p></td></tr><tr><td><p>catchError(fn)</p></td><td><p>Intercept error and return a replacement Observable (or rethrow)</p></td></tr><tr><td><p>retry(n)</p></td><td><p>Resubscribe on error, up to n times</p></td></tr><tr><td><p>retryWhen(fn)</p></td><td><p>Resubscribe with custom logic (e.g. delay, exponential back-off)</p></td></tr></table><pre><code>import { of, throwError, interval } from 'rxjs';
 import { catchError, retry, retryWhen, delayWhen, take } from 'rxjs/operators';
 
 // catchError – recover with a fallback Observable
@@ -500,16 +434,7 @@ someApiCall$
     )
   )
   .subscribe(console.log);</code></pre>
-<h2><strong>7.6 Utility Operators</strong></h2><table><tr><td><p><strong>Operator</strong></p></td><td><p><strong>Description</strong></p></td></tr><tr><td><pre><code>tap(fn)</code></pre>
-</td><td><p>Side-effect without modifying the stream (logging, debugging)</p></td></tr><tr><td><pre><code>delay(ms)</code></pre>
-</td><td><p>Shift all emissions forward in time by ms milliseconds</p></td></tr><tr><td><pre><code>timeout({each})</code></pre>
-</td><td><p>Error if no value is emitted within each ms</p></td></tr><tr><td><pre><code>toArray()</code></pre>
-</td><td><p>Collect all values into a single array emission on complete</p></td></tr><tr><td><pre><code>finalize(fn)</code></pre>
-</td><td><p>Run fn on complete, error, or unsubscribe (cleanup)</p></td></tr><tr><td><pre><code>share()</code></pre>
-</td><td><p>Multicast using a Subject; auto-connect on first subscriber</p></td></tr><tr><td><pre><code>shareReplay(n)</code></pre>
-</td><td><p>Multicast + replay last n values to new subscribers</p></td></tr><tr><td><pre><code>observeOn(sched)</code></pre>
-</td><td><p>Change the scheduler for downstream operators</p></td></tr><tr><td><pre><code>subscribeOn(sched)</code></pre>
-</td><td><p>Change the scheduler for the subscription itself</p></td></tr></table><pre><code>import { interval, of } from 'rxjs';
+<h2><strong>7.6 Utility Operators</strong></h2><table><tr><td><p><strong>Operator</strong></p></td><td><p><strong>Description</strong></p></td></tr><tr><td><p>tap(fn)</p></td><td><p>Side-effect without modifying the stream (logging, debugging)</p></td></tr><tr><td><p>delay(ms)</p></td><td><p>Shift all emissions forward in time by ms milliseconds</p></td></tr><tr><td><p>timeout({each})</p></td><td><p>Error if no value is emitted within each ms</p></td></tr><tr><td><p>toArray()</p></td><td><p>Collect all values into a single array emission on complete</p></td></tr><tr><td><p>finalize(fn)</p></td><td><p>Run fn on complete, error, or unsubscribe (cleanup)</p></td></tr><tr><td><p>share()</p></td><td><p>Multicast using a Subject; auto-connect on first subscriber</p></td></tr><tr><td><p>shareReplay(n)</p></td><td><p>Multicast + replay last n values to new subscribers</p></td></tr><tr><td><p>observeOn(sched)</p></td><td><p>Change the scheduler for downstream operators</p></td></tr><tr><td><p>subscribeOn(sched)</p></td><td><p>Change the scheduler for the subscription itself</p></td></tr></table><pre><code>import { interval, of } from 'rxjs';
 import { tap, delay, toArray, share, shareReplay, finalize } from 'rxjs/operators';
 
 // tap – debug without altering the stream
@@ -553,13 +478,7 @@ hot$.subscribe((v) =&gt; console.log('sub2:', v));
 const data$ = from(fetch('/api/data')).pipe(shareReplay(1));
 data$.subscribe((d) =&gt; renderA(d));
 data$.subscribe((d) =&gt; renderB(d));   // no second HTTP request</code></pre>
-<h2><strong>7.8 Conditional and Boolean Operators</strong></h2><table><tr><td><p><strong>Operator</strong></p></td><td><p><strong>Description</strong></p></td></tr><tr><td><pre><code>every(predicate)</code></pre>
-</td><td><p>Returns Observable&lt;boolean&gt; – true if all values satisfy predicate</p></td></tr><tr><td><pre><code>find(predicate)</code></pre>
-</td><td><p>Emit first value satisfying predicate, then complete</p></td></tr><tr><td><pre><code>findIndex(predicate)</code></pre>
-</td><td><p>Emit index of first value satisfying predicate</p></td></tr><tr><td><pre><code>defaultIfEmpty(val)</code></pre>
-</td><td><p>Emit val if source completes without emitting anything</p></td></tr><tr><td><pre><code>isEmpty()</code></pre>
-</td><td><p>Emit true if source completes without emitting, false otherwise</p></td></tr><tr><td><pre><code>iif(cond, t$, f$)</code></pre>
-</td><td><p>Lazily subscribe to t$ if cond() is true, else f$</p></td></tr></table><pre><code>import { of, iif, EMPTY } from 'rxjs';
+<h2><strong>7.8 Conditional and Boolean Operators</strong></h2><table><tr><td><p><strong>Operator</strong></p></td><td><p><strong>Description</strong></p></td></tr><tr><td><p>every(predicate)</p></td><td><p>Returns Observable&lt;boolean&gt; – true if all values satisfy predicate</p></td></tr><tr><td><p>find(predicate)</p></td><td><p>Emit first value satisfying predicate, then complete</p></td></tr><tr><td><p>findIndex(predicate)</p></td><td><p>Emit index of first value satisfying predicate</p></td></tr><tr><td><p>defaultIfEmpty(val)</p></td><td><p>Emit val if source completes without emitting anything</p></td></tr><tr><td><p>isEmpty()</p></td><td><p>Emit true if source completes without emitting, false otherwise</p></td></tr><tr><td><p>iif(cond, t$, f$)</p></td><td><p>Lazily subscribe to t$ if cond() is true, else f$</p></td></tr></table><pre><code>import { of, iif, EMPTY } from 'rxjs';
 import { every, defaultIfEmpty } from 'rxjs/operators';
 
 // every – all values pass?
@@ -579,11 +498,7 @@ iif(
   of('flag is true'),
   of('flag is false')
 ).subscribe(console.log);   // flag is true</code></pre>
-<h2><strong>7.9 Mathematical and Aggregate Operators</strong></h2><table><tr><td><p><strong>Operator</strong></p></td><td><p><strong>Description</strong></p></td></tr><tr><td><pre><code>count(predicate?)</code></pre>
-</td><td><p>Count total (or matching) emissions, emit on complete</p></td></tr><tr><td><pre><code>max(comparator?)</code></pre>
-</td><td><p>Emit the maximum value on complete</p></td></tr><tr><td><pre><code>min(comparator?)</code></pre>
-</td><td><p>Emit the minimum value on complete</p></td></tr><tr><td><pre><code>reduce(fn, seed)</code></pre>
-</td><td><p>Accumulate all values, emit single result on complete</p></td></tr></table><pre><code>import { of } from 'rxjs';
+<h2><strong>7.9 Mathematical and Aggregate Operators</strong></h2><table><tr><td><p><strong>Operator</strong></p></td><td><p><strong>Description</strong></p></td></tr><tr><td><p>count(predicate?)</p></td><td><p>Count total (or matching) emissions, emit on complete</p></td></tr><tr><td><p>max(comparator?)</p></td><td><p>Emit the maximum value on complete</p></td></tr><tr><td><p>min(comparator?)</p></td><td><p>Emit the minimum value on complete</p></td></tr><tr><td><p>reduce(fn, seed)</p></td><td><p>Accumulate all values, emit single result on complete</p></td></tr></table><pre><code>import { of } from 'rxjs';
 import { count, max, min, reduce } from 'rxjs/operators';
 
 const numbers$ = of(5, 4, 7, 2, 8);

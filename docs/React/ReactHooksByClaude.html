@@ -230,10 +230,7 @@ function MyCar() {
   )
 }</code></pre>
 <h2><strong>useEffect</strong></h2><p>The useEffect Hook allows you to perform side effects in your components. Some examples of side effects are: fetching data, directly updating the DOM, and timers.</p><p>Syntax:</p><pre><code>useEffect(&lt;function&gt;, &lt;dependency&gt;)</code></pre>
-<h3><strong>Dependency Array Patterns</strong></h3><table><tr><td><p><strong>Pattern</strong></p></td><td><p><strong>When it runs</strong></p></td></tr><tr><td><pre><code>useEffect(() =&gt; { })</code></pre>
-</td><td><p>Runs on every render</p></td></tr><tr><td><pre><code>useEffect(() =&gt; { }, [])</code></pre>
-</td><td><p>Runs only on the first render</p></td></tr><tr><td><pre><code>useEffect(() =&gt; { }, [prop, state])</code></pre>
-</td><td><p>Runs on first render and when prop/state changes</p></td></tr></table><pre><code><strong>Example – Timer with cleanup</strong>
+<h3><strong>Dependency Array Patterns</strong></h3><table><tr><td><p><strong>Pattern</strong></p></td><td><p><strong>When it runs</strong></p></td></tr><tr><td><p>useEffect(() =&gt; { })</p></td><td><p>Runs on every render</p></td></tr><tr><td><p>useEffect(() =&gt; { }, [])</p></td><td><p>Runs only on the first render</p></td></tr><tr><td><p>useEffect(() =&gt; { }, [prop, state])</p></td><td><p>Runs on first render and when prop/state changes</p></td></tr></table><pre><code><strong>Example – Timer with cleanup</strong>
 import { useState, useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
 

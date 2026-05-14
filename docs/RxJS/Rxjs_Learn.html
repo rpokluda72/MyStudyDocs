@@ -93,8 +93,9 @@ function readFileAsync(filePath: string, callback: (error: Error | null, data: s
     &lt;div&gt;{{ fileContent }}&lt;/div&gt;
   `,
 })
-export class App implements OnInit {</code></pre>
-<p>  </p><pre><code>  fileContent: string;
+export class App implements OnInit {
+
+  fileContent: string;
   ngOnInit() {
     const readFile = bindNodeCallback(readFileAsync);
     const filePath = '/path/to/file.txt';
@@ -300,9 +301,11 @@ import { interval, take } from 'rxjs';
 })
 export class App implements OnInit {
   ngOnInit() {
-    const numbers = interval(1000);</code></pre>
-<p>    </p><pre><code>    const takeFourNumbers = numbers.pipe(take(4));</code></pre>
-<p>    </p><pre><code>    takeFourNumbers.subscribe(x =&gt; console.log('Next: ', x));
+    const numbers = interval(1000);
+
+    const takeFourNumbers = numbers.pipe(take(4));
+
+    takeFourNumbers.subscribe(x =&gt; console.log('Next: ', x));
   }
 }
 bootstrapApplication(App);</code></pre>
@@ -365,16 +368,19 @@ import { throwError } from 'rxjs';
 })
 export class App implements OnInit {
   ngOnInit() {
-    let errorCount = 0;</code></pre>
-<p>    </p><pre><code>    const errorWithTimestamp$ = throwError(() =&gt; {
+    let errorCount = 0;
+
+    const errorWithTimestamp$ = throwError(() =&gt; {
       const error: any = new Error(`This is error number ${ ++errorCount }`);
       error.timestamp = Date.now();
       return error;
-    });</code></pre>
-<p>    </p><pre><code>    errorWithTimestamp$.subscribe({
+    });
+
+    errorWithTimestamp$.subscribe({
       error: err =&gt; console.log(err.timestamp, err.message)
-    });</code></pre>
-<p>    </p><pre><code>    errorWithTimestamp$.subscribe({
+    });
+
+    errorWithTimestamp$.subscribe({
       error: err =&gt; console.log(err.timestamp, err.message)
     });
   }
@@ -534,8 +540,9 @@ import { of, partition } from 'rxjs';
 export class App implements OnInit {
   ngOnInit() {
     const observableValues = of(1, 2, 3, 4, 5, 6);
-    const [evens$, odds$] = partition(observableValues, value =&gt; value % 2 === 0);</code></pre>
-<p>    </p><pre><code>    odds$.subscribe(x =&gt; console.log('odds', x));
+    const [evens$, odds$] = partition(observableValues, value =&gt; value % 2 === 0);
+
+    odds$.subscribe(x =&gt; console.log('odds', x));
     evens$.subscribe(x =&gt; console.log('evens', x));
   }
 }
@@ -578,8 +585,9 @@ export class App implements OnInit {
   ngOnInit() {
     const age$ = of(27, 25, 29);
     const name$ = of('Foo', 'Bar', 'Beer');
-    const isDev$ = of(true, true, false);</code></pre>
-<p>    </p><pre><code>    zip(age$, name$, isDev$).pipe(
+    const isDev$ = of(true, true, false);
+
+    zip(age$, name$, isDev$).pipe(
       map(([age, name, isDev]) =&gt; ({ age, name, isDev }))
     )
     .subscribe(x =&gt; console.log(x));
@@ -895,8 +903,9 @@ export class App implements OnInit {
     const letters = of('a', 'b', 'c');
     const result = letters.pipe(
       mergeMap(x =&gt; interval(1000).pipe(map(i =&gt; x + i)))
-    );</code></pre>
-<p>    </p><pre><code>    result.subscribe(x =&gt; console.log(x));
+    );
+
+    result.subscribe(x =&gt; console.log(x));
   }
 }
 bootstrapApplication(App);</code></pre>
@@ -941,8 +950,9 @@ export class App implements OnInit {
     const seed = 0;
     const count$ = one$.pipe(
       mergeScan((acc, one) =&gt; of(acc + one), seed)
-    );</code></pre>
-<p>    </p><pre><code>    count$.subscribe(x =&gt; console.log(x));
+    );
+
+    count$.subscribe(x =&gt; console.log(x));
   }
 }
 bootstrapApplication(App);</code></pre>
@@ -971,8 +981,9 @@ export class App implements OnInit {
         const y1 = second.clientY;
         return Math.sqrt(Math.pow(x0 - x1, 2) + Math.pow(y0 - y1, 2));
       })
-    );</code></pre>
-<p>    </p><pre><code>    distance.subscribe(x =&gt; console.log(x));
+    );
+
+    distance.subscribe(x =&gt; console.log(x));
   }
 }
 bootstrapApplication(App);</code></pre>
@@ -992,8 +1003,9 @@ import { of, partition } from 'rxjs';
 export class App implements OnInit {
   ngOnInit() {
     const observableValues = of(1, 2, 3, 4, 5, 6);
-    const [evens$, odds$] = partition(observableValues, value =&gt; value % 2 === 0);</code></pre>
-<p>    </p><pre><code>    odds$.subscribe(x =&gt; console.log('odds', x));
+    const [evens$, odds$] = partition(observableValues, value =&gt; value % 2 === 0);
+
+    odds$.subscribe(x =&gt; console.log('odds', x));
     evens$.subscribe(x =&gt; console.log('evens', x));
   }
 }
@@ -1100,8 +1112,9 @@ import { of, scan, map } from 'rxjs';
 })
 export class App implements OnInit {
   ngOnInit() {
-    const numbers$ = of(1, 2, 3);</code></pre>
-<p>    </p><pre><code>    numbers$
+    const numbers$ = of(1, 2, 3);
+
+    numbers$
       .pipe(
         // Get the sum of the numbers coming in.
         scan((total, n) =&gt; total + n),
@@ -1734,28 +1747,35 @@ export class App implements OnInit {
     { name: 'Tracy' },
     { name: 'Laney' },
     { name: 'Lily' }
-    );</code></pre>
-<p>    </p><pre><code>    source1
+    );
+
+    source1
       .pipe(single(x =&gt; x.name.startsWith('B')))
       .subscribe(x =&gt; console.log(x));
-    // Emits 'Ben'</code></pre>
-<p>    </p><p>    </p><pre><code>    const source2 = of(
+    // Emits 'Ben'
+
+
+    const source2 = of(
     { name: 'Ben' },
     { name: 'Tracy' },
     { name: 'Bradley' },
     { name: 'Lincoln' }
-    );</code></pre>
-<p>    </p><pre><code>    source2
+    );
+
+    source2
       .pipe(single(x =&gt; x.name.startsWith('B')))
       .subscribe({ error: err =&gt; console.error(err) });
-    // Error emitted: SequenceError('Too many values match')</code></pre>
-<p>    </p><p>    </p><pre><code>    const source3 = of(
+    // Error emitted: SequenceError('Too many values match')
+
+
+    const source3 = of(
     { name: 'Laney' },
     { name: 'Tracy' },
     { name: 'Lily' },
     { name: 'Lincoln' }
-    );</code></pre>
-<p>    </p><pre><code>    source3
+    );
+
+    source3
       .pipe(single(x =&gt; x.name.startsWith('B')))
       .subscribe({ error: err =&gt; console.error(err) });
     // Error emitted: NotFoundError('No values match')
@@ -2095,8 +2115,9 @@ import { fromEvent, tap, map, interval, switchAll } from 'rxjs';
 export class App implements OnInit {
   ngOnInit() {
     const clicks = fromEvent(document, 'click').pipe(tap(() =&gt; console.log('click')));
-    const source = clicks.pipe(map(() =&gt; interval(1000)));</code></pre>
-<p>    </p><pre><code>    source
+    const source = clicks.pipe(map(() =&gt; interval(1000)));
+
+    source
       .pipe(switchAll())
       .subscribe(x =&gt; console.log(x));
   }
@@ -2166,8 +2187,9 @@ import { zip, interval, of, map, publish, merge, tap } from 'rxjs';
 export class App implements OnInit {
   ngOnInit() {
     const source$ = zip(interval(2000), of(1, 2, 3, 4, 5, 6, 7, 8, 9))
-      .pipe(map(([, number]) =&gt; number));</code></pre>
-<p>    </p><pre><code>    source$
+      .pipe(map(([, number]) =&gt; number));
+
+    source$
       .pipe(
         publish(multicasted$ =&gt;
           merge(
@@ -2201,18 +2223,21 @@ export class App implements OnInit {
         tap(x =&gt; console.log('side effect', x)),
         take(3),
         publishLast()
-      );</code></pre>
-<p>    </p><pre><code>    connectable.subscribe({
+      );
+
+    connectable.subscribe({
       next: x =&gt; console.log('Sub. A', x),
       error: err =&gt; console.log('Sub. A Error', err),
       complete: () =&gt; console.log('Sub. A Complete')
-    });</code></pre>
-<p>    </p><pre><code>    connectable.subscribe({
+    });
+
+    connectable.subscribe({
       next: x =&gt; console.log('Sub. B', x),
       error: err =&gt; console.log('Sub. B Error', err),
       complete: () =&gt; console.log('Sub. B Complete')
-    });</code></pre>
-<p>    </p><pre><code>    connectable.connect();
+    });
+
+    connectable.connect();
   }
 }
 bootstrapApplication(App);</code></pre>
@@ -2236,8 +2261,9 @@ export class App implements OnInit {
       map(x =&gt; x * x),
       take(6),
       share()
-    );</code></pre>
-<p>    </p><pre><code>    source.subscribe(x =&gt; console.log('subscription 1: ', x));
+    );
+
+    source.subscribe(x =&gt; console.log('subscription 1: ', x));
     source.subscribe(x =&gt; console.log('subscription 2: ', x));
   }
 }
@@ -2290,12 +2316,14 @@ export class App implements OnInit {
     const result = source.pipe(
       mergeMap(val =&gt; val &gt; 5 ? throwError(() =&gt; 'Error!') : of(val)),
       retry(2) // retry 2 times on error
-    );</code></pre>
-<p>    </p><pre><code>    result.subscribe({
+    );
+
+    result.subscribe({
       next: value =&gt; console.log(value),
       error: err =&gt; console.log(`${ err }: Retried 2 times then quit!`)
-    });</code></pre>
-<p>    </p><pre><code>    // Output:
+    });
+
+    // Output:
     // 0..1..2..3..4..5..
     // 0..1..2..3..4..5..
     // 0..1..2..3..4..5..
@@ -2335,9 +2363,11 @@ export class App implements OnInit {
           delayWhen(value =&gt; timer(value * 1000))
         )
       )
-    );</code></pre>
-<p>    </p><pre><code>    result.subscribe(value =&gt; console.log(value));</code></pre>
-<p>    </p><pre><code>    // results:
+    );
+
+    result.subscribe(value =&gt; console.log(value));
+
+    // results:
     // 0
     // 1
     // 2
@@ -2442,9 +2472,11 @@ export class App implements OnInit {
   ngOnInit() {
     const notifA: NextNotification&lt;string&gt; = { kind: 'N', value: 'A' };
     const notifB: NextNotification&lt;string&gt; = { kind: 'N', value: 'B' };
-    const notifE: ErrorNotification = { kind: 'E', error: new TypeError('x.toUpperCase is not a function') };</code></pre>
-<p>    </p><pre><code>    const materialized = of(notifA, notifB, notifE);</code></pre>
-<p>    </p><pre><code>    const upperCase = materialized.pipe(dematerialize());
+    const notifE: ErrorNotification = { kind: 'E', error: new TypeError('x.toUpperCase is not a function') };
+
+    const materialized = of(notifA, notifB, notifE);
+
+    const upperCase = materialized.pipe(dematerialize());
     upperCase.subscribe({
       next: x =&gt; console.log(x),
       error: e =&gt; console.error(e)
@@ -2469,8 +2501,9 @@ export class App implements OnInit {
   ngOnInit() {
     const letters = of('a', 'b', 13, 'd');
     const upperCase = letters.pipe(map((x: any) =&gt; x.toUpperCase()));
-    const materialized = upperCase.pipe(materialize());</code></pre>
-<p>    </p><pre><code>    materialized.subscribe(x =&gt; console.log(x));
+    const materialized = upperCase.pipe(materialize());
+
+    materialized.subscribe(x =&gt; console.log(x));
   }
 }
 bootstrapApplication(App);</code></pre>
@@ -2519,8 +2552,9 @@ import { of, merge } from 'rxjs';
 export class App implements OnInit {
   ngOnInit() {
     const a = of(1, 2, 3);
-    const b = of(4, 5, 6);</code></pre>
-<p>    </p><pre><code>    merge(a, b).subscribe(console.log);
+    const b = of(4, 5, 6);
+
+    merge(a, b).subscribe(console.log);
   }
 }
 bootstrapApplication(App);</code></pre>
@@ -2539,8 +2573,9 @@ import { interval, timeInterval } from 'rxjs';
 })
 export class App implements OnInit {
   ngOnInit() {
-    const seconds = interval(1000);</code></pre>
-<p>    </p><pre><code>    seconds
+    const seconds = interval(1000);
+
+    seconds
       .pipe(timeInterval())
       .subscribe(value =&gt; console.log(value));
   }
@@ -2592,8 +2627,9 @@ class CustomTimeoutError extends Error {
 }
 export class App implements OnInit {
   ngOnInit() {
-    const slow$ = interval(900);</code></pre>
-<p>    </p><pre><code>    slow$.pipe(
+    const slow$ = interval(900);
+
+    slow$.pipe(
       timeout({
         each: 1000,
         with: () =&gt; throwError(() =&gt; new CustomTimeoutError())
@@ -2776,8 +2812,9 @@ import { Subject, isEmpty } from 'rxjs';
 export class App implements OnInit {
   ngOnInit() {
     const source = new Subject&lt;string&gt;();
-    const result = source.pipe(isEmpty());</code></pre>
-<p>    </p><pre><code>    source.subscribe(x =&gt; console.log(x));
+    const result = source.pipe(isEmpty());
+
+    source.subscribe(x =&gt; console.log(x));
     result.subscribe(x =&gt; console.log(x));
     source.next('a');
     source.next('b');

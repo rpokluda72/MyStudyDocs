@@ -36,19 +36,23 @@ public class GFG {
     }
 }</code></pre>
 <p><strong>Spring Boot</strong></p><p><a href="https://www.geeksforgeeks.org/springboot/introduction-to-spring-boot/" target="_blank" rel="noopener noreferrer">Spring Boot</a> is a framework built on top of Spring that simplifies application development by providing auto-configuration, embedded servers, and production-ready features. It reduces boilerplate code and allows developers to get applications running quickly.</p><ul><li><strong>Auto-Configuration:</strong> Automatically configures Spring applications based on included dependencies.</li><li><strong>Embedded Servers:</strong> Comes with embedded Tomcat, Jetty, or Undertow; no external server needed.</li><li><strong>Starter POMs:</strong> Ready-made dependency bundles for common functionalities.</li></ul><p><strong>Example:</strong> Spring Boot REST API:</p><pre><code>@SpringBootApplication
-public class UserApplication{</code></pre>
-<p>    </p><pre><code>    public static void main(String[] args){</code></pre>
-<p>        </p><pre><code>        // Embedded Tomcat runs automatically
+public class UserApplication{
+
+    public static void main(String[] args){
+
+        // Embedded Tomcat runs automatically
         SpringApplication.run(UserApplication.class, args); 
     }
 }
 @RestController
 @RequestMapping("/api/users")
-public class UserController{</code></pre>
-<p>    </p><pre><code>    private List&lt;String&gt; users = List.of("Alice", "Bob", "Charlie");
+public class UserController{
+
+    private List&lt;String&gt; users = List.of("Alice", "Bob", "Charlie");
     @GetMapping
-    public List&lt;String&gt; getUsers(){</code></pre>
-<p>        </p><pre><code>        // Returns JSON response
+    public List&lt;String&gt; getUsers(){
+
+        // Returns JSON response
         return users; 
     }
 }</code></pre>
@@ -73,14 +77,17 @@ public class UserController {
 }
 // Main class deployed as WAR on external server like Tomcat
 public class Main {
-    public static void main(String[] args){</code></pre>
-<p>        </p><pre><code>        // Deploy this app manually to an external server
+    public static void main(String[] args){
+
+        // Deploy this app manually to an external server
     }
 }</code></pre>
 <p><strong>Spring Boot </strong></p><p><a href="https://www.geeksforgeeks.org/springboot/introduction-to-spring-boot/" target="_blank" rel="noopener noreferrer">Spring Boot</a> is a project built on top of Spring that simplifies the development of Spring applications by providing auto-configuration, embedded servers, and production-ready features. It is designed to reduce boilerplate code and setup complexity.</p><ul><li><strong>Auto-Configuration:</strong> Automatically configures Spring applications based on the dependencies added.</li><li><strong>Embedded Servers:</strong> Comes with embedded Tomcat, Jetty, or Undertow, eliminating the need for external servers.</li><li><strong>Starter POMs:</strong> Provides ready-to-use dependencies to simplify build configuration.</li></ul><p><strong>Example:</strong> Spring Boot REST API with minimal configuration:</p><pre><code>@SpringBootApplication
-public class UserApplication{</code></pre>
-<p>    </p><pre><code>    public static void main(String[] args) {</code></pre>
-<p>        </p><pre><code>        // Embedded Tomcat runs automatically
+public class UserApplication{
+
+    public static void main(String[] args) {
+
+        // Embedded Tomcat runs automatically
         SpringApplication.run(UserApplication.class, args); 
     }
 }
@@ -89,8 +96,9 @@ public class UserApplication{</code></pre>
 public class UserController {
     private List&lt;String&gt; users = List.of("Alice", "Bob", "Charlie");
     @GetMapping
-    public List&lt;String&gt; getUsers() {</code></pre>
-<p>        </p><pre><code>        // Returns JSON response
+    public List&lt;String&gt; getUsers() {
+
+        // Returns JSON response
         return users; 
     }
 }</code></pre>

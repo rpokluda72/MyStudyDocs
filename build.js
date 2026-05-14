@@ -107,7 +107,11 @@ function isCodeLine(plain) {
   const t = plain.trim();
   if (!t) return false;
   // Leading indentation — strongest signal in Word-authored code
-  if (/^ {2,}/.test(plain)) return true;
+  // But skip prose sentences: uppercase start, period/question/exclamation end, no code tokens
+  if (/^ {2,}/.test(plain)) {
+    if (/^[A-ZÁČĎÉĚÍŇÓŘŠŤÚŮÝŽ]/.test(t) && /[.!?]$/.test(t) && !/[=;{}()\[\]]/.test(t)) return false;
+    return true;
+  }
   // Starts with common code keywords (JS/TS and Java)
   if (/^(export |import |const |let |var |function |class |interface |type |enum |return\b|if\s*\(|for\s*\(|while\s*\(|async |await |@\w+|\/\/|\/\*|\.\w+[\s(]|System\.|new |public |private |protected |static |final |void |throw\b|try\b|catch\s*\()/.test(t)) return true;
   // Arrow function (JS/TS => or Java -> / HTML-encoded -&gt;)
@@ -212,6 +216,13 @@ function isMultiLineCodeParagraph(plain) {
 }
 
 function wrapCodeBlocks(html, codeTexts = null) {
+  // Protect table content — <p> tags inside <td>/<th> must never be treated as code
+  const tables = [];
+  html = html.replace(/<table\b[^>]*>[\s\S]*?<\/table>/gi, function (match) {
+    tables.push(match);
+    return '\x00TABLE' + (tables.length - 1) + '\x00';
+  });
+
   const segments = [];
   let lastIndex = 0;
   const pRegex = /<p[^>]*>([\s\S]*?)<\/p>/gi;
@@ -236,6 +247,9 @@ function wrapCodeBlocks(html, codeTexts = null) {
 
   function flush() {
     if (!buf.length) return;
+    // Strip trailing blank lines before closing the block
+    while (buf.length && !buf[buf.length - 1].trim()) buf.pop();
+    if (!buf.length) return;
     result += '<pre><code>' + buf.join('\n') + '</code></pre>\n';
     buf = [];
   }
@@ -246,12 +260,18 @@ function wrapCodeBlocks(html, codeTexts = null) {
       result += seg.text;
     } else if (isCodeLine(seg.plain) || isMultiLineCodeParagraph(seg.plain) || (codeTexts && codeTexts.has(decodeHtml(seg.plain.trim())))) {
       buf.push(seg.inner);
+    } else if (buf.length > 0 && !seg.plain.trim()) {
+      // Blank paragraph inside a code run — preserve as blank line, don't split the block
+      buf.push('');
     } else {
       flush();
       result += seg.full;
     }
   }
   flush();
+
+  // Restore protected tables
+  result = result.replace(/\x00TABLE(\d+)\x00/g, function (_, i) { return tables[+i]; });
   return result;
 }
 

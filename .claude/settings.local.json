@@ -15,7 +15,10 @@
       "Bash(py -3 -m pip show mammoth)",
       "Bash(py -3 -m pip list)",
       "Bash(py:*)",
-      "Bash(node build.js)"
+      "Bash(node build.js)",
+      "Bash(powershell -Command \"Select-String -Path 'C:\\\\Users\\\\roman\\\\Work\\\\claude\\\\projects\\\\MyStudyDocs\\\\docs\\\\Others\\\\topics.html' -Pattern 'Klíčový rozdíl' -Context 2,2\")",
+      "Bash(powershell *)",
+      "Bash(node *)"
     ]
   }
 }

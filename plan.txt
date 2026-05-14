@@ -16,3 +16,11 @@ For example - page 2 - part 1. Lambda Expressions - has three parts of java code
 - Lambda shapes: document has code part with 7 rows, but the same code on html page separated to the 5 parts. Like in previous case rows ("Consumer<String> c = s -> System.out.println(s); // one arg, no braces", "Comparator<String> cmp = (a, b) -> { // block body
 ") looks like normal text. Part "Lambda shapes:" should contains one dark block with code (7 rows like in doc).
 I can see many similar problems on this page, so check whole page - java_features_from_8_to_25.html.
+
+Document "C:\Users\roman\Work\pohovor\study\topics.docx" has part "Klíčový rozdíl mezi Node.Js a AngularJS". It is normal text part, but in topics.html it has format like code.
+Next parts with the same problem:
+- "Pomocí definičních souboru se nadefinuje mapování objektů vytvořených v jazyce Java na relační model.
+       Hibernate na základě těchto definičních souborů generuje SQL dotazy a prostřednictvím JDBC zajišťuje nahrávání/ukládání objektů do databáze.
+       Nejde tedy o náhradu JDBC ale o nadstavbu nad JDBC."
+- part "Why Learn Vue ?" : 
+Could you fix it ?

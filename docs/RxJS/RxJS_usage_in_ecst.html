@@ -169,8 +169,9 @@ export class <strong>LastOpenService</strong> {
     this.lastOpenedChanged.emit();
   }</code></pre>
 <p>* * * * * * * * * * * *</p><pre><code>export class <strong>TablePaginatorComponent</strong> extends Unsubscriber implements OnInit {
-  private selectedRowObs = toObservable(this.tableService.selectedRow);</code></pre>
-<p>  </p><pre><code>  ngOnInit() {
+  private selectedRowObs = toObservable(this.tableService.selectedRow);
+
+  ngOnInit() {
     this.selectedRowObs.pipe(unsubscribeOnDestroy(this)).subscribe(item =&gt; {
       if (!item || item === -1) return;
       const index = this.tableContext.currentItems().indexOf(item as MainTableRow);
