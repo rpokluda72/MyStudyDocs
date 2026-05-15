@@ -260,7 +260,7 @@ function wrapCodeBlocks(html, codeTexts = null) {
       result += seg.text;
     } else if (isCodeLine(seg.plain) || isMultiLineCodeParagraph(seg.plain) || (codeTexts && codeTexts.has(decodeHtml(seg.plain.trim())))) {
       buf.push(seg.inner);
-    } else if (buf.length > 0 && !seg.plain.trim()) {
+    } else if (buf.length > 0 && !seg.plain.trim() && !/<img\b/i.test(seg.inner)) {
       // Blank paragraph inside a code run — preserve as blank line, don't split the block
       buf.push('');
     } else {

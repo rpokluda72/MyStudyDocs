@@ -10,7 +10,7 @@
 <body>
   <h1>ReactHooksByClaude</h1>
   <p>React Hooks – Study Document</p><p>Sources: GeeksForGeeks · W3Schools · React.dev</p><h1><strong>Part 1 – GeeksForGeeks</strong></h1><p><em>Source: <a href="https://www.geeksforgeeks.org/reactjs/reactjs-hooks/" target="_blank" rel="noopener noreferrer">https://www.geeksforgeeks.org/reactjs/reactjs-hooks/</a></em></p><h2><strong>Introduction to React Hooks</strong></h2><p>React Hooks, introduced in React 16.8, enable functional components to use state, lifecycle, and other React features without relying on class components.</p><h3><strong>Key Benefits</strong></h3><ul><li>Eliminate class component requirements for state management</li><li>Improve code readability with functional programming style</li><li>Enable cleaner, more maintainable modern React applications</li></ul><h3><strong>Hooks vs. Class Components</strong></h3><table><tr><td><p><strong>Aspect</strong></p></td><td><p><strong>Class Components</strong></p></td><td><p><strong>React Hooks</strong></p></td></tr><tr><td><p>Structure</p></td><td><p>ES6 classes with this.state</p></td><td><p>Functions with hooks</p></td></tr><tr><td><p>Logic Organization</p></td><td><p>Spread across lifecycle methods</p></td><td><p>Grouped together</p></td></tr><tr><td><p>Logic Reusability</p></td><td><p>Difficult</p></td><td><p>Easy with custom hooks</p></td></tr><tr><td><p>Familiarity</p></td><td><p>OOP-oriented</p></td><td><p>Functional approach</p></td></tr><tr><td><p>Error Boundaries</p></td><td><p>Supported</p></td><td><p>Not yet supported</p></td></tr></table><h2><strong>1. State Hooks</strong></h2><h3><strong>useState</strong></h3><p>Used to declare state variables in functional components, allowing you to read and modify state.</p><p>Syntax:</p><pre><code>const [state, setState] = useState(initialState);</code></pre>
-<table><tr><td><p><strong>Parameter</strong></p></td><td><p><strong>Description</strong></p></td></tr><tr><td><p>state</p></td><td><p>Current state value</p></td></tr><tr><td><p>setState</p></td><td><p>Function to update state</p></td></tr><tr><td><p>initialState</p></td><td><p>Initial value (primitive, object, or array)</p></td></tr></table><p>Example – Counter:</p><pre><code>import React, { useState } from "react";
+<p><em>state holds the current value; setState is the updater function that schedules a re-render with the new value. initialState is only used on the very first render.</em></p><table><tr><td><p><strong>Parameter</strong></p></td><td><p><strong>Description</strong></p></td></tr><tr><td><p>state</p></td><td><p>Current state value</p></td></tr><tr><td><p>setState</p></td><td><p>Function to update state</p></td></tr><tr><td><p>initialState</p></td><td><p>Initial value (primitive, object, or array)</p></td></tr></table><p>Example – Counter:</p><pre><code>import React, { useState } from "react";
 
 function App() {
     const [count, setCount] = useState(0);
@@ -27,8 +27,8 @@ function App() {
 }
 
 export default App;</code></pre>
-<h3><strong>useReducer</strong></h3><p>Advanced state management for complex logic involving multiple sub-values or intricate state transitions.</p><p>Syntax:</p><pre><code>const [state, dispatch] = useReducer(reducer, initialState);</code></pre>
-<p>Example:</p><pre><code>import React, { useReducer } from "react";
+<p><em>Clicking Increment calls setCount(count + 1). React schedules a re-render with the updated count and the UI shows the new number. Decrement works symmetrically — each update creates a fresh snapshot of state.</em></p><h3><strong>useReducer</strong></h3><p>Advanced state management for complex logic involving multiple sub-values or intricate state transitions.</p><p>Syntax:</p><pre><code>const [state, dispatch] = useReducer(reducer, initialState);</code></pre>
+<p><em>dispatch sends an action to the reducer. The reducer is a pure function (state, action) → newState describing how state transitions should happen. This keeps complex update logic centralized outside the component body.</em></p><p>Example:</p><pre><code>import React, { useReducer } from "react";
 
 function reducer(count, action) {
     if (action === "increment") return count + 1;
@@ -49,8 +49,8 @@ function App() {
 }
 
 export default App;</code></pre>
-<h2><strong>2. Context Hooks</strong></h2><h3><strong>useContext</strong></h3><p>Allows functional components to directly access React Context API values without prop drilling.</p><p>Syntax:</p><pre><code>const contextValue = useContext(MyContext);</code></pre>
-<p>Example – Theme context:</p><pre><code>import React, { createContext, useContext, useState } from "react";
+<p><em>The reducer handles all state transitions in one place. Calling dispatch("increment") triggers reducer(currentCount, "increment"), which returns count + 1. Cleaner than multiple setCount calls when state changes follow a defined set of operations.</em></p><h2><strong>2. Context Hooks</strong></h2><h3><strong>useContext</strong></h3><p>Allows functional components to directly access React Context API values without prop drilling.</p><p>Syntax:</p><pre><code>const contextValue = useContext(MyContext);</code></pre>
+<p><em>Reads the nearest Provider's value in the component tree. No need to pass the value through intermediate components as props — any descendant can call useContext() directly.</em></p><p>Example – Theme context:</p><pre><code>import React, { createContext, useContext, useState } from "react";
 
 const ThemeContext = createContext();
 
@@ -76,11 +76,11 @@ function ThemeDisplay() {
 }
 
 export default App;</code></pre>
-<h2><strong>3. Effect Hooks</strong></h2><h3><strong>useEffect</strong></h3><p>Handles common side effects like data fetching, subscriptions, and DOM manipulation. Replaces componentDidMount and componentDidUpdate.</p><p>Syntax:</p><pre><code>useEffect(() =&gt; {
+<p><em>ThemeContext.Provider wraps the component tree and passes theme as the context value. Child components call useContext(ThemeContext) to read it directly — no prop-drilling through every level between App and the consuming component.</em></p><h2><strong>3. Effect Hooks</strong></h2><h3><strong>useEffect</strong></h3><p>Handles common side effects like data fetching, subscriptions, and DOM manipulation. Replaces componentDidMount and componentDidUpdate.</p><p>Syntax:</p><pre><code>useEffect(() =&gt; {
     <em>// Side effect logic here</em>
     return () =&gt; { <em>/* cleanup */</em> };
 }, [dependencies]);</code></pre>
-<p>Example – document title:</p><pre><code>import React, { useState, useEffect } from "react";
+<p><em>The setup function runs after each render where a dependency changed. Returning a cleanup function is optional — use it to cancel subscriptions or timers. The dependency array controls when the effect re-runs: [] = once on mount; [dep] = when dep changes; omitted = after every render.</em></p><p>Example – document title:</p><pre><code>import React, { useState, useEffect } from "react";
 
 function App() {
     const [count, setCount] = useState(0);
@@ -99,11 +99,11 @@ function App() {
 }
 
 export default App;</code></pre>
-<h3><strong>useLayoutEffect</strong></h3><p>Runs synchronously after DOM updates, before the browser paints. Useful for measuring or modifying layout.</p><pre><code>useLayoutEffect(() =&gt; {
+<p><em>The effect runs every time count changes (listed in the dependency array). It updates the browser tab title as a side effect of the state change. The cleanup restores the original title when the component unmounts.</em></p><h3><strong>useLayoutEffect</strong></h3><p>Runs synchronously after DOM updates, before the browser paints. Useful for measuring or modifying layout.</p><pre><code>useLayoutEffect(() =&gt; {
     <em>// Manipulate layout or measure DOM elements</em>
 }, [dependencies]);</code></pre>
-<h2><strong>4. Performance Hooks</strong></h2><h3><strong>useMemo</strong></h3><p>Caches computed results, recalculating only when dependencies change. Prevents unnecessary recalculations on every render.</p><p>Syntax:</p><pre><code>const memoizedValue = useMemo(() =&gt; computeExpensiveValue(a, b), [a, b]);</code></pre>
-<p>Example:</p><pre><code>import React, { useState, useMemo } from "react";
+<p><em>Fires synchronously after all DOM mutations but before the browser paints. Use it when you need to read layout (e.g., element size or position) or make immediate DOM changes visible before the first paint. Prefer useEffect when synchronous execution is not required.</em></p><h2><strong>4. Performance Hooks</strong></h2><h3><strong>useMemo</strong></h3><p>Caches computed results, recalculating only when dependencies change. Prevents unnecessary recalculations on every render.</p><p>Syntax:</p><pre><code>const memoizedValue = useMemo(() =&gt; computeExpensiveValue(a, b), [a, b]);</code></pre>
+<p><em>computeExpensiveValue runs only when a or b changes. On all other renders the cached result is returned immediately, avoiding the cost of recomputation.</em></p><p>Example:</p><pre><code>import React, { useState, useMemo } from "react";
 
 function App() {
     const [count, setCount] = useState(0);
@@ -125,9 +125,9 @@ function App() {
 }
 
 export default App;</code></pre>
-<h3><strong>useCallback</strong></h3><p>Memoizes function references so they are only recreated when dependencies change. Prevents unnecessary re-renders of child components that receive functions as props.</p><p>Syntax:</p><pre><code>const memoizedCallback = useCallback(() =&gt; { doSomething(a, b); }, [a, b]);</code></pre>
-<h2><strong>5. Ref Hooks</strong></h2><h3><strong>useRef</strong></h3><p>Stores mutable values or accesses DOM elements without triggering re-renders.</p><p>Syntax:</p><pre><code>const refContainer = useRef(initialValue);</code></pre>
-<p>Example – Accessing DOM element:</p><pre><code>import React, { useState, useRef } from "react";
+<p><em>Without useMemo, expensiveCalculation would run on every render — even when only text changes. Wrapping it in useMemo([count]) ensures it only recalculates when count changes, keeping typing in the text field fast.</em></p><h3><strong>useCallback</strong></h3><p>Memoizes function references so they are only recreated when dependencies change. Prevents unnecessary re-renders of child components that receive functions as props.</p><p>Syntax:</p><pre><code>const memoizedCallback = useCallback(() =&gt; { doSomething(a, b); }, [a, b]);</code></pre>
+<p><em>Returns the same function reference between renders as long as a and b are unchanged. This matters when passing the callback to a child wrapped in React.memo — a new function reference on every render would cause the child to re-render unnecessarily.</em></p><h2><strong>5. Ref Hooks</strong></h2><h3><strong>useRef</strong></h3><p>Stores mutable values or accesses DOM elements without triggering re-renders.</p><p>Syntax:</p><pre><code>const refContainer = useRef(initialValue);</code></pre>
+<p><em>Returns { current: initialValue }. Writing to refContainer.current is a direct mutation — it does not trigger a re-render, unlike setState.</em></p><p>Example – Accessing DOM element:</p><pre><code>import React, { useState, useRef } from "react";
 
 function App() {
     const countRef = useRef(0);
@@ -147,7 +147,7 @@ function App() {
 }
 
 export default App;</code></pre>
-<h2><strong>6. Custom Hooks</strong></h2><p>User-defined functions starting with "use" that encapsulate reusable logic. Enhance code reusability without altering component hierarchy.</p><p>Example – useWidth:</p><pre><code><em>// useWidth.js</em>
+<p><em>countRef.current holds the count without causing extra re-renders. setForceRender(!forceRender) is called when the UI actually needs to update. This pattern is useful for values that must persist across renders but only occasionally need to be displayed.</em></p><h2><strong>6. Custom Hooks</strong></h2><p>User-defined functions starting with "use" that encapsulate reusable logic. Enhance code reusability without altering component hierarchy.</p><p>Example – useWidth:</p><pre><code><em>// useWidth.js</em>
 import { useState, useEffect } from "react";
 
 function useWidth() {
@@ -163,7 +163,7 @@ function useWidth() {
 }
 
 export default useWidth;</code></pre>
-<p>Using the custom hook:</p><pre><code>import React from "react";
+<p><em>The custom hook encapsulates the window resize logic: initializes width from window.innerWidth on mount, adds a resize event listener, and removes it in the cleanup to avoid memory leaks on unmount.</em></p><p>Using the custom hook:</p><pre><code>import React from "react";
 import useWidth from "./useWidth";
 
 function App() {
@@ -172,7 +172,7 @@ function App() {
 }
 
 export default App;</code></pre>
-<h2><strong>7. Other Hooks</strong></h2><table><tr><td><p><strong>Hook</strong></p></td><td><p><strong>Description</strong></p></td></tr><tr><td><p>useImperativeHandle</p></td><td><p>Customises the instance value exposed by useRef to parent components</p></td></tr><tr><td><p>useDebugValue</p></td><td><p>Displays custom labels for hooks in React DevTools</p></td></tr><tr><td><p>useLayoutEffect</p></td><td><p>Like useEffect, but fires synchronously after all DOM mutations</p></td></tr><tr><td><p>useInsertionEffect</p></td><td><p>Designed for injecting styles before DOM mutations; for CSS-in-JS libraries</p></td></tr></table><h1><strong>Part 2 – W3Schools</strong></h1><p><em>Source: <a href="https://www.w3schools.com/react/react_hooks.asp" target="_blank" rel="noopener noreferrer">https://www.w3schools.com/react/react_hooks.asp</a> (and sub-pages)</em></p><h2><strong>What is a Hook?</strong></h2><p>Hooks are functions that let you 'hook into' React state and lifecycle features from functional components. They do not work inside class components.</p><h3><strong>Hook Rules</strong></h3><ul><li>Hooks can only be called inside React function components.</li><li>Hooks can only be called at the top level of a component.</li><li>Hooks cannot be conditional.</li></ul><pre><code><strong>Example</strong>
+<p><em>Custom hooks are called exactly like built-in hooks. App receives the reactive width value and re-renders automatically whenever the window is resized — all the subscription logic stays inside the hook.</em></p><h2><strong>7. Other Hooks</strong></h2><table><tr><td><p><strong>Hook</strong></p></td><td><p><strong>Description</strong></p></td></tr><tr><td><p>useImperativeHandle</p></td><td><p>Customises the instance value exposed by useRef to parent components</p></td></tr><tr><td><p>useDebugValue</p></td><td><p>Displays custom labels for hooks in React DevTools</p></td></tr><tr><td><p>useLayoutEffect</p></td><td><p>Like useEffect, but fires synchronously after all DOM mutations</p></td></tr><tr><td><p>useInsertionEffect</p></td><td><p>Designed for injecting styles before DOM mutations; for CSS-in-JS libraries</p></td></tr></table><h1><strong>Part 2 – W3Schools</strong></h1><p><em>Source: <a href="https://www.w3schools.com/react/react_hooks.asp" target="_blank" rel="noopener noreferrer">https://www.w3schools.com/react/react_hooks.asp</a> (and sub-pages)</em></p><h2><strong>What is a Hook?</strong></h2><p>Hooks are functions that let you 'hook into' React state and lifecycle features from functional components. They do not work inside class components.</p><h3><strong>Hook Rules</strong></h3><ul><li>Hooks can only be called inside React function components.</li><li>Hooks can only be called at the top level of a component.</li><li>Hooks cannot be conditional.</li></ul><pre><code><strong>Example</strong>
 import { useState } from 'react';
 import { createRoot } from 'react-dom/client';
 
@@ -191,8 +191,8 @@ function FavoriteColor() {
 }
 
 createRoot(document.getElementById('root')).render(&lt;FavoriteColor /&gt;);</code></pre>
-<h2><strong>useState</strong></h2><p>The React useState Hook allows you to track state in a function component. State generally refers to data or properties that need to be tracked in an application.</p><p>Syntax:</p><pre><code>const [currentValue, setCurrentValue] = useState(initialValue);</code></pre>
-<h3><strong>Reading and Updating State</strong></h3><pre><code><strong>Example – multiple state variables</strong>
+<p><em>color starts as 'red'. Each button click calls setColor with the new value, React re-renders FavoriteColor, and the heading reflects the updated color. This is the fundamental React state cycle: event → setState → re-render.</em></p><h2><strong>useState</strong></h2><p>The React useState Hook allows you to track state in a function component. State generally refers to data or properties that need to be tracked in an application.</p><p>Syntax:</p><pre><code>const [currentValue, setCurrentValue] = useState(initialValue);</code></pre>
+<p><em>Array destructuring names both elements returned by useState. currentValue is the current state; setCurrentValue schedules a re-render with the new value. initialValue is only used on the very first render.</em></p><h3><strong>Reading and Updating State</strong></h3><pre><code><strong>Example – multiple state variables</strong>
 function MyCar() {
   const [brand, setBrand] = useState("Ford");
   const [model, setModel] = useState("Mustang");
@@ -206,7 +206,7 @@ function MyCar() {
     &lt;/&gt;
   )
 }</code></pre>
-<h3><strong>Updating Objects in State</strong></h3><p>When state is updated the entire state gets replaced. Use the spread operator to update only the changed property:</p><pre><code><strong>Example – spread operator</strong>
+<p><em>Each useState call manages one independent piece of state. Updating model does not affect brand, year, or color. Separate state variables keep the update logic simple — no need to merge objects as with class component setState.</em></p><h3><strong>Updating Objects in State</strong></h3><p>When state is updated the entire state gets replaced. Use the spread operator to update only the changed property:</p><pre><code><strong>Example – spread operator</strong>
 function MyCar() {
   const [car, setCar] = useState({
     brand: "Ford",
@@ -229,8 +229,8 @@ function MyCar() {
     &lt;/&gt;
   )
 }</code></pre>
-<h2><strong>useEffect</strong></h2><p>The useEffect Hook allows you to perform side effects in your components. Some examples of side effects are: fetching data, directly updating the DOM, and timers.</p><p>Syntax:</p><pre><code>useEffect(&lt;function&gt;, &lt;dependency&gt;)</code></pre>
-<h3><strong>Dependency Array Patterns</strong></h3><table><tr><td><p><strong>Pattern</strong></p></td><td><p><strong>When it runs</strong></p></td></tr><tr><td><p>useEffect(() =&gt; { })</p></td><td><p>Runs on every render</p></td></tr><tr><td><p>useEffect(() =&gt; { }, [])</p></td><td><p>Runs only on the first render</p></td></tr><tr><td><p>useEffect(() =&gt; { }, [prop, state])</p></td><td><p>Runs on first render and when prop/state changes</p></td></tr></table><pre><code><strong>Example – Timer with cleanup</strong>
+<p><em>React replaces the entire state object on each update, so spreading previousState is essential to preserve all other fields. Without the spread, setCar({ color: "blue" }) would erase brand, model, and year.</em></p><h2><strong>useEffect</strong></h2><p>The useEffect Hook allows you to perform side effects in your components. Some examples of side effects are: fetching data, directly updating the DOM, and timers.</p><p>Syntax:</p><pre><code>useEffect(&lt;function&gt;, &lt;dependency&gt;)</code></pre>
+<p><em>Three dependency patterns: omit the array → run after every render; pass [] → run once on mount and cleanup on unmount; pass [dep1, dep2] → run whenever any listed dependency changes.</em></p><h3><strong>Dependency Array Patterns</strong></h3><table><tr><td><p><strong>Pattern</strong></p></td><td><p><strong>When it runs</strong></p></td></tr><tr><td><p>useEffect(() =&gt; { })</p></td><td><p>Runs on every render</p></td></tr><tr><td><p>useEffect(() =&gt; { }, [])</p></td><td><p>Runs only on the first render</p></td></tr><tr><td><p>useEffect(() =&gt; { }, [prop, state])</p></td><td><p>Runs on first render and when prop/state changes</p></td></tr></table><pre><code><strong>Example – Timer with cleanup</strong>
 import { useState, useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
 
@@ -248,8 +248,8 @@ function Timer() {
   return &lt;h1&gt;I've rendered {count} times!&lt;/h1&gt;;
 }
 
-createRoot(document.getElementById('root')).render(&lt;Timer /&gt;);
-<strong>Example – Dependent effect</strong>
+createRoot(document.getElementById('root')).render(&lt;Timer /&gt;);</code></pre>
+<p><em>The effect sets a 1-second timer that increments count, then schedules another — creating a self-sustaining loop. The cleanup calls clearTimeout to cancel any pending timer on unmount, preventing setState calls on an unmounted component.</em></p><pre><code><strong>Example – Dependent effect</strong>
 function Counter() {
   const [count, setCount] = useState(0);
   const [calculation, setCalculation] = useState(0);
@@ -266,7 +266,7 @@ function Counter() {
     &lt;/&gt;
   );
 }</code></pre>
-<h2><strong>useContext</strong></h2><p>React Context is a way to manage state globally. It solves the "prop drilling" problem – passing props through components that do not need the data.</p><h3><strong>Create and Use Context – 3 Steps</strong></h3><ul><li>Step 1: Create context with createContext()</li><li>Step 2: Wrap children with Context Provider and supply value</li><li>Step 3: Call useContext(MyContext) in any child component</li></ul><pre><code><strong>Example – complete context usage</strong>
+<p><em>calculation is always count * 2. The effect keeps it synchronized: whenever count updates the effect runs and updates calculation. For a simple derived value like this, useMemo is a cleaner alternative — useEffect is better suited for asynchronous or external side effects.</em></p><h2><strong>useContext</strong></h2><p>React Context is a way to manage state globally. It solves the "prop drilling" problem – passing props through components that do not need the data.</p><h3><strong>Create and Use Context – 3 Steps</strong></h3><ul><li>Step 1: Create context with createContext()</li><li>Step 2: Wrap children with Context Provider and supply value</li><li>Step 3: Call useContext(MyContext) in any child component</li></ul><pre><code><strong>Example – complete context usage</strong>
 import { useState, createContext, useContext } from 'react';
 import { createRoot } from 'react-dom/client';
 
@@ -303,7 +303,7 @@ function Component3() {
 }
 
 createRoot(document.getElementById('root')).render(&lt;Component1 /&gt;);</code></pre>
-<h2><strong>useRef</strong></h2><p>The useRef Hook allows you to persist values between renders without triggering a re-render, and to access DOM elements directly.</p><pre><code><strong>Example – track render count (no re-render)</strong>
+<p><em>Component1 owns the user state and wraps its children in UserContext.Provider. Component5, deeply nested, calls useContext(UserContext) to read user directly — skipping Components 2, 3, and 4 entirely. This eliminates prop drilling.</em></p><h2><strong>useRef</strong></h2><p>The useRef Hook allows you to persist values between renders without triggering a re-render, and to access DOM elements directly.</p><pre><code><strong>Example – track render count (no re-render)</strong>
 import { useState, useRef, useEffect } from 'react';
 
 function App() {
@@ -324,8 +324,8 @@ function App() {
       &lt;h1&gt;Render Count: {count.current}&lt;/h1&gt;
     &lt;/&gt;
   );
-}
-<strong>Example – focus a DOM element</strong>
+}</code></pre>
+<p><em>count.current increments on every render inside useEffect but never triggers another render itself. If count were useState, incrementing it would cause an infinite re-render loop. Refs are the right tool for values that must persist across renders without affecting the render cycle.</em></p><pre><code><strong>Example – focus a DOM element</strong>
 import { useRef } from 'react';
 
 function App() {
@@ -342,6 +342,7 @@ function App() {
     &lt;/&gt;
   );
 }
+<em>ref={inputElement} attaches the ref to the DOM node after mount. inputElement.current becomes the actual &lt;input&gt; element. Calling .focus() is a direct DOM operation — the imperative escape hatch that useRef provides.</em>
 <strong>Example – track previous state value</strong>
 import { useRef, useState, useEffect } from 'react';
 
@@ -365,8 +366,8 @@ function App() {
     &lt;/&gt;
   );
 }</code></pre>
-<h2><strong>useReducer</strong></h2><p>The useReducer Hook is similar to the useState Hook. It allows for custom state logic and is useful when you find yourself keeping track of multiple pieces of state that rely on complex logic.</p><p>Syntax:</p><pre><code>useReducer(reducer, initialState, init)</code></pre>
-<table><tr><td><p><strong>Parameter</strong></p></td><td><p><strong>Description</strong></p></td></tr><tr><td><p>reducer</p></td><td><p>Function containing custom state logic</p></td></tr><tr><td><p>initialState</p></td><td><p>Initial state value (simple value or object)</p></td></tr><tr><td><p>init</p></td><td><p>Optional function for lazy state initialisation</p></td></tr></table><pre><code><strong>Example – scoreboard</strong>
+<p><em>useEffect runs after render, so previousInputValue.current is updated after the current render completes. On the next render it still holds the previous render's value — that is the "previous value" pattern. The ref persists between renders without triggering re-renders.</em></p><h2><strong>useReducer</strong></h2><p>The useReducer Hook is similar to the useState Hook. It allows for custom state logic and is useful when you find yourself keeping track of multiple pieces of state that rely on complex logic.</p><p>Syntax:</p><pre><code>useReducer(reducer, initialState, init)</code></pre>
+<p><em>The optional third argument init is a function that receives initialState and returns the actual initial state. Useful for expensive initialization (e.g., reading from localStorage) — the cost is paid only once. Dispatching a reset action can call init again to restore the initial value.</em></p><table><tr><td><p><strong>Parameter</strong></p></td><td><p><strong>Description</strong></p></td></tr><tr><td><p>reducer</p></td><td><p>Function containing custom state logic</p></td></tr><tr><td><p>initialState</p></td><td><p>Initial state value (simple value or object)</p></td></tr><tr><td><p>init</p></td><td><p>Optional function for lazy state initialisation</p></td></tr></table><pre><code><strong>Example – scoreboard</strong>
 import { useReducer } from 'react';
 
 const initialScore = [
@@ -408,8 +409,8 @@ function Score() {
     &lt;/&gt;
   );
 }</code></pre>
-<h2><strong>useCallback</strong></h2><p>The useCallback Hook returns a memoized callback function. This allows you to isolate resource-intensive functions from re-running on every render. Note: useCallback returns a memoized function, useMemo returns a memoized value.</p><p>Syntax:</p><pre><code>useCallback(callback, dependencies)
-<strong>Example – with useCallback (only clicked button re-renders)</strong>
+<p><em>The reducer returns a new array using .map() — never mutating the original state. action.id identifies which player to update; action.type selects the operation (INCREASE, DECREASE, RESET). dispatch({ type: 'INCREASE', id: 1 }) sends the action from a button click.</em></p><h2><strong>useCallback</strong></h2><p>The useCallback Hook returns a memoized callback function. This allows you to isolate resource-intensive functions from re-running on every render. Note: useCallback returns a memoized function, useMemo returns a memoized value.</p><p>Syntax:</p><pre><code>useCallback(callback, dependencies)</code></pre>
+<p><em>Returns a memoized version of callback that is only recreated when one of the dependencies changes. Without useCallback, a new function is created on every render, causing child components wrapped in React.memo to re-render needlessly.</em></p><pre><code><strong>Example – with useCallback (only clicked button re-renders)</strong>
 import React, { useState, useCallback } from 'react';
 
 const Button = React.memo(({ onClick, text }) =&gt; {
@@ -438,8 +439,8 @@ function WithCallbackExample() {
     &lt;/div&gt;
   );
 }</code></pre>
-<h2><strong>useMemo</strong></h2><p>The useMemo Hook returns a memoized value. It only runs when one of its dependencies updates, improving performance for expensive calculations.</p><p>Syntax:</p><pre><code>useMemo(() =&gt; computeExpensiveValue(a, b), [a, b])
-<strong>Example – expensive calculation with useMemo</strong>
+<p><em>Button is wrapped in React.memo, so it skips re-rendering if its props have not changed. Without useCallback, each parent render creates new handler references — new references break memo and both buttons re-render. With useCallback, only the button whose dependency changed re-renders.</em></p><h2><strong>useMemo</strong></h2><p>The useMemo Hook returns a memoized value. It only runs when one of its dependencies updates, improving performance for expensive calculations.</p><p>Syntax:</p><pre><code>useMemo(() =&gt; computeExpensiveValue(a, b), [a, b])</code></pre>
+<p><em>The factory function is called only when a or b changes. The cached result is returned on all other renders, avoiding the cost of recomputation.</em></p><pre><code><strong>Example – expensive calculation with useMemo</strong>
 import { useState, useMemo } from 'react';
 
 const expensiveCalculation = (num) =&gt; {
@@ -471,7 +472,7 @@ const App = () =&gt; {
     &lt;/div&gt;
   );
 };</code></pre>
-<h2><strong>Custom Hooks</strong></h2><p>Hooks are reusable functions. When you have component logic that needs to be used by multiple components, we can extract that logic to a custom Hook. Custom Hooks start with "use".</p><pre><code><strong>useFetch.js – custom hook</strong>
+<p><em>expensiveCalculation loops 1 billion times — an intentionally slow function. Without useMemo, it would run on every render even when only todos changes. useMemo([count]) ensures it only runs when count changes, keeping the app responsive.</em></p><h2><strong>Custom Hooks</strong></h2><p>Hooks are reusable functions. When you have component logic that needs to be used by multiple components, we can extract that logic to a custom Hook. Custom Hooks start with "use".</p><pre><code><strong>useFetch.js – custom hook</strong>
 import { useState, useEffect } from "react";
 
 const useFetch = (url) =&gt; {
@@ -486,8 +487,8 @@ const useFetch = (url) =&gt; {
   return [data];
 };
 
-export default useFetch;
-<strong>index.js – using the custom hook</strong>
+export default useFetch;</code></pre>
+<p><em>The hook manages data fetching internally: initializes data as null, fetches on mount or when url changes, and returns [data]. Any component using useFetch gets the fetched data reactively without duplicating the fetch logic.</em></p><pre><code><strong>index.js – using the custom hook</strong>
 import { createRoot } from 'react-dom/client';
 import useFetch from "./useFetch";
 
@@ -505,8 +506,8 @@ const Home = () =&gt; {
 };
 
 createRoot(document.getElementById('root')).render(&lt;Home /&gt;);</code></pre>
-<h1><strong>Part 3 – React.dev</strong></h1><p><em>Source: <a href="https://react.dev/reference/react/hooks" target="_blank" rel="noopener noreferrer">https://react.dev/reference/react/hooks</a></em></p><h2><strong>Built-in React Hooks Overview</strong></h2><p>Hooks let you use different React features from your components. You can either use the built-in Hooks or combine them to build your own.</p><table><tr><td><p><strong>Category</strong></p></td><td><p><strong>Hooks</strong></p></td></tr><tr><td><p>State Hooks</p></td><td><p>useState, useReducer</p></td></tr><tr><td><p>Context Hooks</p></td><td><p>useContext</p></td></tr><tr><td><p>Ref Hooks</p></td><td><p>useRef, useImperativeHandle</p></td></tr><tr><td><p>Effect Hooks</p></td><td><p>useEffect, useLayoutEffect, useInsertionEffect</p></td></tr><tr><td><p>Performance Hooks</p></td><td><p>useMemo, useCallback, useTransition, useDeferredValue</p></td></tr><tr><td><p>Other Hooks</p></td><td><p>useDebugValue, useId, useSyncExternalStore, useActionState</p></td></tr></table><h2><strong>useState</strong></h2><p>useState is a React Hook that lets you add a state variable to your component.</p><pre><code>const [state, setState] = useState(initialState)</code></pre>
-<h3><strong>Parameters &amp; Returns</strong></h3><table><tr><td><p><strong>Parameter / Return</strong></p></td><td><p><strong>Description</strong></p></td></tr><tr><td><p>initialState</p></td><td><p>The initial value. If a function is passed it is treated as an initializer (called once only).</p></td></tr><tr><td><p>Returns [state, set]</p></td><td><p>state is the current value; set updates it and triggers a re-render.</p></td></tr></table><h3><strong>Common Usage Patterns</strong></h3><p>Basic counter:</p><pre><code>function Counter() {
+<p><em>Home calls useFetch with a URL and destructures the result. When the fetch completes, data is set in state inside the hook, which triggers a re-render in Home that maps the results to &lt;p&gt; elements.</em></p><h1><strong>Part 3 – React.dev</strong></h1><p><em>Source: <a href="https://react.dev/reference/react/hooks" target="_blank" rel="noopener noreferrer">https://react.dev/reference/react/hooks</a></em></p><h2><strong>Built-in React Hooks Overview</strong></h2><p>Hooks let you use different React features from your components. You can either use the built-in Hooks or combine them to build your own.</p><table><tr><td><p><strong>Category</strong></p></td><td><p><strong>Hooks</strong></p></td></tr><tr><td><p>State Hooks</p></td><td><p>useState, useReducer</p></td></tr><tr><td><p>Context Hooks</p></td><td><p>useContext</p></td></tr><tr><td><p>Ref Hooks</p></td><td><p>useRef, useImperativeHandle</p></td></tr><tr><td><p>Effect Hooks</p></td><td><p>useEffect, useLayoutEffect, useInsertionEffect</p></td></tr><tr><td><p>Performance Hooks</p></td><td><p>useMemo, useCallback, useTransition, useDeferredValue</p></td></tr><tr><td><p>Other Hooks</p></td><td><p>useDebugValue, useId, useSyncExternalStore, useActionState</p></td></tr></table><h2><strong>useState</strong></h2><p>useState is a React Hook that lets you add a state variable to your component.</p><pre><code>const [state, setState] = useState(initialState)</code></pre>
+<p><em>state holds the current value; setState is the updater function that schedules a re-render with the new value. initialState is only used on the very first render.</em></p><h3><strong>Parameters &amp; Returns</strong></h3><table><tr><td><p><strong>Parameter / Return</strong></p></td><td><p><strong>Description</strong></p></td></tr><tr><td><p>initialState</p></td><td><p>The initial value. If a function is passed it is treated as an initializer (called once only).</p></td></tr><tr><td><p>Returns [state, set]</p></td><td><p>state is the current value; set updates it and triggers a re-render.</p></td></tr></table><h3><strong>Common Usage Patterns</strong></h3><p>Basic counter:</p><pre><code>function Counter() {
   const [count, setCount] = useState(0);
 
   function handleClick() {
@@ -519,7 +520,7 @@ createRoot(document.getElementById('root')).render(&lt;Home /&gt;);</code></pre>
     &lt;/button&gt;
   );
 }</code></pre>
-<p>Text input:</p><pre><code>function MyInput() {
+<p><em>calculation is always count * 2. The effect keeps it synchronized: whenever count updates the effect runs and updates calculation. For a simple derived value like this, useMemo is a cleaner alternative — useEffect is better suited for asynchronous or external side effects.</em></p><p>Text input:</p><pre><code>function MyInput() {
   const [text, setText] = useState('hello');
 
   return (
@@ -530,18 +531,18 @@ createRoot(document.getElementById('root')).render(&lt;Home /&gt;);</code></pre>
     &lt;/&gt;
   );
 }</code></pre>
-<h3><strong>Updater Function (avoid stale state)</strong></h3><p>Wrong – multiple calls in same event use stale value:</p><pre><code><em>// All three calls read the same stale age!</em>
+<p><em>This is a controlled input: value is always synchronized with state. Every keystroke fires onChange → setText(e.target.value) → re-render. The Reset button calls setText("hello"), restoring both state and the displayed input value.</em></p><h3><strong>Updater Function (avoid stale state)</strong></h3><p>Wrong – multiple calls in same event use stale value:</p><pre><code><em>// All three calls read the same stale age!</em>
 function handleClick() {
   setAge(age + 1); <em>// setAge(42 + 1)</em>
   setAge(age + 1); <em>// setAge(42 + 1) — still 42!</em>
   setAge(age + 1); <em>// result is 43, not 45</em>
 }</code></pre>
-<p>Correct – use updater function:</p><pre><code>function handleClick() {
+<p><em>React batches all state updates in a single event handler. All three setAge calls read the same age from the current render's closure — so only one increment takes effect, resulting in age + 1 rather than age + 3.</em></p><p>Correct – use updater function:</p><pre><code>function handleClick() {
   setAge(a =&gt; a + 1); <em>// 42 =&gt; 43</em>
   setAge(a =&gt; a + 1); <em>// 43 =&gt; 44</em>
   setAge(a =&gt; a + 1); <em>// 44 =&gt; 45</em>
 }</code></pre>
-<h3><strong>Updating Objects and Arrays</strong></h3><p>Always replace, never mutate:</p><pre><code><em>// Wrong: mutation</em>
+<p><em>Each updater function receives the most recent pending state rather than the stale closure value. React applies them in sequence: 42 → 43 → 44 → 45. Always use updater functions when multiple state updates happen in the same event handler.</em></p><h3><strong>Updating Objects and Arrays</strong></h3><p>Always replace, never mutate:</p><pre><code><em>// Wrong: mutation</em>
 form.firstName = 'Taylor';
 setForm(form);
 
@@ -559,7 +560,7 @@ setTodos(todos.map(t =&gt; t.id === nextTodo.id ? nextTodo : t));
 
 <em>// Array: delete</em>
 setTodos(todos.filter(t =&gt; t.id !== todoId));</code></pre>
-<h3><strong>Resetting State with Key</strong></h3><pre><code>export default function App() {
+<p><em>React uses reference equality to detect state changes. Mutating an existing object or array does not change its reference, so React skips the re-render. Always create a new object or array — spread (...) for objects, map/filter for arrays.</em></p><h3><strong>Resetting State with Key</strong></h3><pre><code>export default function App() {
   const [version, setVersion] = useState(0);
 
   return (
@@ -569,8 +570,8 @@ setTodos(todos.filter(t =&gt; t.id !== todoId));</code></pre>
     &lt;/&gt;
   );
 }</code></pre>
-<h2><strong>useReducer</strong></h2><p>useReducer is a React Hook that lets you add a reducer to your component. Useful for complex state with multiple sub-values or interdependent updates.</p><pre><code>const [state, dispatch] = useReducer(reducer, initialArg, init?)
-import { useReducer } from 'react';
+<p><em>Changing a child's key prop causes React to unmount the old instance and mount a fresh one with reset state. This is cleaner than manually resetting each state variable inside the child component.</em></p><h2><strong>useReducer</strong></h2><p>useReducer is a React Hook that lets you add a reducer to your component. Useful for complex state with multiple sub-values or interdependent updates.</p><pre><code>const [state, dispatch] = useReducer(reducer, initialArg, init?)</code></pre>
+<p><em>If init is provided, the initial state is init(initialArg). If omitted, initialArg is used directly. The init pattern supports resetting state to its initial value by dispatching a reset action that calls init again.</em></p><pre><code>import { useReducer } from 'react';
 
 function reducer(state, action) {
   switch (action.type) {
@@ -599,7 +600,7 @@ function MyComponent() {
     &lt;/&gt;
   );
 }</code></pre>
-<h3><strong>Managing Arrays with useReducer</strong></h3><pre><code>function tasksReducer(tasks, action) {
+<p><em>The reducer switches on action.type. Each case returns a new state object using spread — the existing state is never modified. The default throws an error, acting as a safety net for unhandled action types during development.</em></p><h3><strong>Managing Arrays with useReducer</strong></h3><pre><code>function tasksReducer(tasks, action) {
   switch (action.type) {
     case 'added':
       return [...tasks, { id: action.id, text: action.text, done: false }];
@@ -613,8 +614,8 @@ function MyComponent() {
 }
 
 const [tasks, dispatch] = useReducer(tasksReducer, initialTasks);</code></pre>
-<h2><strong>useContext</strong></h2><p>useContext is a React Hook that lets you read and subscribe to context from your component.</p><pre><code>const value = useContext(SomeContext)</code></pre>
-<p>Returns the context value from the closest matching provider above.</p><h3><strong>Passing Data Deeply</strong></h3><pre><code>import { createContext, useContext } from 'react';
+<p><em>"added" appends a new task using spread. "changed" uses map to swap the matching task by id. "deleted" uses filter to exclude it. All three operations return new arrays — the original tasks array is never mutated.</em></p><h2><strong>useContext</strong></h2><p>useContext is a React Hook that lets you read and subscribe to context from your component.</p><pre><code>const value = useContext(SomeContext)</code></pre>
+<p><em>Returns the value from the nearest SomeContext.Provider above this component in the tree. If no Provider is found, returns the default value passed to createContext(). The component re-renders automatically whenever the Provider's value changes.</em></p><p>Returns the context value from the closest matching provider above.</p><h3><strong>Passing Data Deeply</strong></h3><pre><code>import { createContext, useContext } from 'react';
 
 const ThemeContext = createContext(null);
 
@@ -631,7 +632,7 @@ function Button({ children }) {
   const className = 'button-' + theme;
   return &lt;button className={className}&gt;{children}&lt;/button&gt;;
 }</code></pre>
-<h3><strong>Dynamic Context (with useState)</strong></h3><pre><code>function MyPage() {
+<p><em>ThemeContext.Provider wraps MyApp's children with value="dark". Button reads the theme via useContext — no theme prop is passed through Form. Button applies the theme to its className, avoiding separate light/dark component variants.</em></p><h3><strong>Dynamic Context (with useState)</strong></h3><pre><code>function MyPage() {
   const [theme, setTheme] = useState('dark');
   return (
     &lt;ThemeContext value={theme}&gt;
@@ -642,7 +643,7 @@ function Button({ children }) {
     &lt;/ThemeContext&gt;
   );
 }</code></pre>
-<h3><strong>Scaling with Context + useReducer</strong></h3><pre><code><em>// TasksContext.js</em>
+<p><em>theme is owned as state by MyPage. ThemeContext.Provider passes the current theme to all descendants. Clicking the button calls setTheme("light"), re-rendering MyPage with the new value, which the Provider distributes to all consumers automatically.</em></p><h3><strong>Scaling with Context + useReducer</strong></h3><pre><code><em>// TasksContext.js</em>
 import { createContext, useContext, useReducer } from 'react';
 
 const TasksContext = createContext(null);
@@ -661,8 +662,8 @@ export function TasksProvider({ children }) {
 
 export function useTasks() { return useContext(TasksContext); }
 export function useTasksDispatch() { return useContext(TasksDispatchContext); }</code></pre>
-<h2><strong>useRef</strong></h2><p>useRef is a React Hook that lets you reference a value that is not needed for rendering. Mutating ref.current does NOT trigger a re-render.</p><pre><code>const ref = useRef(initialValue)</code></pre>
-<table><tr><td><p><strong>Use case</strong></p></td><td><p><strong>Use ref or state?</strong></p></td></tr><tr><td><p>Interval / timeout ID</p></td><td><p>ref</p></td></tr><tr><td><p>DOM node reference</p></td><td><p>ref</p></td></tr><tr><td><p>Value not shown on screen</p></td><td><p>ref</p></td></tr><tr><td><p>Data displayed in JSX</p></td><td><p>state</p></td></tr><tr><td><p>Triggers re-render on change</p></td><td><p>state</p></td></tr></table><p>Stopwatch – combining ref and state:</p><pre><code>import { useState, useRef } from 'react';
+<p><em>Two contexts are created: one for the tasks array, one for dispatch. Separating them means components that only dispatch (add/delete buttons) do not re-render when tasks change, and components that only read tasks do not re-render when dispatch is called.</em></p><h2><strong>useRef</strong></h2><p>useRef is a React Hook that lets you reference a value that is not needed for rendering. Mutating ref.current does NOT trigger a re-render.</p><pre><code>const ref = useRef(initialValue)</code></pre>
+<p><em>Returns { current: initialValue }. Unlike state, mutating ref.current does not schedule a re-render. The ref object itself is the same across every render — only its .current property changes.</em></p><table><tr><td><p><strong>Use case</strong></p></td><td><p><strong>Use ref or state?</strong></p></td></tr><tr><td><p>Interval / timeout ID</p></td><td><p>ref</p></td></tr><tr><td><p>DOM node reference</p></td><td><p>ref</p></td></tr><tr><td><p>Value not shown on screen</p></td><td><p>ref</p></td></tr><tr><td><p>Data displayed in JSX</p></td><td><p>state</p></td></tr><tr><td><p>Triggers re-render on change</p></td><td><p>state</p></td></tr></table><p>Stopwatch – combining ref and state:</p><pre><code>import { useState, useRef } from 'react';
 
 export default function Stopwatch() {
   const [startTime, setStartTime] = useState(null);
@@ -692,7 +693,7 @@ export default function Stopwatch() {
     &lt;/&gt;
   );
 }</code></pre>
-<p>DOM manipulation – focus and video player:</p><pre><code><em>// Focus example</em>
+<p><em>intervalRef stores the setInterval ID so it can be cleared on stop — no re-render needed when saving or clearing it. startTime and now are state because the elapsed-time display must update on every tick. Refs persist across renders without causing re-renders.</em></p><p>DOM manipulation – focus and video player:</p><pre><code><em>// Focus example</em>
 export default function Form() {
   const inputRef = useRef(null);
 
@@ -706,9 +707,10 @@ export default function Form() {
       &lt;button onClick={handleClick}&gt;Focus the input&lt;/button&gt;
     &lt;/&gt;
   );
-}</code></pre>
+}
+<em>ref={inputRef} connects the ref to the DOM node after mount. inputRef.current is then the real &lt;input&gt; element. Calling .focus() directly is an imperative DOM operation — the kind of action that has no declarative React equivalent.</em></code></pre>
 <h2><strong>useEffect</strong></h2><p>useEffect is a React Hook that lets you synchronize a component with an external system.</p><pre><code>useEffect(setup, dependencies?)</code></pre>
-<table><tr><td><p><strong>Parameter</strong></p></td><td><p><strong>Description</strong></p></td></tr><tr><td><p>setup</p></td><td><p>Function with effect logic. May return a cleanup function.</p></td></tr><tr><td><p>dependencies?</p></td><td><p>Array of reactive values. Effect re-runs when any change. Omit to run after every render.</p></td></tr></table><h3><strong>Connecting to External Systems</strong></h3><pre><code>import { useState, useEffect } from 'react';
+<p><em>setup is a function that runs after the commit phase. It can return a cleanup function called before the next effect run or on unmount. If dependencies is omitted, the effect runs after every render.</em></p><table><tr><td><p><strong>Parameter</strong></p></td><td><p><strong>Description</strong></p></td></tr><tr><td><p>setup</p></td><td><p>Function with effect logic. May return a cleanup function.</p></td></tr><tr><td><p>dependencies?</p></td><td><p>Array of reactive values. Effect re-runs when any change. Omit to run after every render.</p></td></tr></table><h3><strong>Connecting to External Systems</strong></h3><pre><code>import { useState, useEffect } from 'react';
 
 function ChatRoom({ roomId }) {
   const [serverUrl, setServerUrl] = useState('<a href="https://localhost:1234" target="_blank" rel="noopener noreferrer">https://localhost:1234</a>');
@@ -723,7 +725,7 @@ function ChatRoom({ roomId }) {
 
   return &lt;h1&gt;Welcome to the {roomId} room!&lt;/h1&gt;;
 }</code></pre>
-<h3><strong>Fetching Data</strong></h3><pre><code>useEffect(() =&gt; {
+<p><em>The effect connects to the server on mount or when serverUrl/roomId changes. The cleanup disconnects before the next connection attempt or on unmount — ensuring there are never multiple simultaneous connections to the same room.</em></p><h3><strong>Fetching Data</strong></h3><pre><code>useEffect(() =&gt; {
   let ignore = false;
   setBio(null);
 
@@ -733,8 +735,8 @@ function ChatRoom({ roomId }) {
 
   return () =&gt; { ignore = true; };
 }, [person]);</code></pre>
-<h3><strong>Common Pitfalls</strong></h3><table><tr><td><p><strong>Issue</strong></p></td><td><p><strong>Cause</strong></p></td><td><p><strong>Solution</strong></p></td></tr><tr><td><p>Effect runs twice on mount</p></td><td><p>Strict Mode stress-test</p></td><td><p>Implement proper cleanup function</p></td></tr><tr><td><p>Infinite loop</p></td><td><p>Effect updates a dependency</p></td><td><p>Use updater functions or move state reading to useEffectEvent</p></td></tr><tr><td><p>Runs after every render</p></td><td><p>Missing dependency array</p></td><td><p>Add [] or specify dependencies</p></td></tr><tr><td><p>Stale values in callback</p></td><td><p>Object/function created each render becomes dependency</p></td><td><p>Define object/function inside the Effect</p></td></tr></table><h2><strong>useMemo</strong></h2><p>useMemo is a React Hook that lets you cache the result of a calculation between re-renders.</p><pre><code>const cachedValue = useMemo(calculateValue, dependencies)</code></pre>
-<h3><strong>Skipping Expensive Recalculations</strong></h3><pre><code>import { useMemo } from 'react';
+<p><em>The ignore flag prevents race conditions: if the user picks a different person before the first fetch resolves, the cleanup sets ignore = true and the stale response is discarded. Without this, a slow first response could overwrite a faster second response.</em></p><h3><strong>Common Pitfalls</strong></h3><table><tr><td><p><strong>Issue</strong></p></td><td><p><strong>Cause</strong></p></td><td><p><strong>Solution</strong></p></td></tr><tr><td><p>Effect runs twice on mount</p></td><td><p>Strict Mode stress-test</p></td><td><p>Implement proper cleanup function</p></td></tr><tr><td><p>Infinite loop</p></td><td><p>Effect updates a dependency</p></td><td><p>Use updater functions or move state reading to useEffectEvent</p></td></tr><tr><td><p>Runs after every render</p></td><td><p>Missing dependency array</p></td><td><p>Add [] or specify dependencies</p></td></tr><tr><td><p>Stale values in callback</p></td><td><p>Object/function created each render becomes dependency</p></td><td><p>Define object/function inside the Effect</p></td></tr></table><h2><strong>useMemo</strong></h2><p>useMemo is a React Hook that lets you cache the result of a calculation between re-renders.</p><pre><code>const cachedValue = useMemo(calculateValue, dependencies)</code></pre>
+<p><em>calculateValue is a zero-argument pure function; useMemo calls it and caches the result. The cache is invalidated only when a dependency changes. Avoid side effects inside calculateValue — useMemo is for pure computations only.</em></p><h3><strong>Skipping Expensive Recalculations</strong></h3><pre><code>import { useMemo } from 'react';
 
 function TodoList({ todos, tab, theme }) {
   const visibleTodos = useMemo(
@@ -752,7 +754,7 @@ function TodoList({ todos, tab, theme }) {
     &lt;/div&gt;
   );
 }</code></pre>
-<h3><strong>Skipping Re-renders with memo</strong></h3><pre><code>import { useMemo, memo } from 'react';
+<p><em>visibleTodos is recalculated only when todos or tab changes. If the parent re-renders because theme changed but todos and tab did not, the memoized list is reused immediately — filterTodos is not called again.</em></p><h3><strong>Skipping Re-renders with memo</strong></h3><pre><code>import { useMemo, memo } from 'react';
 
 const List = memo(function List({ items }) {
   return items.map(item =&gt; &lt;li key={item.id}&gt;{item.text}&lt;/li&gt;);
@@ -771,8 +773,8 @@ export default function TodoList({ todos, tab, theme }) {
     &lt;/div&gt;
   );
 }</code></pre>
-<h3><strong>When to use useMemo</strong></h3><table><tr><td><p><strong>Use useMemo</strong></p></td><td><p><strong>Do NOT use useMemo</strong></p></td></tr><tr><td><p>Calculation takes &gt;= 1ms</p></td><td><p>Simple, fast calculations</p></td></tr><tr><td><p>Passing value to memo() child</p></td><td><p>Value not passed to memoized component</p></td></tr><tr><td><p>Value used as dep of another hook</p></td><td><p>Code that does not work without it (fix the bug)</p></td></tr></table><h2><strong>useCallback</strong></h2><p>useCallback is a React Hook that lets you cache a function definition between re-renders.</p><pre><code>const cachedFn = useCallback(fn, dependencies)</code></pre>
-<h3><strong>Preventing Re-renders of Memoized Children</strong></h3><pre><code>import { useCallback, memo } from 'react';
+<p><em>memo makes List skip re-rendering if items has not changed by reference. useMemo ensures visibleTodos has a stable reference across renders where todos and tab are unchanged. Without useMemo, every parent render would produce a new array reference, defeating memo.</em></p><h3><strong>When to use useMemo</strong></h3><table><tr><td><p><strong>Use useMemo</strong></p></td><td><p><strong>Do NOT use useMemo</strong></p></td></tr><tr><td><p>Calculation takes &gt;= 1ms</p></td><td><p>Simple, fast calculations</p></td></tr><tr><td><p>Passing value to memo() child</p></td><td><p>Value not passed to memoized component</p></td></tr><tr><td><p>Value used as dep of another hook</p></td><td><p>Code that does not work without it (fix the bug)</p></td></tr></table><h2><strong>useCallback</strong></h2><p>useCallback is a React Hook that lets you cache a function definition between re-renders.</p><pre><code>const cachedFn = useCallback(fn, dependencies)</code></pre>
+<p><em>Returns the same function object between renders while dependencies are unchanged. Equivalent to useMemo(() =&gt; fn, deps) but the idiomatic choice when caching a function — the name communicates intent clearly.</em></p><h3><strong>Preventing Re-renders of Memoized Children</strong></h3><pre><code>import { useCallback, memo } from 'react';
 
 function ProductPage({ productId, referrer, theme }) {
   const handleSubmit = useCallback((orderDetails) =&gt; {
@@ -789,10 +791,10 @@ function ProductPage({ productId, referrer, theme }) {
 const ShippingForm = memo(function ShippingForm({ onSubmit }) {
   <em>// Only re-renders if onSubmit prop changes</em>
 });</code></pre>
-<h3><strong>useMemo vs useCallback</strong></h3><table><tr><td><p><strong>Hook</strong></p></td><td><p><strong>Caches</strong></p></td><td><p><strong>Use when</strong></p></td></tr><tr><td><p>useCallback</p></td><td><p>The function itself</p></td><td><p>Passing callbacks to memoized child components</p></td></tr><tr><td><p>useMemo</p></td><td><p>The result of calling function</p></td><td><p>Expensive computations used in rendering</p></td></tr></table><pre><code><em>// These are equivalent:</em>
+<p><em>handleSubmit is memoized: it only changes when productId or referrer changes. ShippingForm (wrapped in memo) sees the same function reference across theme-only re-renders and skips re-rendering. Without useCallback, every ProductPage render would give ShippingForm a new function, breaking memo.</em></p><h3><strong>useMemo vs useCallback</strong></h3><table><tr><td><p><strong>Hook</strong></p></td><td><p><strong>Caches</strong></p></td><td><p><strong>Use when</strong></p></td></tr><tr><td><p>useCallback</p></td><td><p>The function itself</p></td><td><p>Passing callbacks to memoized child components</p></td></tr><tr><td><p>useMemo</p></td><td><p>The result of calling function</p></td><td><p>Expensive computations used in rendering</p></td></tr></table><pre><code><em>// These are equivalent:</em>
 useCallback(fn, deps)
 useMemo(() =&gt; fn, deps)</code></pre>
-<h2><strong>useTransition &amp; useDeferredValue</strong></h2><p>useTransition marks a state update as non-blocking (lower priority). useDeferredValue defers updating a non-critical part of the UI.</p><pre><code><em>// useTransition</em>
+<p><em>useCallback is syntactic sugar for useMemo returning a function. Both produce the same stable reference. Prefer useCallback when caching a function — it is more readable and communicates intent clearly.</em></p><h2><strong>useTransition &amp; useDeferredValue</strong></h2><p>useTransition marks a state update as non-blocking (lower priority). useDeferredValue defers updating a non-critical part of the UI.</p><pre><code><em>// useTransition</em>
 const [isPending, startTransition] = useTransition();
 
 startTransition(() =&gt; {
@@ -801,7 +803,7 @@ startTransition(() =&gt; {
 
 <em>// useDeferredValue</em>
 const deferredValue = useDeferredValue(value);</code></pre>
-<h2><strong>Other Built-in Hooks</strong></h2><table><tr><td><p><strong>Hook</strong></p></td><td><p><strong>Description</strong></p></td><td><p><strong>Example use</strong></p></td></tr><tr><td><p>useId</p></td><td><p>Generates a unique ID stable across server/client renders</p></td><td><p>Accessibility attributes (aria-labelledby)</p></td></tr><tr><td><p>useDebugValue</p></td><td><p>Displays a label in React DevTools for a custom Hook</p></td><td><p>Debugging custom hooks</p></td></tr><tr><td><p>useSyncExternalStore</p></td><td><p>Subscribes to an external data store</p></td><td><p>Redux, Zustand, browser APIs</p></td></tr><tr><td><p>useImperativeHandle</p></td><td><p>Customises the ref handle exposed to parent components</p></td><td><p>Exposing specific methods from a child</p></td></tr><tr><td><p>useLayoutEffect</p></td><td><p>Like useEffect but fires before browser paint (synchronous)</p></td><td><p>Measuring DOM, scroll position</p></td></tr><tr><td><p>useInsertionEffect</p></td><td><p>Fires before React makes DOM changes; for CSS-in-JS libraries</p></td><td><p>Emotion, styled-components internals</p></td></tr></table><h2><strong>Custom Hooks</strong></h2><p>You can create your own Hooks to share stateful logic between components. A custom Hook is a JavaScript function whose name starts with "use" and that may call other Hooks.</p><pre><code><em>// useChatRoom.js</em>
+<p><em>startTransition marks the setPage update as non-urgent — React can interrupt it to handle higher-priority input (like keystrokes). isPending is true while the transition is in progress, useful for showing a loading indicator. useDeferredValue similarly defers re-rendering with new data until the browser is idle.</em></p><h2><strong>Other Built-in Hooks</strong></h2><table><tr><td><p><strong>Hook</strong></p></td><td><p><strong>Description</strong></p></td><td><p><strong>Example use</strong></p></td></tr><tr><td><p>useId</p></td><td><p>Generates a unique ID stable across server/client renders</p></td><td><p>Accessibility attributes (aria-labelledby)</p></td></tr><tr><td><p>useDebugValue</p></td><td><p>Displays a label in React DevTools for a custom Hook</p></td><td><p>Debugging custom hooks</p></td></tr><tr><td><p>useSyncExternalStore</p></td><td><p>Subscribes to an external data store</p></td><td><p>Redux, Zustand, browser APIs</p></td></tr><tr><td><p>useImperativeHandle</p></td><td><p>Customises the ref handle exposed to parent components</p></td><td><p>Exposing specific methods from a child</p></td></tr><tr><td><p>useLayoutEffect</p></td><td><p>Like useEffect but fires before browser paint (synchronous)</p></td><td><p>Measuring DOM, scroll position</p></td></tr><tr><td><p>useInsertionEffect</p></td><td><p>Fires before React makes DOM changes; for CSS-in-JS libraries</p></td><td><p>Emotion, styled-components internals</p></td></tr></table><h2><strong>Custom Hooks</strong></h2><p>You can create your own Hooks to share stateful logic between components. A custom Hook is a JavaScript function whose name starts with "use" and that may call other Hooks.</p><pre><code><em>// useChatRoom.js</em>
 function useChatRoom({ serverUrl, roomId }) {
   useEffect(() =&gt; {
     const connection = createConnection(serverUrl, roomId);
@@ -815,8 +817,8 @@ function ChatRoom({ roomId }) {
   const [serverUrl, setServerUrl] = useState('<a href="https://localhost:1234" target="_blank" rel="noopener noreferrer">https://localhost:1234</a>');
   useChatRoom({ roomId, serverUrl });
   <em>// ...</em>
-}
-<em>// useWindowSize.js</em>
+}</code></pre>
+<p><em>The custom hook moves the useEffect connection logic out of the component. Any component can call useChatRoom({ serverUrl, roomId }) and get automatic connect/disconnect behavior without duplicating the effect code.</em></p><pre><code><em>// useWindowSize.js</em>
 import { useState, useEffect } from 'react';
 
 function useWindowSize() {
@@ -841,7 +843,7 @@ function App() {
   const { width, height } = useWindowSize();
   return &lt;p&gt;Window: {width} x {height}&lt;/p&gt;;
 }</code></pre>
-
+<p><em>Initializes size from the current window dimensions, subscribes to the resize event on mount, and removes the listener in the cleanup on unmount. Any component using useWindowSize() re-renders automatically whenever the window is resized.</em></p>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
   <script>
     document.querySelectorAll('pre code').forEach(function(el){if(!el.className)el.classList.add('language-typescript');});
