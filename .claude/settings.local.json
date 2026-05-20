@@ -18,7 +18,9 @@
       "Bash(node build.js)",
       "Bash(powershell -Command \"Select-String -Path 'C:\\\\Users\\\\roman\\\\Work\\\\claude\\\\projects\\\\MyStudyDocs\\\\docs\\\\Others\\\\topics.html' -Pattern 'Klíčový rozdíl' -Context 2,2\")",
       "Bash(powershell *)",
-      "Bash(node *)"
+      "Bash(node *)",
+      "Bash(Select-String -Path \"C:\\\\Users\\\\roman\\\\Work\\\\claude\\\\projects\\\\MyStudyDocs\\\\docs\\\\Angular\\\\Angular_Vytvoření_projektu.html\" -Pattern \"\\\\.docx\")",
+      "Bash(Select-Object -First 5)"
     ]
   }
 }

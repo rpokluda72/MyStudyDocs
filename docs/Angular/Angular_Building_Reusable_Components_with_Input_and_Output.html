@@ -8,7 +8,10 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
 </head>
 <body>
-  <h1>Angular-Building Reusable Components with Input and Output</h1>
+  <div style="display:flex;align-items:baseline;gap:12px;margin-bottom:4px;">
+    <h1 style="margin:0 0 8px;">Angular-Building Reusable Components with Input and Output</h1>
+    <a href="Angular_Building_Reusable_Components_with_Input_and_Output.docx" download style="font-size:13px;color:#555;text-decoration:none;border:1px solid #ccc;border-radius:4px;padding:3px 9px;background:#f5f5f5;" title="Download original .docx">&#8681; .docx</a>
+  </div>
   <p><a href="https://medium.com/@ausaf.cs/building-reusable-components-with-input-and-output-in-angular-37593b482e53" target="_blank" rel="noopener noreferrer"><a href="https://medium.com/@ausaf.cs/building-reusable-components-with-input-and-output-in-angular-37593b482e53" target="_blank" rel="noopener noreferrer">https://medium.com/@ausaf.cs/building-reusable-components-with-input-and-output-in-angular-37593b482e53</a></a></p><p><strong>Building Reusable Components with Input and Output in Angular</strong></p><p><strong>Why Reusability Matters?</strong></p><p>When working on an Angular application, you often need to <strong>share data between components</strong>. Instead of duplicating logic, we can create <strong>reusable components</strong> that handle data dynamically using @Input() and @Output().</p><p><strong>Understanding @Input()</strong></p><p>The @Input() decorator allows a <strong>parent component</strong> to pass data <strong>to a child component</strong>.</p><p><strong>Example:</strong> Passing a user object to a child component.</p><p><strong><em>Parent Component (app.component.ts)</em></strong></p><pre><code>@Component({
   selector: 'app-root',
   template: `&lt;app-user-card [user]="userData"&gt;&lt;/app-user-card&gt;`

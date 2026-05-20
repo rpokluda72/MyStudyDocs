@@ -903,9 +903,12 @@ const IN_PAGE_SEARCH_JS = `(function () {
     });
 })();`;
 
-function contentPage(title, body, lang = null) {
+function contentPage(title, body, lang = null, sourceFile = null) {
   const addLangClass = lang
     ? `document.querySelectorAll('pre code').forEach(function(el){if(!el.className)el.classList.add('language-${lang}');});`
+    : '';
+  const downloadLink = sourceFile
+    ? `<a href="${sourceFile}" download style="font-size:13px;color:#555;text-decoration:none;border:1px solid #ccc;border-radius:4px;padding:3px 9px;background:#f5f5f5;" title="Download original .docx">&#8681; .docx</a>`
     : '';
   return `<!DOCTYPE html>
 <html lang="cs">
@@ -917,7 +920,10 @@ function contentPage(title, body, lang = null) {
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
 </head>
 <body>
-  <h1>${title}</h1>
+  <div style="display:flex;align-items:baseline;gap:12px;margin-bottom:4px;">
+    <h1 style="margin:0 0 8px;">${title}</h1>
+    ${downloadLink}
+  </div>
   ${body}
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"><\/script>
   <script>
@@ -1045,7 +1051,9 @@ async function build() {
 
         const lang = { Java: 'java', Angular: 'typescript', React: 'typescript', RxJS: 'typescript' }[folderName] || null;
         const codeTexts = getCodeParagraphTexts(path.join(folderSrc, docxFile));
-        writeFile(path.join(folderOut, htmlFile), contentPage(stem, fixExternalLinks(linkifyUrls(wrapCodeBlocks(result.value, codeTexts))), lang));
+        const docxDest = slug + '.docx';
+        fs.copyFileSync(path.join(folderSrc, docxFile), path.join(folderOut, docxDest));
+        writeFile(path.join(folderOut, htmlFile), contentPage(stem, fixExternalLinks(linkifyUrls(wrapCodeBlocks(result.value, codeTexts))), lang, docxDest));
 
         const href = `${folderName}/${htmlFile}`;
         searchIndex.push({
