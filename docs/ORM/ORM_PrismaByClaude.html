@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ORM_PrismaByClaude</title>
+  <link rel="stylesheet" href="../assets/content.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+</head>
+<body>
+  <div style="display:flex;align-items:baseline;gap:12px;margin-bottom:4px;">
+    <h1 style="margin:0 0 8px;">ORM_PrismaByClaude</h1>
+    <a href="ORM_PrismaByClaude.docx" download style="font-size:13px;color:#555;text-decoration:none;border:1px solid #ccc;border-radius:4px;padding:3px 9px;background:#f5f5f5;" title="Download original .docx">&#8681; .docx</a>
+  </div>
+  <p><strong>Prisma</strong></p><p>MySQL Tutorial — Blog System</p><p>2026-05-21</p><p><strong>1. Introduction</strong></p><p>Prisma (2019) is a schema-first ORM that uses a declarative schema language (Prisma SDL) as the single source of truth. It auto-generates a fully-typed PrismaClient at build time, delivering outstanding TypeScript auto-complete for queries without needing extra type definitions.</p><p><strong>Key Concepts</strong></p><ul><li>schema.prisma — defines models, relations, and DB connection in Prisma SDL.</li><li>PrismaClient — auto-generated, fully-typed query builder; one shared instance per process.</li><li>prisma migrate — manages schema migrations via generated SQL files checked into git.</li><li>Prisma Studio — browser GUI to inspect and edit data, started with npx prisma studio.</li><li>@relation() — required on every relation field; defines FK fields and references explicitly.</li></ul><p><strong>When to Use</strong></p><ul><li>TypeScript projects where developer experience and end-to-end type safety are paramount.</li><li>Teams that want a single schema file as the source of truth for both DB and types.</li><li>Rapid development where Prisma Studio for live data inspection adds value.</li></ul><p><strong>When NOT to Use</strong></p><ul><li>Projects needing deep QueryBuilder flexibility for very complex aggregations.</li><li>Environments where running npx prisma generate at build time is not feasible.</li></ul><p><strong>Library Info</strong></p><table><tr><td><p><strong>Website</strong></p></td><td><p><a href="https://www.prisma.io" target="_blank" rel="noopener noreferrer">https://www.prisma.io</a></p></td></tr><tr><td><p><strong>Version</strong></p></td><td><p>v5.x (latest)</p></td></tr><tr><td><p><strong>Language</strong></p></td><td><p>TypeScript (primary)</p></td></tr><tr><td><p><strong>Pattern</strong></p></td><td><p>Schema-first / Data Mapper</p></td></tr><tr><td><p><strong>DB Support</strong></p></td><td><p>MySQL, PostgreSQL, SQLite, MSSQL, MongoDB, CockroachDB</p></td></tr><tr><td><p><strong>License</strong></p></td><td><p>Apache 2.0</p></td></tr><tr><td><p><strong>GitHub Stars</strong></p></td><td><p>~39 000</p></td></tr></table><p><strong>2. Installation &amp; Setup</strong></p><p><strong>Install Packages</strong></p><table><tr><td><p>npm install @prisma/client</p><p>npm install --save-dev prisma</p><p># Initialise schema.prisma + .env</p><p>npx prisma init --datasource-provider mysql</p></td></tr></table><pre><code><strong>.env File</strong></code></pre>
+<table><tr><td><p># .env</p><p>DATABASE_URL="mysql://root:secret@localhost:3306/blog_db?charset=utf8mb4"</p></td></tr></table><p><strong>PrismaClient Singleton</strong></p><p>Create one shared instance to avoid exhausting the connection pool on hot reloads:</p><table><tr><td><p>// lib/prisma.ts</p><p>import { PrismaClient } from '@prisma/client';</p><p>const globalForPrisma = globalThis as unknown as { prisma?: PrismaClient };</p><p>export const prisma =</p><p>  globalForPrisma.prisma ??</p><p>  new PrismaClient({ log: ['error'] });</p><p>if (process.env.NODE_ENV !== 'production') {</p><p>  globalForPrisma.prisma = prisma;</p><p>}</p></td></tr></table><p><strong>3. Schema Definition</strong></p><p>All models live in a single schema.prisma file. Relations use @relation() with explicit foreign-key and reference fields.</p><p><strong>Datasource &amp; Generator</strong></p><table><tr><td><p>// schema.prisma</p><p>datasource db {</p><p>  provider = "mysql"</p><p>  url      = env("DATABASE_URL")</p><p>}</p><p>generator client {</p><p>  provider = "prisma-client-js"</p><p>}</p></td></tr></table><p><strong>User Model</strong></p><table><tr><td><p>model User {</p><p>  id           Int       @id @default(autoincrement())</p><p>  username     String    @unique @db.VarChar(50)</p><p>  email        String    @unique @db.VarChar(255)</p><p>  passwordHash String    @db.VarChar(255)</p><p>  createdAt    DateTime  @default(now())</p><p>  posts        Post[]</p><p>  comments     Comment[]</p><p>  @@map("users")</p><p>}</p></td></tr></table><p><strong>Post Model</strong></p><table><tr><td><p>model Post {</p><p>  id        Int       @id @default(autoincrement())</p><p>  title     String    @db.VarChar(255)</p><p>  content   String    @db.Text</p><p>  status    Status    @default(draft)</p><p>  authorId  Int</p><p>  author    User      @relation(fields: [authorId], references: [id])</p><p>  comments  Comment[]</p><p>  tags      Tag[]     @relation("PostTags")</p><p>  createdAt DateTime  @default(now())</p><p>  updatedAt DateTime  @updatedAt</p><p>  @@map("posts")</p><p>}</p><p>enum Status {</p><p>  draft</p><p>  published</p><p>}</p></td></tr></table><p><strong>Comment Model</strong></p><table><tr><td><p>model Comment {</p><p>  id        Int      @id @default(autoincrement())</p><p>  content   String   @db.Text</p><p>  postId    Int</p><p>  post      Post     @relation(fields: [postId],   references: [id])</p><p>  authorId  Int</p><p>  author    User     @relation(fields: [authorId], references: [id])</p><p>  createdAt DateTime @default(now())</p><p>  @@map("comments")</p><p>}</p></td></tr></table><p><strong>Tag Model</strong></p><table><tr><td><p>model Tag {</p><p>  id    Int    @id @default(autoincrement())</p><p>  name  String @unique @db.VarChar(100)</p><p>  posts Post[] @relation("PostTags")</p><p>  @@map("tags")</p><p>}</p><p>// Prisma manages the post_tags junction table automatically.</p><p>// For an explicit junction model use:</p><p>//   model PostTag { postId Int; tagId Int; @@id([postId, tagId]) }</p></td></tr></table><p><strong>Generate the Client</strong></p><table><tr><td><p>npx prisma generate</p></td></tr></table><p><strong>ER Diagram</strong></p><table><tr><td><p>  ┌──────────────────┐     ┌────────────────────────┐     ┌──────────────────┐</p><p>  │      users       │     │         posts          │     │     comments     │</p><p>  ├──────────────────┤     ├────────────────────────┤     ├──────────────────┤</p><p>  │ id (PK)          │◄────│ authorId (FK)          │◄────│ postId (FK)      │</p><p>  │ username UNIQUE  │     │ id (PK)                │     │ authorId (FK)──► │</p><p>  │ email UNIQUE     │     │ title                  │     │ id (PK)          │</p><p>  │ passwordHash     │     │ content                │     │ content          │</p><p>  │ createdAt        │     │ status ENUM            │     │ createdAt        │</p><p>  └──────────────────┘     │ createdAt / updatedAt  │     └──────────────────┘</p><p>                           └────────────────────────┘</p><p>                                       │</p><p>                          N:M via post_tags junction</p><p>                                       │</p><p>                                       ▼</p><p>                           ┌──────────────────┐</p><p>                           │       tags       │</p><p>                           ├──────────────────┤</p><p>                           │ id (PK)          │</p><p>                           │ name UNIQUE      │</p><p>                           └──────────────────┘</p></td></tr></table><p><em>Blog System — Entity Relationship Diagram</em></p><p><strong>4. CRUD Operations</strong></p><p><strong>Create</strong></p><table><tr><td><p>const post = await prisma.post.create({</p><p>  data: {</p><p>    title:    'Getting Started with Prisma',</p><p>    content:  'Prisma uses a schema file...',</p><p>    status:   'draft',</p><p>    authorId: 1,</p><p>  },</p><p>});</p><p>console.log(post.id);</p></td></tr></table><p><strong>Find by Primary Key</strong></p><table><tr><td><p>const post = await prisma.post.findUnique({ where: { id: 42 } });</p><p>if (!post) throw new Error('Post not found');</p></td></tr></table><p><strong>Find All</strong></p><table><tr><td><p>const posts = await prisma.post.findMany({</p><p>  where:   { status: 'published' },</p><p>  orderBy: { createdAt: 'desc' },</p><p>});</p></td></tr></table><p><strong>Update</strong></p><table><tr><td><p>const updated = await prisma.post.update({</p><p>  where: { id: 42 },</p><p>  data:  { title: 'Updated Title', status: 'published' },</p><p>});</p></td></tr></table><p><strong>Delete</strong></p><table><tr><td><p>await prisma.post.delete({ where: { id: 42 } });</p></td></tr></table><p><strong>5. Querying</strong></p><p><strong>WHERE with Multiple Conditions</strong></p><table><tr><td><p>const posts = await prisma.post.findMany({</p><p>  where: {</p><p>    authorId: 5,</p><p>    status:   'published',</p><p>  },</p><p>  orderBy: { createdAt: 'desc' },</p><p>});</p></td></tr></table><p><strong>Pagination</strong></p><table><tr><td><p>const PAGE     = 2;</p><p>const PER_PAGE = 10;</p><p>const [posts, total] = await prisma.$transaction([</p><p>  prisma.post.findMany({</p><p>    where:   { status: 'published' },</p><p>    orderBy: { createdAt: 'desc' },</p><p>    take:    PER_PAGE,</p><p>    skip:    (PAGE - 1) * PER_PAGE,</p><p>  }),</p><p>  prisma.post.count({ where: { status: 'published' } }),</p><p>]);</p><p>console.log(`Page ${PAGE} of ${Math.ceil(total / PER_PAGE)}`);</p></td></tr></table><p><strong>Select Specific Fields</strong></p><table><tr><td><p>const posts = await prisma.post.findMany({</p><p>  where:  { status: 'published' },</p><p>  select: { title: true, createdAt: true },</p><p>});</p></td></tr></table><p><strong>LIKE Search (contains)</strong></p><table><tr><td><p>const posts = await prisma.post.findMany({</p><p>  where: { title: { contains: 'prisma' } },</p><p>});</p></td></tr></table><p><strong>6. Associations</strong></p><p><strong>Load Posts with Author (1:N)</strong></p><table><tr><td><p>const posts = await prisma.post.findMany({</p><p>  where:   { status: 'published' },</p><p>  include: { author: { select: { username: true, email: true } } },</p><p>});</p><p>posts.forEach(p =&gt; console.log(p.title, p.author.username));</p></td></tr></table><p><strong>Nested Create — Post with First Comment</strong></p><table><tr><td><p>const post = await prisma.post.create({</p><p>  data: {</p><p>    title:    'New Post',</p><p>    content:  'Content here...',</p><p>    status:   'draft',</p><p>    authorId: 1,</p><p>    comments: {</p><p>      create: { content: 'First comment!', authorId: 2 },</p><p>    },</p><p>  },</p><p>  include: { comments: true },</p><p>});</p></td></tr></table><p><strong>Many-to-Many — Post with Tags</strong></p><table><tr><td><p>const post = await prisma.post.findUnique({</p><p>  where:   { id: 1 },</p><p>  include: { tags: true },</p><p>});</p><p>// Connect an existing tag</p><p>await prisma.post.update({</p><p>  where: { id: 1 },</p><p>  data:  { tags: { connect: { id: 3 } } },</p><p>});</p></td></tr></table><p><strong>7. Migrations</strong></p><p><strong>CLI Commands</strong></p><table><tr><td><p># Create and apply a new migration (development)</p><p>npx prisma migrate dev --name init</p><p># Apply pending migrations in production</p><p>npx prisma migrate deploy</p><p># Reset DB (drop + re-migrate + seed) — development only</p><p>npx prisma migrate reset</p><p># Check migration status</p><p>npx prisma migrate status</p><p># Open Prisma Studio GUI</p><p>npx prisma studio</p></td></tr></table><p><strong>Generated Migration SQL (example)</strong></p><table><tr><td><p>-- prisma/migrations/_init/migration.sql</p><p>CREATE TABLE `users` (</p><p>  `id`           INT UNSIGNED NOT NULL AUTO_INCREMENT,</p><p>  `username`     VARCHAR(50)  NOT NULL,</p><p>  `email`        VARCHAR(255) NOT NULL,</p><p>  `passwordHash` VARCHAR(255) NOT NULL,</p><p>  `createdAt`    DATETIME(3)  NOT NULL DEFAULT CURRENT_TIMESTAMP(3),</p><p>  UNIQUE INDEX `users_username_key` (`username`),</p><p>  UNIQUE INDEX `users_email_key`    (`email`),</p><p>  PRIMARY KEY (`id`)</p><p>) DEFAULT CHARACTER SET utf8mb4;</p></td></tr></table><p><strong>8. Transactions</strong></p><p>Prisma provides two transaction forms. Interactive transactions ($transaction with callback) are the most flexible and recommended when operations depend on each other's results:</p><p><strong>Interactive Transaction</strong></p><table><tr><td><p>const { post, comment } = await prisma.$transaction(async (tx) =&gt; {</p><p>  const post = await tx.post.create({</p><p>    data: {</p><p>      title:    'Atomic Post',</p><p>      content:  'Created inside a transaction.',</p><p>      status:   'draft',</p><p>      authorId: 1,</p><p>    },</p><p>  });</p><p>  const comment = await tx.comment.create({</p><p>    data: {</p><p>      content:  'First comment on the new post.',</p><p>      postId:   post.id,</p><p>      authorId: 2,</p><p>    },</p><p>  });</p><p>  return { post, comment };</p><p>});</p></td></tr></table><p><strong>Sequential (Array) Transaction</strong></p><p>For independent operations that do not need each other's results:</p><table><tr><td><p>const [newTag, postCount] = await prisma.$transaction([</p><p>  prisma.tag.create({ data: { name: 'nodejs' } }),</p><p>  prisma.post.count({ where: { status: 'published' } }),</p><p>]);</p></td></tr></table><p><strong>9. Raw / Advanced Queries</strong></p><p>Top 5 authors by published post count using $queryRaw:</p><table><tr><td><p>import { Prisma } from '@prisma/client';</p><p>const results = await prisma.$queryRaw&lt;</p><p>  Array&lt;{ username: string; email: string; postCount: bigint }&gt;</p><p>&gt;(Prisma.sql`</p><p>  SELECT u.username, u.email, COUNT(p.id) AS postCount</p><p>    FROM users  u</p><p>    JOIN posts  p ON p.authorId = u.id</p><p>   WHERE p.status = 'published'</p><p>   GROUP BY u.id</p><p>   ORDER BY postCount DESC</p><p>   LIMIT 5</p><p>`);</p><p>// COUNT returns bigint in raw queries — convert with Number()</p><p>results.forEach(r =&gt; console.log(r.username, Number(r.postCount)));</p></td></tr></table><p><strong>Using groupBy (Prisma API)</strong></p><table><tr><td><p>const grouped = await prisma.post.groupBy({</p><p>  by:      ['authorId'],</p><p>  where:   { status: 'published' },</p><p>  _count:  { id: true },</p><p>  orderBy: { _count: { id: 'desc' } },</p><p>  take:    5,</p><p>});</p><p>grouped.forEach(g =&gt; console.log(g.authorId, g._count.id));</p></td></tr></table><p><strong>10. Quick Reference</strong></p><table><tr><td><p><strong>Operation</strong></p></td><td><p><strong>API / Method</strong></p></td></tr><tr><td><p><strong>Install</strong></p></td><td><p>npm install @prisma/client &amp;&amp; npm i -D prisma</p></td></tr><tr><td><p><strong>Init schema</strong></p></td><td><p>npx prisma init --datasource-provider mysql</p></td></tr><tr><td><p><strong>Generate client</strong></p></td><td><p>npx prisma generate</p></td></tr><tr><td><p><strong>Create</strong></p></td><td><p>prisma.model.create({ data: {...} })</p></td></tr><tr><td><p><strong>Find unique</strong></p></td><td><p>prisma.model.findUnique({ where: { id } })</p></td></tr><tr><td><p><strong>Find first</strong></p></td><td><p>prisma.model.findFirst({ where: {} })</p></td></tr><tr><td><p><strong>Find many</strong></p></td><td><p>prisma.model.findMany({ where, orderBy, take, skip })</p></td></tr><tr><td><p><strong>Update</strong></p></td><td><p>prisma.model.update({ where: { id }, data: {} })</p></td></tr><tr><td><p><strong>Upsert</strong></p></td><td><p>prisma.model.upsert({ where, update, create })</p></td></tr><tr><td><p><strong>Delete</strong></p></td><td><p>prisma.model.delete({ where: { id } })</p></td></tr><tr><td><p><strong>Count</strong></p></td><td><p>prisma.model.count({ where: {} })</p></td></tr><tr><td><p><strong>Include relation</strong></p></td><td><p>findMany({ include: { relation: true } })</p></td></tr><tr><td><p><strong>Select fields</strong></p></td><td><p>findMany({ select: { field: true } })</p></td></tr><tr><td><p><strong>Transaction</strong></p></td><td><p>prisma.$transaction(async tx =&gt; { ... })</p></td></tr><tr><td><p><strong>Raw SQL</strong></p></td><td><p>prisma.$queryRaw`SELECT ...`</p></td></tr><tr><td><p><strong>groupBy</strong></p></td><td><p>prisma.model.groupBy({ by, _count, orderBy })</p></td></tr><tr><td><p><strong>Migrate dev</strong></p></td><td><p>npx prisma migrate dev --name label</p></td></tr><tr><td><p><strong>Migrate prod</strong></p></td><td><p>npx prisma migrate deploy</p></td></tr><tr><td><p><strong>Studio GUI</strong></p></td><td><p>npx prisma studio</p></td></tr></table>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>
+    
+    document.querySelectorAll('pre code').forEach(function(el){ hljs.highlightElement(el); });
+  </script>
+  <script>(function () {
+    var marks = [];
+    var idx = -1;
+
+    function clearMarks() {
+        marks.forEach(function (m) {
+            var p = m.parentNode;
+            if (p) { p.replaceChild(document.createTextNode(m.textContent), m); p.normalize(); }
+        });
+        marks = [];
+        idx = -1;
+    }
+
+    function markText(query) {
+        var results = [];
+        var lower = query.toLowerCase();
+        var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null);
+        var nodes = [];
+        var n;
+        while ((n = walker.nextNode())) {
+            if (n.nodeValue.toLowerCase().includes(lower)) nodes.push(n);
+        }
+        nodes.forEach(function (textNode) {
+            var text  = textNode.nodeValue;
+            var ltext = text.toLowerCase();
+            var par   = textNode.parentNode;
+            if (!par) return;
+            var frag = document.createDocumentFragment();
+            var last = 0, i;
+            while ((i = ltext.indexOf(lower, last)) !== -1) {
+                if (i > last) frag.appendChild(document.createTextNode(text.slice(last, i)));
+                var m = document.createElement('mark');
+                m.className = 'dsm';
+                m.style.cssText = 'background:#ffe066;color:inherit;border-radius:2px;';
+                m.textContent = text.slice(i, i + query.length);
+                frag.appendChild(m);
+                results.push(m);
+                last = i + query.length;
+            }
+            if (last < text.length) frag.appendChild(document.createTextNode(text.slice(last)));
+            par.replaceChild(frag, textNode);
+        });
+        return results;
+    }
+
+    function highlight() {
+        marks.forEach(function (m, i) {
+            m.style.background = i === idx ? '#ff9900' : '#ffe066';
+            m.style.outline    = i === idx ? '2px solid #e65c00' : 'none';
+        });
+        if (marks[idx]) marks[idx].scrollIntoView({ block: 'center' });
+    }
+
+    function reply(src) {
+        src.postMessage({ type: 'searchResult', count: marks.length, current: idx }, '*');
+    }
+
+    window.addEventListener('message', function (e) {
+        var d = e.data;
+        if (!d || !d.type) return;
+        if (d.type === 'search') {
+            clearMarks();
+            if (d.query) {
+                marks = markText(d.query);
+                if (marks.length) idx = 0;
+                highlight();
+            }
+            reply(e.source);
+        } else if (d.type === 'searchNav') {
+            if (!marks.length) return;
+            idx = d.dir === 'next'
+                ? (idx + 1) % marks.length
+                : (idx - 1 + marks.length) % marks.length;
+            highlight();
+            reply(e.source);
+        } else if (d.type === 'searchClear') {
+            clearMarks();
+        }
+    });
+})();</script>
+</body>
+</html>

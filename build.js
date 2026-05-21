@@ -42,7 +42,7 @@ const AdmZip = require('adm-zip');
 const SOURCE_DIR = String.raw`C:\Users\roman\Work\pohovor\study\Claude`;
 const OUTPUT_DIR = path.join(__dirname, 'docs');
 
-const FOLDER_ORDER = ['Angular', 'Java', 'React', 'RxJS', 'Questions', 'Others', 'Pictures'];
+const FOLDER_ORDER = ['Angular', 'React', 'Java', 'RxJS', 'ORM', 'Others', 'Questions', 'Pictures'];
 
 const BOOKMARKS_FILE = path.join(SOURCE_DIR, 'bookmarks.html');
 
