@@ -24,3 +24,7 @@ Next parts with the same problem:
        Nejde tedy o náhradu JDBC ale o nadstavbu nad JDBC."
 - part "Why Learn Vue ?" : 
 Could you fix it ?
+
+I added new document Angular-sync-async.docx to the Angular folder. In this case transformation to html was not correct. Code part looks like tables. I can see problem in that one only.
+
+Angular_sync_async.html looks better, part code has black background and looks like in IntelliJ, but each code row started on position 1 and not structured by tab.

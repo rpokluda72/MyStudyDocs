@@ -44,7 +44,6 @@ const OUTPUT_DIR = path.join(__dirname, 'docs');
 
 const FOLDER_ORDER = ['Angular', 'React', 'Java', 'RxJS', 'ORM', 'Others', 'Questions', 'Pictures'];
 
-const BOOKMARKS_FILE = path.join(SOURCE_DIR, 'bookmarks.html');
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -215,6 +214,25 @@ function isMultiLineCodeParagraph(plain) {
   return codeCount >= Math.ceil(lines.length * 0.5);
 }
 
+function tryConvertCodeTable(tableHtml) {
+  const rows = [];
+  let isSingleColumn = true;
+  const rowRe = /<tr\b[^>]*>([\s\S]*?)<\/tr>/gi;
+  let rm;
+  while ((rm = rowRe.exec(tableHtml)) !== null) {
+    const cells = [...rm[1].matchAll(/<t[dh]\b[^>]*>([\s\S]*?)<\/t[dh]>/gi)];
+    if (cells.length !== 1) { isSingleColumn = false; break; }
+    let inner = cells[0][1].trim();
+    inner = inner.replace(/^<p[^>]*>([\s\S]*?)<\/p>$/i, '$1');
+    rows.push(inner);
+  }
+  if (!isSingleColumn || rows.length < 2) return null;
+  const nonEmpty = rows.filter(r => stripHtml(r).trim());
+  const codeCount = nonEmpty.filter(r => isCodeLine(stripHtml(r))).length;
+  if (nonEmpty.length === 0 || codeCount / nonEmpty.length < 0.4) return null;
+  return '<pre><code>' + rows.join('\n') + '</code></pre>\n';
+}
+
 function wrapCodeBlocks(html, codeTexts = null) {
   // Protect table content — <p> tags inside <td>/<th> must never be treated as code
   const tables = [];
@@ -270,8 +288,11 @@ function wrapCodeBlocks(html, codeTexts = null) {
   }
   flush();
 
-  // Restore protected tables
-  result = result.replace(/\x00TABLE(\d+)\x00/g, function (_, i) { return tables[+i]; });
+  // Restore protected tables (converting single-column code tables to pre/code blocks)
+  result = result.replace(/\x00TABLE(\d+)\x00/g, function (_, i) {
+    const converted = tryConvertCodeTable(tables[+i]);
+    return converted !== null ? converted : tables[+i];
+  });
   return result;
 }
 
@@ -287,7 +308,7 @@ function writeFile(filePath, content) {
 }
 
 // ---------------------------------------------------------------------------
-// Bookmark parsing
+// Helpers (continued)
 // ---------------------------------------------------------------------------
 
 function decodeHtml(str) {
@@ -299,111 +320,6 @@ function decodeHtml(str) {
     .replace(/&#(\d+);/g, (_, n) => String.fromCharCode(Number(n)));
 }
 
-function parseBookmarks(filePath) {
-  let html = fs.readFileSync(filePath, 'utf8');
-  // Strip huge base64 ICON data
-  html = html.replace(/\s+ICON(?:_URI)?="[^"]*"/gi, '');
-
-  const root = { name: 'root', children: [] };
-  const stack = [root];
-
-  for (const line of html.split('\n')) {
-    const t = line.trim();
-
-    const h3 = t.match(/<H3[^>]*>([^<]*)<\/H3>/i);
-    if (h3) {
-      const folder = { name: decodeHtml(h3[1].trim()), children: [] };
-      stack[stack.length - 1].children.push(folder);
-      stack.push(folder);
-      continue;
-    }
-
-    const a = t.match(/<A\s+HREF="([^"]*)"[^>]*>([^<]*)<\/A>/i);
-    if (a) {
-      stack[stack.length - 1].children.push({ href: a[1], title: decodeHtml(a[2].trim()) });
-      continue;
-    }
-
-    if (/<\/DL>/i.test(t) && stack.length > 1) {
-      stack.pop();
-    }
-  }
-
-  // The file starts with the IT folder — return its children as top-level items
-  const itFolder = root.children[0];
-  return itFolder ? itFolder.children : root.children;
-}
-
-function renderBookmarkItems(items) {
-  let html = '';
-  for (const item of items) {
-    if (item.children) {
-      const inner = renderBookmarkItems(item.children);
-      html += `<details>\n  <summary>${item.name}</summary>\n  <div class="bm-folder-body">${inner}</div>\n</details>\n`;
-    } else {
-      let domain = '';
-      try { domain = new URL(item.href).hostname.replace(/^www\./, ''); } catch {}
-      const label = (item.title || item.href) + (domain ? ` <span class="bm-domain">— ${domain}</span>` : '');
-      html += `<div class="bm-link"><a href="${item.href}" target="_blank" rel="noopener noreferrer">${label}</a></div>\n`;
-    }
-  }
-  return html;
-}
-
-function linksPage(bodyHtml) {
-  return `<!DOCTYPE html>
-<html lang="cs">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Links</title>
-  <link rel="stylesheet" href="../assets/content.css">
-  <style>
-    details { margin: 6px 0; border-radius: 6px; overflow: hidden; }
-    details > summary {
-      font-weight: 600;
-      font-size: 15px;
-      cursor: pointer;
-      padding: 7px 12px;
-      list-style: none;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-    details > summary::before { content: "\\25BC"; font-size: 10px; color: #555; transition: transform .2s; flex-shrink: 0; }
-    details:not([open]) > summary::before { transform: rotate(-90deg); }
-    details > summary::-webkit-details-marker { display: none; }
-    /* Cycle through soft background colours for top-level folders */
-    details:nth-child(7n+1) > summary { background: #e8f0fe; }
-    details:nth-child(7n+2) > summary { background: #e6f4ea; }
-    details:nth-child(7n+3) > summary { background: #fef3e2; }
-    details:nth-child(7n+4) > summary { background: #fce8e6; }
-    details:nth-child(7n+5) > summary { background: #f3e8fd; }
-    details:nth-child(7n+6) > summary { background: #e8f8f5; }
-    details:nth-child(7n+7) > summary { background: #fff3e0; }
-    details > summary:hover { filter: brightness(0.95); }
-    .bm-folder-body { padding: 6px 0 8px 16px; }
-    .bm-link { padding: 3px 0; }
-    .bm-link a { color: #2563eb; text-decoration: none; font-size: 14px; }
-    .bm-link a:hover { text-decoration: underline; }
-    .bm-domain { color: #888; font-size: 12px; font-weight: normal; }
-  </style>
-</head>
-<body>
-  <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
-    <h1 style="margin:0;">Links</h1>
-    <button id="collapse-links" style="padding:4px 10px;border:1px solid #bbb;border-radius:4px;background:#fff;cursor:pointer;font-size:12px;">Collapse All</button>
-  </div>
-  ${bodyHtml}
-  <script>
-    document.getElementById('collapse-links').addEventListener('click', function () {
-      document.querySelectorAll('details').forEach(function (d) { d.removeAttribute('open'); });
-    });
-  <\/script>
-  <script>${IN_PAGE_SEARCH_JS}<\/script>
-</body>
-</html>`;
-}
 
 // ---------------------------------------------------------------------------
 // CSS / JS assets
@@ -1081,29 +997,6 @@ async function build() {
       `        </div>\n` +
       `      </div>`
     );
-  }
-
-  // ---- Links (bookmarks) page ----
-  if (fs.existsSync(BOOKMARKS_FILE)) {
-    console.log('  Processing bookmarks...');
-    const bookmarkItems = parseBookmarks(BOOKMARKS_FILE);
-    const bodyHtml = renderBookmarkItems(bookmarkItems);
-    const linksDir = path.join(OUTPUT_DIR, 'Links');
-    fs.mkdirSync(linksDir, { recursive: true });
-    writeFile(path.join(linksDir, 'links.html'), linksPage(bodyHtml));
-
-    const linksHref = 'Links/links.html';
-    if (!defaultSrc) defaultSrc = linksHref;
-    navParts.push(
-      `      <div class="folder collapsed">\n` +
-      `        <div class="folder-header"><span class="folder-arrow">&#9660;</span> Links</div>\n` +
-      `        <div class="folder-items">\n` +
-      `      <a href="${linksHref}" target="content">All Bookmarks</a>\n` +
-      `        </div>\n` +
-      `      </div>`
-    );
-  } else {
-    console.log(`  [skip] Bookmarks file not found: ${BOOKMARKS_FILE}`);
   }
 
   // Write assets

@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Angular-sync-async</title>
+  <link rel="stylesheet" href="../assets/content.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+</head>
+<body>
+  <div style="display:flex;align-items:baseline;gap:12px;margin-bottom:4px;">
+    <h1 style="margin:0 0 8px;">Angular-sync-async</h1>
+    <a href="Angular_sync_async.docx" download style="font-size:13px;color:#555;text-decoration:none;border:1px solid #ccc;border-radius:4px;padding:3px 9px;background:#f5f5f5;" title="Download original .docx">&#8681; .docx</a>
+  </div>
+  <p><strong>Rozdíl mezi synchronním a asynchronním zpracováním</strong></p><p> v Angularu (a JavaScriptu obecně) spočívá v tom, <strong>kdy a jak se kód provádí</strong> a zda při tom blokuje zbytek aplikace.</p><p><strong>1. Synchronní kód (Blokující)</strong></p><ul><li><strong>Jak funguje:</strong> Kód se provádí <strong>příkaz po příkazu, jeden po druhém</strong>. Dokud neskončí aktuální operace, program čeká a nepřejde na další řádek.</li><li><strong>Vliv na aplikaci:</strong> Pokud provádíte náročnou operaci (např. složitý výpočet), zablokuje se celé uživatelské rozhraní. Aplikace zamrzne a uživatel nemůže klikat ani scrollovat.</li><li><strong>V Angularu:</strong> Běžná lokální data, logické operace, matematika nebo manipulace s poli.</li></ul><p><strong>2. Asynchronní kód (Neblokující)</strong></p><ul><li><strong>Jak funguje:</strong> Kód se „odloží“ a aplikace běží dál. Jakmile asynchronní operace doběhne, vrátí výsledek a ten se teprve zpracuje.</li><li><strong>Vliv na aplikaci:</strong> Uživatelské rozhraní zůstává plynulé. Prohlížeč totiž nečeká na dokončení úkolu (např. stažení dat z databáze) a plynule vykresluje dál.</li><li><strong>V Angularu:</strong> Komunikace se serverem (HTTP požadavky), práce s formuláři (reaktivní přístup), časovače (setTimeout) nebo čtení souborů. Hlavní nástroj pro síťovou komunikaci (HTTP dotazy). Díky tomu aplikace nezamrzne, uživatel může dál klikat na tlačítka a data z backendu se vykreslí, až dorazí.</li></ul><p><strong>Jak vypadá praxe v Angularu?</strong></p><p>V Angularu se asynchronní kód nejčastěji řeší pomocí <strong>RxJS Observables</strong> (v HttpClientu) nebo moderních <strong>Promise</strong> a syntaxe async/await.</p><p>V Angularu je asynchronní chování naprosto klíčové, protože JavaScript (na kterém TypeScript staví) funguje na principu jednoho hlavního vlákna. K zablokování prohlížeče slouží:</p><ul><li><strong>RxJS (Observables):</strong> Základní kámen Angularu. Využívá se pro volání služeb, jako je this.http.get('api/data'). Aplikace nečeká a pokračuje, data se načtou a zobrazí až ve chvíli, kdy server odpoví.</li></ul><p><strong>Promise a async/await:</strong> Další způsob, jak řešit asynchronní kód a vyhnout se tzv. „callback hell“.</p><p><strong>A. HTTP požadavek v Angularu (Asynchronně)</strong></p><p>Při načítání dat z API aplikace vyšle požadavek a ihned pokračuje v běhu (vykresluje komponenty). Až server odpoví, data se propasírují do šablony.</p><pre><code>import { HttpClient } from '@angular/common/http';
+import { Component } from '@angular/core';
+@Component({ ... })
+export class MujKomponent {
+  constructor(private http: HttpClient) {}
+  nacistData() {
+    // Toto je asynchronní operace
+    this.http.get('<a href="https://mojedomena.cz" target="_blank" rel="noopener noreferrer">https://mojedomena.cz</a>').subscribe(data =&gt; {
+      console.log('Data přišla až nyní:', data);
+    });
+    console.log('Tento řádek se vypíše HNED, ještě než přijdou data z API!');
+  }
+}</code></pre>
+<p><strong>B. Tradiční ukázka rozdílu (Synchronní vs. Asynchronní)</strong></p><p><strong>Synchronní kód:</strong></p><pre><code>console.log('1. Krok');
+console.log('2. Krok');
+console.log('3. Krok');
+// Výstup jde přesně popořadě: 1, 2, 3</code></pre>
+<p><strong>Asynchronní kód:</strong></p><pre><code>console.log('1. Krok');
+// Nastavíme odložené provedení (asynchronně)
+setTimeout(() =&gt; {
+  console.log('3. Krok (Provede se se zpožděním)');
+}, 1000);
+console.log('2. Krok');
+// Výstup jde v pořadí: 1, 2, ...a za vteřinu: 3</code></pre>
+<pre><code><strong>??? Chci se podívat na konkrétní kód v Angularu (RxJS vs. Promise)</strong></code></pre>
+<p>Rozdíl mezi <strong>RxJS (Observable)</strong> a <strong>Promise</strong> v Angularu spočívá v tom, že Promise vrátí pouze <strong>jednu hodnotu</strong> a končí, zatímco Observable je <strong>proud dat</strong>, který může posílat hodnoty opakovaně a lze ho zrušit.</p><p>Zde je ukázka obou přístupů na stejném příkladu (získání dat uživatele z API).</p><p><strong>1. Řešení pomocí Promise</strong></p><p>Promise se spustí <strong>okamžitě</strong> při vytvoření a vrátí data pouze jednou.</p><p><strong>Služba (Service)</strong></p><pre><code>import { HttpClient } from '@angular/common/http';
+import { Injectable, inject } from '@angular/core';
+import { firstValueFrom } from 'rxjs';
+@Injectable({ providedIn: 'root' })
+export class UserService {
+  private http = inject(HttpClient);
+  // Převod z Observable na Promise pomocí firstValueFrom
+  getUserPromise(): Promise&lt;any&gt; {
+    return firstValueFrom(this.http.get('api/user'));
+  }
+}</code></pre>
+<p><strong>Komponenta (Component)</strong></p><pre><code>import { Component, OnInit, inject } from '@angular/core';
+import { UserService } from './user.service';
+@Component({ selector: 'app-user', template: `{{ user | json }}` })
+export class UserComponent implements OnInit {
+  private userService = inject(UserService);
+  user: any;
+  async ngOnInit() {
+    try {
+      // Kód čeká na tomto řádku, dokud Promise neskončí
+      this.user = await this.userService.getUserPromise();
+    } catch (error) {
+      console.error('Chyba při načítání', error);
+    }
+  }
+}</code></pre>
+<p><strong>2. Řešení pomocí RxJS (Observable)</strong></p><p>Observable je <strong>líný</strong> (nespustí se, dokud se k němu nepřihlásíš pomocí .subscribe()) a umožňuje data transformovat pomocí operátorů.</p><p><strong>Služba (Service)</strong></p><pre><code>import { HttpClient } from '@angular/common/http';
+import { Injectable, inject } from '@angular/core';
+import { Observable, map } from 'rxjs';
+@Injectable({ providedIn: 'root' })
+export class UserService {
+  private http = inject(HttpClient);
+  // Vrací čistý proud dat (Observable)
+  getUserObservable(): Observable&lt;any&gt; {
+    return this.http.get('api/user').pipe(
+      map(user =&gt; ({ ...user, localTime: new Date() })) // Transformace dat v proudu
+    );
+  }
+}</code></pre>
+<p><strong>Komponenta (Component)</strong></p><pre><code>import { Component, OnInit, OnDestroy, inject } from '@angular/core';
+import { UserService } from './user.service';
+import { Subscription } from 'rxjs';
+@Component({ selector: 'app-user', template: `{{ user | json }}` })
+export class UserComponent implements OnInit, OnDestroy {
+  private userService = inject(UserService);
+  private sub!: Subscription;
+  user: any;
+  ngOnInit() {
+    // Přihlášení k odběru dat
+    this.sub = this.userService.getUserObservable().subscribe({
+      next: (data) =&gt; this.user = data,
+      error: (err) =&gt; console.error(err)
+    });
+  }
+  ngOnDestroy() {
+    // Nutné ruční odhlášení, aby nevznikl memory leak
+    this.sub.unsubscribe();
+  }
+}</code></pre>
+<p><strong>Porovnání klíčových vlastností v kódu</strong></p><table><thead><tr><th><p><strong>Vlastnost</strong></p></th><th><p><strong>Promise</strong></p></th><th><p><strong>RxJS Observable</strong></p></th></tr></thead><tbody><tr><td><p><strong>Počet hodnot</strong></p></td><td><p>Pouze jedna</p></td><td><p>Žádná, jedna nebo nekonečno</p></td></tr><tr><td><p><strong>Spuštění</strong></p></td><td><p>Okamžitě (Eager)</p></td><td><p>Až po zavolání .subscribe() (Lazy)</p></td></tr><tr><td><p><strong>Zrušení</strong></p></td><td><p>Nelze zrušit za běhu</p></td><td><p>Lze kdykoliv odhlásit (unsubscribe())</p></td></tr><tr><td><p><strong>Operátory</strong></p></td><td><p>Nemá (pouze .then(), .catch())</p></td><td><p>Desítky mocných operátorů (map, filter, switchMap)</p></td></tr></tbody></table><p>Pokud chceš vidět, jak psát Angular moderně, mohu ti ukázat:</p><ul><li>Jak použít <strong>AsyncPipe v šabloně</strong>, abys nemusel ručně psát subscribe a unsubscribe.</li><li>Jak fungují <strong>Angular Signals</strong>, což je nejnovější způsob správy stavu v Angularu.</li><li>Jak pomocí RxJS vyřešit <strong>našeptávač (autocomplete)</strong> s ošetřením rychlého psaní.</li></ul><pre><code><strong>??? ukaž mi všechny 3 ukázky</strong></code></pre>
+<p>Zde jsou všechny tři pokročilé ukázky. Ukazují, jak psát moderní Angular kód, který je čistý, efektivní a bezpečný proti únikům paměti (memory leaks).</p><p><strong>1. Použití AsyncPipe v šabloně</strong></p><p><strong>Proč to chtít:</strong> Nemusíš v komponentě psát .subscribe() ani .unsubscribe(). Angular se o odběr dat a jeho zrušení při zániku komponenty postará sám.</p><p><strong>Komponenta (TypeScript)</strong></p><pre><code>import { Component, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { CommonModule } from '@angular/common';
+import { Observable } from 'rxjs';
+@Component({
+  selector: 'app-user-async',
+  standalone: true,
+  imports: [CommonModule], // Nutné pro async pipe
+  template: `
+    &lt;!-- Použití async pipe přímo v HTML --&gt;
+    @if (user$ | async; as user) {
+      &lt;div&gt;
+        &lt;p&gt;Jméno: {{ user.name }}&lt;/p&gt;
+        &lt;p&gt;Email: {{ user.email }}&lt;/p&gt;
+      &lt;/div&gt;
+    } @else {
+      &lt;p&gt;Načítám data...&lt;/p&gt;
+    }
+  `
+})
+export class UserAsyncComponent {
+  private http = inject(HttpClient);
+  // Znak $ na konci je konvence pro proměnné typu Observable
+  user$: Observable&lt;any&gt; = this.http.get('<a href="https://example.com" target="_blank" rel="noopener noreferrer">https://example.com</a>');
+}</code></pre>
+<p><strong>2. Angular Signals (Nejnovější standard)</strong></p><p><strong>Proč to chtít:</strong> Od Angularu 16+ se jedná o nový způsob správy reaktivního stavu. Nepotřebuješ RxJS ani AsyncPipe. Kód je synchronní na pohled, ale reaktivní na pozadí.</p><p><strong>Komponenta se signály</strong></p><pre><code>import { Component, inject, OnInit, signal, computed } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+@Component({
+  selector: 'app-user-signals',
+  standalone: true,
+  template: `
+    &lt;div&gt;
+      &lt;p&gt;Uživatel: {{ fullName() }}&lt;/p&gt;
+      &lt;button (click)="loadNextUser()"&gt;Další uživatel&lt;/button&gt;
+    &lt;/div&gt;
+  `
+})
+export class UserSignalsComponent implements OnInit {
+  private http = inject(HttpClient);
+  // Vytvoření zapisovatelného signálu s výchozí hodnotou
+  user = signal&lt;any&gt;(null);
+  userId = signal&lt;number&gt;(1);
+  // Odvozený signál (vypočítá se automaticky při změně 'user')
+  fullName = computed(() =&gt; {
+    const u = this.user();
+    return u ? `${u.firstName} ${u.lastName}` : 'Načítám...';
+  });
+  ngOnInit() {
+    this.fetchUser(this.userId());
+  }
+  fetchUser(id: number) {
+    this.http.get(`<a href="https://example.com{id}`" target="_blank" rel="noopener noreferrer">https://example.com{id}`</a>).subscribe(data =&gt; {
+      this.user.set(data); // Aktualizace signálu
+    });
+  }
+  loadNextUser() {
+    this.userId.update(id =&gt; id + 1); // Změna ID
+    this.fetchUser(this.userId());     // Načtení nového uživatele
+  }
+}</code></pre>
+<p><strong>3. Našeptávač (Autocomplete) pomocí RxJS</strong></p><p><strong>Proč to chtít:</strong> Ukazuje reálnou sílu RxJS operátorů. Tento kód počká, až uživatel přestane psát, ignoruje duplicitní dotazy a ruší předchozí (nedokončené) HTTP požadavky na server.</p><p><strong>Komponenta s našeptávačem</strong></p><pre><code>import { Component, inject, OnInit } from '@angular/core';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { HttpClient } from '@angular/common/http';
+import { CommonModule } from '@angular/common';
+import { Observable, debounceTime, distinctUntilChanged, switchMap, EMPTY } from 'rxjs';
+@Component({
+  selector: 'app-search',
+  standalone: true,
+  imports: [CommonModule, ReactiveFormsModule],
+  template: `
+    &lt;input [formControl]="searchControl" placeholder="Hledej produkty..."&gt;
+    &lt;ul&gt;
+      @for (item of results$ | async; track item.id) {
+        &lt;li&gt;{{ item.name }}&lt;/li&gt;
+      }
+    &lt;/ul&gt;
+  `
+})
+export class SearchComponent implements OnInit {
+  private http = inject(HttpClient);
+  searchControl = new FormControl('');
+  results$!: Observable&lt;any[]&gt;;
+  ngOnInit() {
+    this.results$ = this.searchControl.valueChanges.pipe(
+      debounceTime(300),        // Počká 300ms od posledního stisknutí klávesy
+      distinctUntilChanged(),   // Spustí se, jen pokud se text změnil oproti minule
+      switchMap(searchTerm =&gt; { // Zruší předchozí HTTP požadavek, pokud ještě běžel
+        if (!searchTerm || searchTerm.trim() === '') {
+          return EMPTY;         // Pokud je pole prázdné, nic neposílá
+        }
+        return this.http.get&lt;any[]&gt;(`<a href="https://example.com{searchTerm}`" target="_blank" rel="noopener noreferrer">https://example.com{searchTerm}`</a>);
+      })
+    );
+  }
+}</code></pre>
+<p>Pokud tě zaujal moderní přístup, můžeme se podívat na to, <strong>jak tyto koncepty propojit dohromady</strong>. V praxi se totiž často kombinuje RxJS (pro HTTP volání a našeptávače) s Angular Signals (pro uložení stavu v komponentě).</p><p>Chceš si ukázat, jak převést <strong>RxJS Observable na Signal</strong> pomocí funkce toSignal?</p><pre><code><strong>??? ukaž, jak převést RxJS Observable na Signal pomocí funkce toSignal</strong></code></pre>
+<p>Funkce toSignal je vestavěný nástroj z balíčku @angular/core/rxjs-interop. Umožňuje vzít jakýkoliv stream z <strong>RxJS (Observable)</strong> a převést ho na <strong>Angular Signal</strong>.</p><p>Tím získáš výhody obou světů: silné operátory RxJS na zpracování dat a čistou, synchronně vypadající syntaxi Signálů v šabloně bez nutnosti používat AsyncPipe.</p><p><strong>Kompletní ukázka: Převod Observable na Signal</strong></p><p>Při převodu z Observable (která vrací data asynchronně až za nějaký čas) musíme vyřešit, jakou hodnotu má mít Signal <strong>předtím</strong>, než ze streamu dorazí první data. K tomu slouží parametr initialValue.</p><p><strong>Služba (UserService)</strong></p><pre><code>import { HttpClient } from '@angular/common/http';
+import { Injectable, inject } from '@angular/core';
+import { Observable } from 'rxjs';
+@Injectable({ providedIn: 'root' })
+export class UserService {
+  private http = inject(HttpClient);
+  // Klasický RxJS stream, který chceme v komponentě převést
+  getUsers(): Observable&lt;any[]&gt; {
+    return this.http.get&lt;any[]&gt;('<a href="https://example.com" target="_blank" rel="noopener noreferrer">https://example.com</a>');
+  }
+}</code></pre>
+<p><strong>Komponenta (UserComponent)</strong></p><pre><code>import { Component, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { UserService } from './user.service';
+import { toSignal } from '@angular/core/rxjs-interop'; // Spojovací můstek mezi RxJS a Signals
+@Component({
+  selector: 'app-user-list',
+  standalone: true,
+  imports: [CommonModule],
+  template: `
+    &lt;h2&gt;Seznam uživatelů&lt;/h2&gt;
+    &lt;!-- Používáme běžnou syntaxi signálu s kulatými závorkami () --&gt;
+    &lt;ul&gt;
+      @for (user of users(); track user.id) {
+        &lt;li&gt;{{ user.name }}&lt;/li&gt;
+      } @empty {
+        &lt;p&gt;Žádní uživatelé nebo se data načítají...&lt;/p&gt;
+      }
+    &lt;/ul&gt;
+  `
+})
+export class UserListComponent {
+  private userService = inject(UserService);
+  // Převod z Observable na Signal
+  // initialValue definuje výchozí stav, než dorazí odpověď z API
+  users = toSignal(this.userService.getUsers(), { initialValue: [] as any[] });
+}</code></pre>
+<p><strong>Důležitá pravidla pro práci s toSignal</strong></p><ul><li><strong>Automatický unsubscibe:</strong> toSignal se automaticky odhlásí (unsubscribe) z odběru Observable ve chvíli, kdy komponenta zanikne. Nemusíš se bát memory leaků.</li><li><strong>Kontext volání:</strong> toSignal musíte volat v tzv. <em>injection kontextu</em> – typicky přímo při definici vlastnosti třídy (jako v ukázce výše) nebo uvnitř konstruktoru. Nelze ho volat uvnitř běžných metod jako ngOnInit.</li><li><strong>Vynechání initialValue:</strong> Pokud initialValue nezadáš, výchozí typ signálu bude obsahovat undefined (např. Signal&lt;any[] | undefined&gt;), dokud nedorazí první hodnota. Alternativně lze použít { requireSync: true }, pokud víš, že Observable vrátí hodnotu okamžitě (synchronně).</li></ul><p>Chcete se podívat, jak asynchronní data rovnou <strong>zobrazit v HTML šabloně</strong> pomocí vestavěného pipe async? Nebo se raději potřebujete zaměřit na <strong>zpracování chyb</strong> v asynchronních operacích?</p><pre><code><strong>??? Chci se podívat, jak asynchronní data rovnou zobrazit v HTML šabloně pomocí vestavěného pipe async</strong></code></pre>
+<p>Zobrazení asynchronních dat přímo v HTML šabloně pomocí async pipe je v Angularu nejlepší praxe.</p><pre><code>async pipe se <strong>automaticky přihlásí</strong> (subscribe) k Observable nebo Promise, získá z nich data a při zničení komponenty se <strong>automaticky odhlásí</strong> (unsubscribe), čímž brání úniku paměti (memory leaks).</code></pre>
+<p>Zde je kompletní ukázka, jak na to.</p><p><strong>1. Komponenta (TypeScript)</strong></p><p>V komponentě nevoláte metodu .subscribe(). Pouze uložíte asynchronní proud dat (Observable) do proměnné. Podle konvence se tyto proměnné označují znakem $ na konci.</p><pre><code>import { Component, OnInit } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+@Component({
+  selector: 'app-uzivatele',
+  templateUrl: './uzivatele.component.html'
+})
+export class UzivateleComponent implements OnInit {
+  // Proměnná drží Observable, nikoliv samotná data
+  uzivatele$!: Observable&lt;any&gt;;
+  constructor(private http: HttpClient) {}
+  ngOnInit() {
+    // Pouze přiřadíme HTTP stream, nesubskribujeme ručně!
+    this.uzivatele$ = this.http.get('<a href="https://typicode.com" target="_blank" rel="noopener noreferrer">https://typicode.com</a>');
+  }
+}</code></pre>
+<p><strong>2. Šablona (HTML)</strong></p><p>V HTML použijete svislou čáru | a klíčové slovo async. Angular se postará o zbytek.</p><p><strong>Možnost A: Výpis seznamu pomocí *ngFor</strong></p><p>Ideální, pokud z API dostáváte pole objektů.</p><table><tr><td><p>&lt;ul&gt;</p></td></tr><tr><td><p>  &lt;!-- async pipe rozbalí Observable na reálné pole --&gt;</p></td></tr><tr><td><p>  &lt;li *ngFor="let uzivatel of uzivatele$ | async"&gt;</p></td></tr><tr><td><p>    {{ uzivatel.name }} ({{ uzivatel.email }})</p></td></tr><tr><td><p>  &lt;/li&gt;</p></td></tr><tr><td><p>&lt;/ul&gt;</p></td></tr></table><p><strong>Možnost B: Rozbalení objektu pomocí *ngIf a aliasu as</strong></p><p>Pokud čekáte jeden objekt a chcete jeho vlastnosti vypsat na více místech, rozbalte ho jednou pomocí syntaxe as.</p><table><tr><td><p>&lt;!-- Kód uvnitř divu se zobrazí, až když data dorazí --&gt;</p></td></tr><tr><td><p>&lt;div *ngIf="uzivatele$ | async as seznamUzivatelu; else nacitani"&gt;</p></td></tr><tr><td><p>  &lt;p&gt;Celkový počet načtených uživatelů: {{ seznamUzivatelu.length }}&lt;/p&gt;</p></td></tr><tr><td><p>&lt;/div&gt;</p></td></tr><tr><td><p>&lt;!-- Šablona pro stav, kdy se na data ještě čeká --&gt;</p></td></tr><tr><td><p>&lt;ng-template #nacitani&gt;</p></td></tr><tr><td><p>  &lt;p&gt;Načítám data z databáze...&lt;/p&gt;</p></td></tr><tr><td><p>&lt;/ng-template&gt;</p></td></tr></table><p><strong>Hlavní výhody tohoto přístupu</strong></p><ul><li><strong>Čistý kód:</strong> Žádný ruční .subscribe() v TypeScriptu.</li><li><strong>Bezpečí:</strong> Angular vyřeší unsubscribe za vás, když uživatel odejde z této stránky.</li><li><strong>Výkon:</strong> Skvěle spolupracuje se strategií detekce změn ChangeDetectionStrategy.OnPush, která zrychluje aplikaci.</li></ul><p>Chcete vědět, jak pomocí RxJS operátorů tato asynchronní data v komponentě <strong>filtrovat nebo upravit</strong> ještě předtím, než dorazí do HTML? Nebo vás zajímá, jak u async pipe <strong>ošetřit případnou chybu</strong> sítě?</p><pre><code><strong>??? výrazy s "*" jako *ngIf, *ngFor jsou zastaralé, doporučuje se použít "@"-@if, @for</strong></code></pre>
+<p>Máte naprostou pravdu. Od verze Angular 17 (vydané na konci roku 2023) představil Angular nový vestavěný blokový systém řízení toku (tzv. <strong>Control Flow</strong>). Ten nahrazuje staré direktivy s hvězdičkou (*ngIf, *ngFor, *ngSwitch) modernější syntaxí se zavináčem (@if, @for, @switch).</p><p>Tento nový přístup je <strong>rychlejší</strong>, nepotřebuje importovat CommonModule a má mnohem čistší zápis.</p><p>Zde je ukázka, jak vypadá stejný kód s async pipe v novém formátu @if a @for.</p><p><strong>1. Nový @if s async pipe (Náhrada za *ngIf)</strong></p><p>Už nepotřebujete vytvářet umělé elementy nebo značky ng-container, abyste uložili data do lokální proměnné.</p><pre><code>@if (uzivatele$ | async; as seznamUzivatelu) {
+  &lt;p&gt;Data úspěšně načtena!&lt;/p&gt;
+  &lt;p&gt;Počet uživatelů: {{ seznamUzivatelu.length }}&lt;/p&gt;
+} @else {
+  &lt;p&gt;Načítám data z databáze...&lt;/p&gt;
+}</code></pre>
+<p><strong>2. Nový @for s async pipe (Náhrada za *ngFor)</strong></p><p>Nový @for <strong>vyžaduje</strong> parametr track. Ten nahrazuje dřívější (volitelnou) funkci trackBy a výrazně pomáhá Angularu s optimalizací překreslování stránky. Obsahuje také vestavěný blok @empty pro případ, že je pole prázdné.</p><pre><code>&lt;ul&gt;
+  @for (uzivatel of (uzivatele$ | async); track uzivatel.id) {
+    &lt;li&gt;{{ uzivatel.name }} ({{ uzivatel.email }})&lt;/li&gt;
+  } @empty {
+    &lt;li&gt;Nenalezeni žádní uživatelé.&lt;/li&gt;
+  }
+&lt;/ul&gt;</code></pre>
+<p><em>Poznámka: U @for se doporučuje dát výraz s async pipe do závorek (uzivatele$ | async), aby měl Angular absolutní jistotu, kde výraz začíná a končí).</em></p><p><strong>Proč přejít na @ Control Flow?</strong></p><ul><li><strong>Lepší výkon:</strong> Nový algoritmus pod kapotou je výrazně rychlejší při porovnávání změn v polích.</li><li><strong>Žádné importy:</strong> Nemusíte do komponenty importovat NgIf nebo NgFor. Funguje to automaticky všude.</li><li><strong>Méně kódu:</strong> Konstrukce @else a @empty šetří psaní dalších pomocných šablon (ng-template).</li></ul><pre><code><strong>??? Chci vědět, jak pomocí RxJS upravit nebo filtrovat tato data</strong></code></pre>
+<p>K úpravě nebo filtrování asynchronních dat předtím, než dorazí do HTML šablony, slouží v RxJS metoda <strong>pipe()</strong>. Uvnitř ní se používají takzvané operátory.</p><p>Pro úpravu struktury dat použijete operátor <strong>map</strong>, pro odfiltrování nechtěných položek operátor <strong>filter</strong>.</p><p>Zde je praktický příklad, jak data ze serveru upravit a vyfiltrovat.</p><p><strong>1. Komponenta s RxJS operátory (TypeScript)</strong></p><p>Představte si, že ze serveru přichází pole uživatelů. Chceme:</p><ol><li><strong>Filtrovat</strong>: Ponechat pouze uživatele, kteří mají aktivní status.</li><li><strong>Upravit (Mapovat)</strong>: Spojit jejich jméno a příjmení do jednoho pole celeJmeno, abychom to nemuseli spojovat v HTML.</li></ol><pre><code>import { Component, OnInit } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+// 1. Importujeme potřebné operátory
+import { map } from 'rxjs/operators';
+interface Uzivatel {
+  id: number;
+  jmeno: string;
+  prijmeni: string;
+  aktivni: boolean;
+  celeJmeno?: string; // Tuto vlastnost sami doplníme
+}
+@Component({
+  selector: 'app-filtrovani',
+  templateUrl: './filtrovani.component.html',
+  standalone: true
+})
+export class FiltrovaniComponent implements OnInit {
+  uzivatele$!: Observable&lt;Uzivatel[]&gt;;
+  constructor(private http: HttpClient) {}
+  ngOnInit() {
+    this.uzivatele$ = this.http.get&lt;Uzivatel[]&gt;('<a href="https://mojedomena.cz" target="_blank" rel="noopener noreferrer">https://mojedomena.cz</a>').pipe(
+      // 2. Použijeme operátor map pro transformaci pole
+      map((poleUzivatelu: Uzivatel[]) =&gt; {
+        // Použijeme klasické JavaScriptové metody .filter() a .map() nad polem
+        return poleUzivatelu
+          // Ponecháme jen aktivní uživatele
+          .filter(u =&gt; u.aktivni === true)
+          // Každému uživateli přidáme novou vlastnost 'celeJmeno'
+          .map(u =&gt; ({
+            ...u,
+            celeJmeno: `${u.jmeno} ${u.prijmeni}`
+          }));
+      })
+    );
+  }
+}</code></pre>
+<p><em>Poznámka: Nezaměňujte RxJS operátor map (který zpracovává celý proud) s vestavěnou JavaScriptovou metodou pole .map() / .filter() uvnitř něj.</em></p><p><strong>2. Čistá HTML šablona</strong></p><p>V HTML se vůbec nic nemění. Použijete opět standardní async pipe. Výhodou je, že šablona dostane data už dokonale připravená k zobrazení.</p><pre><code>&lt;h3&gt;Aktivní uživatelé&lt;/h3&gt;
+&lt;ul&gt;
+  @for (uzivatel of uzivatele$ | async; track uzivatel.id) {
+    &lt;!-- Vypisujeme již upravené 'celeJmeno' --&gt;
+    &lt;li&gt;{{ uzivatel.celeJmeno }}&lt;/li&gt;
+  } @empty {
+    &lt;li&gt;Žádní aktivní uživatelé nebyli nalezeni.&lt;/li&gt;
+  }
+&lt;/ul&gt;</code></pre>
+<p><strong>Další užitečné RxJS operátory, které se vám mohou hodit:</strong></p><ul><li><strong>tap</strong>: Slouží pro „vedlejší účinky“, které nemění data. Ideální pro console.log(data) uprostřed streamu, když potřebujete ladit kód.</li><li><strong>take(1)</strong>: Automaticky ukončí odběr po získání první hodnoty.</li><li><strong>catchError</strong>: Zachytí chybu (např. výpadek serveru), abyste mohli vrátit náhradní prázdné pole a aplikace nespadla.</li></ul>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>
+    document.querySelectorAll('pre code').forEach(function(el){if(!el.className)el.classList.add('language-typescript');});
+    document.querySelectorAll('pre code').forEach(function(el){ hljs.highlightElement(el); });
+  </script>
+  <script>(function () {
+    var marks = [];
+    var idx = -1;
+
+    function clearMarks() {
+        marks.forEach(function (m) {
+            var p = m.parentNode;
+            if (p) { p.replaceChild(document.createTextNode(m.textContent), m); p.normalize(); }
+        });
+        marks = [];
+        idx = -1;
+    }
+
+    function markText(query) {
+        var results = [];
+        var lower = query.toLowerCase();
+        var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null);
+        var nodes = [];
+        var n;
+        while ((n = walker.nextNode())) {
+            if (n.nodeValue.toLowerCase().includes(lower)) nodes.push(n);
+        }
+        nodes.forEach(function (textNode) {
+            var text  = textNode.nodeValue;
+            var ltext = text.toLowerCase();
+            var par   = textNode.parentNode;
+            if (!par) return;
+            var frag = document.createDocumentFragment();
+            var last = 0, i;
+            while ((i = ltext.indexOf(lower, last)) !== -1) {
+                if (i > last) frag.appendChild(document.createTextNode(text.slice(last, i)));
+                var m = document.createElement('mark');
+                m.className = 'dsm';
+                m.style.cssText = 'background:#ffe066;color:inherit;border-radius:2px;';
+                m.textContent = text.slice(i, i + query.length);
+                frag.appendChild(m);
+                results.push(m);
+                last = i + query.length;
+            }
+            if (last < text.length) frag.appendChild(document.createTextNode(text.slice(last)));
+            par.replaceChild(frag, textNode);
+        });
+        return results;
+    }
+
+    function highlight() {
+        marks.forEach(function (m, i) {
+            m.style.background = i === idx ? '#ff9900' : '#ffe066';
+            m.style.outline    = i === idx ? '2px solid #e65c00' : 'none';
+        });
+        if (marks[idx]) marks[idx].scrollIntoView({ block: 'center' });
+    }
+
+    function reply(src) {
+        src.postMessage({ type: 'searchResult', count: marks.length, current: idx }, '*');
+    }
+
+    window.addEventListener('message', function (e) {
+        var d = e.data;
+        if (!d || !d.type) return;
+        if (d.type === 'search') {
+            clearMarks();
+            if (d.query) {
+                marks = markText(d.query);
+                if (marks.length) idx = 0;
+                highlight();
+            }
+            reply(e.source);
+        } else if (d.type === 'searchNav') {
+            if (!marks.length) return;
+            idx = d.dir === 'next'
+                ? (idx + 1) % marks.length
+                : (idx - 1 + marks.length) % marks.length;
+            highlight();
+            reply(e.source);
+        } else if (d.type === 'searchClear') {
+            clearMarks();
+        }
+    });
+})();</script>
+</body>
+</html>

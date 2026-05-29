@@ -82,3 +82,5 @@ All paths are defined at the top of `build.js`:
 | `BOOKMARKS_FILE` | Path to the exported Firefox bookmarks HTML file (default: `bookmarks.html` inside `SOURCE_DIR`) |
 | `OUTPUT_DIR` | Output folder (default: `docs/` inside the project) |
 | `FOLDER_ORDER` | Controls the order of topic folders in the sidebar |
+
+html links : copy/paste from firefox only
