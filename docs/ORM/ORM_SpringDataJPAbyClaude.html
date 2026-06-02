@@ -12,12 +12,439 @@
     <h1 style="margin:0 0 8px;">ORM_SpringDataJPAbyClaude</h1>
     <a href="ORM_SpringDataJPAbyClaude.docx" download style="font-size:13px;color:#555;text-decoration:none;border:1px solid #ccc;border-radius:4px;padding:3px 9px;background:#f5f5f5;" title="Download original .docx">&#8681; .docx</a>
   </div>
-  <p><strong>Spring Data JPA</strong></p><p>+ Hibernate  —  MySQL Tutorial  —  Blog System</p><p>2026-05-21</p><p><strong>1. Introduction</strong></p><p>Spring Data JPA is the recommended ORM layer for Spring Boot applications. It sits on top of JPA (Java Persistence API — a specification) which is implemented by Hibernate. Understanding the three-layer stack is key to debugging and performance tuning.</p><p><strong>Three-Layer Stack</strong></p><table><tr><td><p>  Your Service / Controller</p><p>         │</p><p>         ▼</p><p>  ┌─────────────────────────────────────────────┐</p><p>  │            Spring Data JPA                  │</p><p>  │  PostRepository extends JpaRepository&lt;&gt;     │</p><p>  │  findByStatus()  findByTitle...()  @Query   │</p><p>  └─────────────────────────┬───────────────────┘</p><p>                            │</p><p>                            ▼</p><p>  ┌─────────────────────────────────────────────┐</p><p>  │         JPA  (javax.persistence / jakarta)  │</p><p>  │  EntityManager  │  JPQL  │  Criteria API    │</p><p>  │  @Entity  @Table  @Column  @Id  @OneToMany  │</p><p>  └─────────────────────────┬───────────────────┘</p><p>                            │</p><p>                            ▼</p><p>  ┌─────────────────────────────────────────────┐</p><p>  │       Hibernate  (JPA Provider)             │</p><p>  │  Session  │  HQL  │  SQL Generation         │</p><p>  │  1st-level cache  │  2nd-level cache (opt.) │</p><p>  └─────────────────────────┬───────────────────┘</p><p>                            │</p><p>                            ▼</p><p>                      MySQL Database</p></td></tr></table><p><em>Spring Data JPA → JPA → Hibernate → MySQL</em></p><p><strong>Layer Responsibilities</strong></p><table><tr><td><p><strong>Spring Data JPA</strong></p></td><td><p>Adds repository abstraction — auto-generates CRUD + query implementations at runtime. No SQL or JPQL needed for common operations.</p></td></tr><tr><td><p><strong>JPA (specification)</strong></p></td><td><p>Defines @Entity, @Table, @Column, @Id, EntityManager, JPQL, Criteria API. jakarta.persistence (formerly javax.persistence) package.</p></td></tr><tr><td><p><strong>Hibernate</strong></p></td><td><p>JPA implementation. Manages Session (wraps EntityManager), 1st-level cache per transaction, optional 2nd-level cache, SQL generation, and schema DDL.</p></td></tr></table><p><strong>Key Concepts</strong></p><ul><li>Entity — @Entity class that maps to a DB table; instances are managed by EntityManager.</li><li>Repository — interface extending JpaRepository&lt;T, ID&gt;; Spring generates the implementation.</li><li>EntityManager — JPA's core API: persist(), find(), merge(), remove(), createQuery().</li><li>JPQL — object-oriented query language; operates on entity names/fields, not table/column names.</li><li>PersistenceContext — first-level cache per transaction; tracks entity state changes automatically.</li><li>Lazy / Eager loading — controls when related entities are fetched from the DB.</li></ul><p><strong>When to Use</strong></p><ul><li>Standard CRUD-heavy Spring Boot apps with relational data and clear domain model.</li><li>Projects using NestJS or the broader Spring ecosystem (Security, MVC, Batch, etc.).</li><li>When derived query methods and @Query cover most use cases cleanly.</li></ul><p><strong>When NOT to Use</strong></p><ul><li>Reporting-heavy apps with very complex multi-join queries — consider JOOQ or raw JDBC.</li><li>High-performance bulk operations — Hibernate adds overhead vs. JDBC batch inserts.</li></ul><p><strong>Library Info</strong></p><table><tr><td><p><strong>Website</strong></p></td><td><p><a href="https://spring.io/projects/spring-data-jpa" target="_blank" rel="noopener noreferrer">https://spring.io/projects/spring-data-jpa</a></p></td></tr><tr><td><p><strong>Spring Boot</strong></p></td><td><p>3.x (uses jakarta.persistence, Hibernate 6.x)</p></td></tr><tr><td><p><strong>JPA Version</strong></p></td><td><p>Jakarta Persistence 3.1</p></td></tr><tr><td><p><strong>Hibernate</strong></p></td><td><p>6.x (included via spring-boot-starter-data-jpa)</p></td></tr><tr><td><p><strong>DB Used Here</strong></p></td><td><p>MySQL 8</p></td></tr><tr><td><p><strong>Java Version</strong></p></td><td><p>17+ (Spring Boot 3 requirement)</p></td></tr></table><p><strong>2. Installation &amp; Setup</strong></p><p><strong>Maven Dependencies (pom.xml)</strong></p><table><tr><td><p>&lt;dependencies&gt;</p><p>    &lt;!-- Spring Data JPA + Hibernate auto-configured --&gt;</p><p>    &lt;dependency&gt;</p><p>        &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;</p><p>        &lt;artifactId&gt;spring-boot-starter-data-jpa&lt;/artifactId&gt;</p><p>    &lt;/dependency&gt;</p><p>    &lt;!-- MySQL JDBC driver --&gt;</p><p>    &lt;dependency&gt;</p><p>        &lt;groupId&gt;com.mysql&lt;/groupId&gt;</p><p>        &lt;artifactId&gt;mysql-connector-j&lt;/artifactId&gt;</p><p>        &lt;scope&gt;runtime&lt;/scope&gt;</p><p>    &lt;/dependency&gt;</p><p>    &lt;!-- Lombok — reduces boilerplate getters/setters/constructors --&gt;</p><p>    &lt;dependency&gt;</p><p>        &lt;groupId&gt;org.projectlombok&lt;/groupId&gt;</p><p>        &lt;artifactId&gt;lombok&lt;/artifactId&gt;</p><p>        &lt;optional&gt;true&lt;/optional&gt;</p><p>    &lt;/dependency&gt;</p><p>    &lt;!-- Flyway — production DB migrations (recommended) --&gt;</p><p>    &lt;dependency&gt;</p><p>        &lt;groupId&gt;org.flywaydb&lt;/groupId&gt;</p><p>        &lt;artifactId&gt;flyway-mysql&lt;/artifactId&gt;</p><p>    &lt;/dependency&gt;</p><p>&lt;/dependencies&gt;</p></td></tr></table><p><strong>application.properties</strong></p><p>Spring Boot auto-configures DataSource, EntityManagerFactory, and TransactionManager from these properties:</p><table><tr><td><p># DataSource</p><p>spring.datasource.url=jdbc:mysql://localhost:3306/blog_db?useSSL=false&amp;serverTimezone=UTC</p><p>spring.datasource.username=root</p><p>spring.datasource.password=secret</p><p>spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver</p><p># Connection pool (HikariCP — default in Spring Boot)</p><p>spring.datasource.hikari.maximum-pool-size=10</p><p>spring.datasource.hikari.minimum-idle=2</p><p># JPA / Hibernate</p><p>spring.jpa.hibernate.ddl-auto=validate</p><p>spring.jpa.show-sql=false</p><p>spring.jpa.properties.hibernate.format_sql=true</p><p>spring.jpa.open-in-view=false</p><p># Flyway (if using migration files)</p><p>spring.flyway.enabled=true</p><p>spring.flyway.locations=classpath:db/migration</p></td></tr></table><p><strong>ddl-auto Values</strong></p><table><tr><td><p><strong>none</strong></p></td><td><p>Do nothing. Use with Flyway/Liquibase in production.</p></td></tr><tr><td><p><strong>validate</strong></p></td><td><p>Validate schema matches entities on startup — fails fast if there is drift.</p></td></tr><tr><td><p><strong>update</strong></p></td><td><p>Alter tables to match entities. Never use in production — can lose data.</p></td></tr><tr><td><p><strong>create</strong></p></td><td><p>Drop and re-create tables on startup. Development / test only.</p></td></tr><tr><td><p><strong>create-drop</strong></p></td><td><p>Create on startup, drop on shutdown. Integration tests.</p></td></tr></table><p><strong>Auto-Configuration Beans</strong></p><p>Spring Boot auto-configures the following beans — you rarely need to declare them manually:</p><ul><li>DataSource — HikariCP connection pool from spring.datasource.* properties.</li><li>LocalContainerEntityManagerFactoryBean — scans @Entity classes, creates EntityManagerFactory.</li><li>JpaTransactionManager — integrates @Transactional with JPA EntityManager lifecycle.</li></ul><p><strong>3. Schema Definition (Entities)</strong></p><p>Each JPA entity is a Java class annotated with @Entity. The class is mapped to a table; fields are mapped to columns. Lombok annotations (@Getter, @Setter, @NoArgsConstructor) eliminate boilerplate. All entities use IDENTITY strategy for auto-increment PKs.</p><p><strong>Status Enum</strong></p><table><tr><td><p>// Status.java</p><p>public enum Status {</p><p>    DRAFT, PUBLISHED</p><p>}</p></td></tr></table><p><strong>User Entity</strong></p><table><tr><td><p>// User.java</p><p>import jakarta.persistence.*;</p><p>import lombok.*;</p><p>import org.hibernate.annotations.CreationTimestamp;</p><p>import java.time.LocalDateTime;</p><p>import java.util.*;</p><p>@Entity</p><p>@Table(name = "users")</p><p>@Getter @Setter</p><p>@NoArgsConstructor</p><p>public class User {</p><p>    @Id</p><p>    @GeneratedValue(strategy = GenerationType.IDENTITY)</p><p>    private Long id;</p><p>    @Column(length = 50, unique = true, nullable = false)</p><p>    private String username;</p><p>    @Column(length = 255, unique = true, nullable = false)</p><p>    private String email;</p><p>    @Column(length = 255, nullable = false)</p><p>    private String passwordHash;</p><p>    @CreationTimestamp</p><p>    private LocalDateTime createdAt;</p><p>    @OneToMany(mappedBy = "author", cascade = CascadeType.ALL, fetch = FetchType.LAZY)</p><p>    private List&lt;Post&gt; posts = new ArrayList&lt;&gt;();</p><p>    @OneToMany(mappedBy = "author", cascade = CascadeType.ALL, fetch = FetchType.LAZY)</p><p>    private List&lt;Comment&gt; comments = new ArrayList&lt;&gt;();</p><p>}</p></td></tr></table><p><strong>Post Entity</strong></p><table><tr><td><p>// Post.java</p><p>import jakarta.persistence.*;</p><p>import lombok.*;</p><p>import org.hibernate.annotations.*;</p><p>import java.time.LocalDateTime;</p><p>import java.util.*;</p><p>@Entity</p><p>@Table(name = "posts")</p><p>@Getter @Setter</p><p>@NoArgsConstructor</p><p>public class Post {</p><p>    @Id</p><p>    @GeneratedValue(strategy = GenerationType.IDENTITY)</p><p>    private Long id;</p><p>    @Column(length = 255, nullable = false)</p><p>    private String title;</p><p>    @Column(columnDefinition = "TEXT", nullable = false)</p><p>    private String content;</p><p>    @Enumerated(EnumType.STRING)</p><p>    @Column(nullable = false)</p><p>    private Status status = Status.DRAFT;</p><p>    @ManyToOne(fetch = FetchType.LAZY)</p><p>    @JoinColumn(name = "authorId", nullable = false)</p><p>    private User author;</p><p>    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)</p><p>    private List&lt;Comment&gt; comments = new ArrayList&lt;&gt;();</p><p>    // post_tags junction table managed by Hibernate</p><p>    @ManyToMany</p><p>    @JoinTable(</p><p>        name = "post_tags",</p><p>        joinColumns        = @JoinColumn(name = "postId"),</p><p>        inverseJoinColumns = @JoinColumn(name = "tagId")</p><p>    )</p><p>    private Set&lt;Tag&gt; tags = new HashSet&lt;&gt;();</p><p>    @CreationTimestamp</p><p>    private LocalDateTime createdAt;</p><p>    @UpdateTimestamp</p><p>    private LocalDateTime updatedAt;</p><p>}</p></td></tr></table><p><strong>Comment Entity</strong></p><table><tr><td><p>// Comment.java</p><p>@Entity</p><p>@Table(name = "comments")</p><p>@Getter @Setter @NoArgsConstructor</p><p>public class Comment {</p><p>    @Id</p><p>    @GeneratedValue(strategy = GenerationType.IDENTITY)</p><p>    private Long id;</p><p>    @Column(columnDefinition = "TEXT", nullable = false)</p><p>    private String content;</p><p>    @ManyToOne(fetch = FetchType.LAZY)</p><p>    @JoinColumn(name = "postId", nullable = false)</p><p>    private Post post;</p><p>    @ManyToOne(fetch = FetchType.LAZY)</p><p>    @JoinColumn(name = "authorId", nullable = false)</p><p>    private User author;</p><p>    @CreationTimestamp</p><p>    private LocalDateTime createdAt;</p><p>}</p></td></tr></table><p><strong>Tag Entity</strong></p><table><tr><td><p>// Tag.java</p><p>@Entity</p><p>@Table(name = "tags")</p><p>@Getter @Setter @NoArgsConstructor</p><p>public class Tag {</p><p>    @Id</p><p>    @GeneratedValue(strategy = GenerationType.IDENTITY)</p><p>    private Long id;</p><p>    @Column(length = 100, unique = true, nullable = false)</p><p>    private String name;</p><p>    @ManyToMany(mappedBy = "tags")</p><p>    private Set&lt;Post&gt; posts = new HashSet&lt;&gt;();</p><p>}</p></td></tr></table><p><strong>ER Diagram</strong></p><table><tr><td><p>  ┌──────────────────┐     ┌────────────────────────┐     ┌──────────────────┐</p><p>  │      users       │     │         posts          │     │     comments     │</p><p>  ├──────────────────┤     ├────────────────────────┤     ├──────────────────┤</p><p>  │ id (PK)          │◄────│ author  @ManyToOne     │◄────│ post @ManyToOne  │</p><p>  │ username UNIQUE  │     │ id (PK)                │     │ author @ManyToOne│</p><p>  │ email UNIQUE     │     │ title                  │     │ id (PK)          │</p><p>  │ passwordHash     │     │ content @Lob           │     │ content @Lob     │</p><p>  │ createdAt        │     │ status @Enumerated     │     │ createdAt        │</p><p>  └──────────────────┘     │ createdAt / updatedAt  │     └──────────────────┘</p><p>                           └────────────────────────┘</p><p>                                      │</p><p>                          @ManyToMany via post_tags</p><p>                                      │</p><p>                                      ▼</p><p>                           ┌──────────────────┐</p><p>                           │       tags       │</p><p>                           ├──────────────────┤</p><p>                           │ id (PK)          │</p><p>                           │ name UNIQUE      │</p><p>                           └──────────────────┘</p></td></tr></table><p><em>Blog System — Entity Relationship Diagram</em></p><p><strong>4. CRUD Operations</strong></p><p>Define a repository interface — Spring generates the implementation at startup:</p><table><tr><td><p>// PostRepository.java</p><p>import org.springframework.data.jpa.repository.JpaRepository;</p><p>import org.springframework.stereotype.Repository;</p><p>@Repository</p><p>public interface PostRepository extends JpaRepository&lt;Post, Long&gt; {</p><p>    // Additional query methods go here (Section 5)</p><p>}</p></td></tr></table><p>JpaRepository&lt;T, ID&gt; already provides: save(), findById(), findAll(), deleteById(), count(), existsById(), and paginated / sorted variants.</p><p><strong>Create</strong></p><table><tr><td><p>Post post = new Post();</p><p>post.setTitle("Getting Started with Spring Data JPA");</p><p>post.setContent("Spring Data JPA makes persistence easy...");</p><p>post.setStatus(Status.DRAFT);</p><p>post.setAuthor(userRepository.getReferenceById(L));  // no DB hit</p><p>Post saved = postRepository.save(post);</p><p>System.out.println(saved.getId());  // auto-generated PK</p></td></tr></table><p><strong>Find by Primary Key</strong></p><table><tr><td><p>Optional&lt;Post&gt; opt = postRepository.findById(L);</p><p>Post post = opt.orElseThrow(() -&gt; new EntityNotFoundException("Post not found"));</p></td></tr></table><p><strong>Find All</strong></p><table><tr><td><p>List&lt;Post&gt; all = postRepository.findAll();</p><p>// Sorted</p><p>List&lt;Post&gt; sorted = postRepository.findAll(</p><p>    Sort.by(Sort.Direction.DESC, "createdAt")</p><p>);</p></td></tr></table><p><strong>Update</strong></p><table><tr><td><p>// Load the entity first — Hibernate tracks changes automatically (dirty checking)</p><p>Post post = postRepository.findById(L).orElseThrow();</p><p>post.setTitle("Updated Title");</p><p>post.setStatus(Status.PUBLISHED);</p><p>// save() is optional if called inside a @Transactional method — dirty checking fires on commit</p><p>postRepository.save(post);</p></td></tr></table><p><strong>Delete</strong></p><table><tr><td><p>postRepository.deleteById(L);</p><p>// Or load + delete (triggers cascades)</p><p>Post post = postRepository.findById(L).orElseThrow();</p><p>postRepository.delete(post);</p></td></tr></table><p><strong>getReferenceById vs findById</strong></p><table><tr><td><p><strong>findById(id)</strong></p></td><td><p>Always hits the DB. Returns Optional&lt;T&gt;. Use when you need the entity's data.</p></td></tr><tr><td><p><strong>getReferenceById(id)</strong></p></td><td><p>Returns a proxy — no DB hit. Use when you only need a reference for a FK (e.g., setting post.setAuthor(userRepo.getReferenceById(1L))).</p></td></tr></table><p><strong>5. Querying</strong></p><p><strong>Derived Query Methods</strong></p><p>Spring Data generates SQL from method names automatically — no implementation needed:</p><table><tr><td><p>public interface PostRepository extends JpaRepository&lt;Post, Long&gt; {</p><p>    // WHERE status = ?</p><p>    List&lt;Post&gt; findByStatus(Status status);</p><p>    // WHERE author.id = ? AND status = ? ORDER BY createdAt DESC</p><p>    List&lt;Post&gt; findByAuthorIdAndStatusOrderByCreatedAtDesc(</p><p>        Long authorId, Status status</p><p>    );</p><p>    // WHERE title LIKE %?%  (case-insensitive)</p><p>    List&lt;Post&gt; findByTitleContainingIgnoreCase(String keyword);</p><p>    // EXISTS query</p><p>    boolean existsByTitleAndAuthorId(String title, Long authorId);</p><p>    // COUNT</p><p>    long countByStatus(Status status);</p><p>}</p></td></tr></table><p><strong>Pagination with Pageable</strong></p><table><tr><td><p>// Repository method</p><p>Page&lt;Post&gt; findByStatus(Status status, Pageable pageable);</p><p>// Caller</p><p>Pageable page = PageRequest.of(</p><p>    1,                                  // page index (0-based)</p><p>    10,                                 // page size</p><p>    Sort.by("createdAt").descending()</p><p>);</p><p>Page&lt;Post&gt; result = postRepository.findByStatus(Status.PUBLISHED, page);</p><p>result.getContent();           // List&lt;Post&gt; for this page</p><p>result.getTotalElements();     // total rows matching WHERE</p><p>result.getTotalPages();        // total page count</p><p>result.hasNext();              // is there a next page?</p></td></tr></table><pre><code><strong>@Query — JPQL</strong></code></pre>
-<p>JPQL uses entity class names and field names (not table/column names):</p><table><tr><td><p>@Query("SELECT p FROM Post p " +</p><p>       "WHERE p.author.id = :authorId AND p.status = :status " +</p><p>       "ORDER BY p.createdAt DESC")</p><p>List&lt;Post&gt; findPublishedByAuthor(</p><p>    @Param("authorId") Long authorId,</p><p>    @Param("status")   Status status</p><p>);</p></td></tr></table><pre><code><strong>@Query — Native SQL</strong></code></pre>
-<table><tr><td><p>@Query(</p><p>    value  = "SELECT * FROM posts WHERE title LIKE %:kw% AND status = 'PUBLISHED'",</p><p>    nativeQuery = true</p><p>)</p><p>List&lt;Post&gt; searchByKeywordNative(@Param("kw") String keyword);</p></td></tr></table><pre><code><strong>@Modifying — UPDATE / DELETE</strong></code></pre>
-<table><tr><td><p>@Modifying</p><p>@Transactional</p><p>@Query("UPDATE Post p SET p.status = :status WHERE p.author.id = :authorId")</p><p>int publishAllByAuthor(@Param("authorId") Long authorId, @Param("status") Status status);</p></td></tr></table><p><strong>6. Associations &amp; Fetch Strategy</strong></p><p><strong>Fetch Type Defaults</strong></p><table><tr><td><p><strong>@ManyToOne</strong></p></td><td><p>EAGER by default — always loaded immediately. Override to LAZY in most cases.</p></td></tr><tr><td><p><strong>@OneToOne</strong></p></td><td><p>EAGER by default. Usually override to LAZY.</p></td></tr><tr><td><p><strong>@OneToMany</strong></p></td><td><p>LAZY by default — loaded only when accessed.</p></td></tr><tr><td><p><strong>@ManyToMany</strong></p></td><td><p>LAZY by default.</p></td></tr></table><p>Best practice: set ALL associations to FetchType.LAZY and use JOIN FETCH in queries when you need the related data. This avoids unintended DB hits.</p><p><strong>N+1 Problem</strong></p><p>The N+1 problem is a classic interview topic. It occurs when loading a list of N entities triggers N additional queries to load their associations:</p><table><tr><td><p>// BAD — triggers 1 query for posts + N queries for each post.author</p><p>List&lt;Post&gt; posts = postRepository.findByStatus(Status.PUBLISHED);</p><p>posts.forEach(p -&gt; System.out.println(p.getAuthor().getUsername()));  // N extra SELECTs</p></td></tr></table><p>Fix with JOIN FETCH in JPQL — fetches everything in a single query:</p><table><tr><td><p>// GOOD — single JOIN query</p><p>@Query("SELECT p FROM Post p JOIN FETCH p.author WHERE p.status = :status")</p><p>List&lt;Post&gt; findPublishedWithAuthor(@Param("status") Status status);</p></td></tr></table><p><strong>Load Posts with Author (1:N)</strong></p><table><tr><td><p>// Repository</p><p>@Query("SELECT p FROM Post p JOIN FETCH p.author WHERE p.status = :status " +</p><p>       "ORDER BY p.createdAt DESC")</p><p>List&lt;Post&gt; findPublishedWithAuthor(@Param("status") Status status);</p><p>// Service</p><p>List&lt;Post&gt; posts = postRepository.findPublishedWithAuthor(Status.PUBLISHED);</p><p>posts.forEach(p -&gt; System.out.println(p.getTitle() + " by " + p.getAuthor().getUsername()));</p></td></tr></table><p><strong>Cascade Types</strong></p><table><tr><td><p><strong>PERSIST</strong></p></td><td><p>Save child when parent is saved.</p></td></tr><tr><td><p><strong>MERGE</strong></p></td><td><p>Update child when parent is merged.</p></td></tr><tr><td><p><strong>REMOVE</strong></p></td><td><p>Delete child when parent is deleted.</p></td></tr><tr><td><p><strong>REFRESH</strong></p></td><td><p>Reload child when parent is refreshed from DB.</p></td></tr><tr><td><p><strong>DETACH</strong></p></td><td><p>Detach child when parent is detached from persistence context.</p></td></tr><tr><td><p><strong>ALL</strong></p></td><td><p>All of the above — common for @OneToMany parent-owns-child.</p></td></tr></table><p>orphanRemoval = true (on @OneToMany) deletes child rows when they are removed from the parent's collection, even without explicit CascadeType.REMOVE.</p><p><strong>Many-to-Many — Post with Tags</strong></p><table><tr><td><p>// Add a tag to a post (inside @Transactional)</p><p>Post post = postRepository.findById(L).orElseThrow();</p><p>Tag  tag  = tagRepository.findByName("java").orElseGet(() -&gt; {</p><p>    Tag t = new Tag(); t.setName("java"); return tagRepository.save(t);</p><p>});</p><p>post.getTags().add(tag);</p><p>// Dirty checking inserts into post_tags on commit — no extra save() needed</p><p>// Fetch post with tags</p><p>@Query("SELECT p FROM Post p JOIN FETCH p.tags WHERE p.id = :id")</p><p>Optional&lt;Post&gt; findWithTags(@Param("id") Long id);</p></td></tr></table><p><strong>7. Schema Management</strong></p><p>In production, never rely on Hibernate's ddl-auto=update. Use Flyway (or Liquibase) to manage schema changes as versioned SQL files in source control.</p><p><strong>Flyway Setup</strong></p><p>Add flyway-mysql dependency and configure in application.properties (see Section 2). Migration files go in src/main/resources/db/migration/:</p><table><tr><td><p>src/main/resources/db/migration/</p><p>    V1__create_users.sql</p><p>    V2__create_posts.sql</p><p>    V3__create_comments.sql</p><p>    V4__create_tags.sql</p></td></tr></table><p><strong>Sample Migration — V1__create_users.sql</strong></p><table><tr><td><p>-- V1__create_users.sql</p><p>CREATE TABLE users (</p><p>    id           BIGINT UNSIGNED  NOT NULL AUTO_INCREMENT,</p><p>    username     VARCHAR(50)      NOT NULL,</p><p>    email        VARCHAR(255)     NOT NULL,</p><p>    passwordHash VARCHAR(255)     NOT NULL,</p><p>    createdAt    DATETIME(6)      NOT NULL DEFAULT CURRENT_TIMESTAMP(6),</p><p>    UNIQUE KEY uq_users_username (username),</p><p>    UNIQUE KEY uq_users_email    (email),</p><p>    PRIMARY KEY (id)</p><p>) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;</p></td></tr></table><p><strong>Sample Migration — V2__create_posts.sql</strong></p><table><tr><td><p>-- V2__create_posts.sql</p><p>CREATE TABLE posts (</p><p>    id        BIGINT UNSIGNED  NOT NULL AUTO_INCREMENT,</p><p>    title     VARCHAR(255)     NOT NULL,</p><p>    content   TEXT             NOT NULL,</p><p>    status    ENUM('DRAFT','PUBLISHED') NOT NULL DEFAULT 'DRAFT',</p><p>    authorId  BIGINT UNSIGNED  NOT NULL,</p><p>    createdAt DATETIME(6)      NOT NULL DEFAULT CURRENT_TIMESTAMP(6),</p><p>    updatedAt DATETIME(6)      NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),</p><p>    PRIMARY KEY (id),</p><p>    CONSTRAINT fk_posts_author FOREIGN KEY (authorId) REFERENCES users(id)</p><p>) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;</p></td></tr></table><p><strong>Flyway CLI Commands</strong></p><table><tr><td><p># Run pending migrations (also auto-runs on Spring Boot startup)</p><p>mvn flyway:migrate</p><p># Check migration status</p><p>mvn flyway:info</p><p># Undo the last migration (requires Flyway Teams)</p><p>mvn flyway:undo</p><p># Validate applied migrations match files</p><p>mvn flyway:validate</p></td></tr></table><p><strong>Flyway vs ddl-auto Comparison</strong></p><table><tr><td><p><strong>ddl-auto=update</strong></p></td><td><p>Quick for development; dangerous in production; no history; conflicts on concurrent deploy.</p></td></tr><tr><td><p><strong>ddl-auto=validate</strong></p></td><td><p>Good safety net; use with Flyway so schema is already correct before app starts.</p></td></tr><tr><td><p><strong>Flyway migrate</strong></p></td><td><p>Production-grade; versioned; repeatable; safe for concurrent deploys; auditable.</p></td></tr><tr><td><p><strong>Liquibase</strong></p></td><td><p>XML/YAML/JSON-based alternative to Flyway; more complex but richer diff tooling.</p></td></tr></table><p><strong>8. Transactions</strong></p><pre><code>@Transactional is a Spring AOP proxy — it wraps the method in a transaction that is committed on normal return or rolled back on any RuntimeException (by default).</code></pre>
-<p><strong>Basic @Transactional Usage</strong></p><table><tr><td><p>@Service</p><p>public class PostService {</p><p>    private final PostRepository    postRepository;</p><p>    private final CommentRepository commentRepository;</p><p>    // Constructor injection (Lombok @RequiredArgsConstructor)</p><p>    @Transactional                          // commit on success, rollback on RuntimeException</p><p>    public Post createPostWithComment(CreatePostRequest req, Long authorId) {</p><p>        Post post = new Post();</p><p>        post.setTitle(req.getTitle());</p><p>        post.setContent(req.getContent());</p><p>        post.setStatus(Status.DRAFT);</p><p>        post.setAuthor(userRepository.getReferenceById(authorId));</p><p>        postRepository.save(post);</p><p>        Comment comment = new Comment();</p><p>        comment.setContent("Initial comment.");</p><p>        comment.setPost(post);</p><p>        comment.setAuthor(userRepository.getReferenceById(authorId));</p><p>        commentRepository.save(comment);</p><p>        return post;</p><p>        // Both inserts committed here; if anything throws, both roll back</p><p>    }</p><p>    @Transactional(readOnly = true)         // optimises: no flush, read-only Connection hint</p><p>    public Page&lt;Post&gt; getPublishedPosts(Pageable pageable) {</p><p>        return postRepository.findByStatus(Status.PUBLISHED, pageable);</p><p>    }</p><p>}</p></td></tr></table><p><strong>Propagation Types</strong></p><table><tr><td><p><strong>REQUIRED (default)</strong></p></td><td><p>Join existing transaction or start a new one.</p></td></tr><tr><td><p><strong>REQUIRES_NEW</strong></p></td><td><p>Always start a new transaction; suspend the outer one.</p></td></tr><tr><td><p><strong>NESTED</strong></p></td><td><p>Start a savepoint inside the existing transaction.</p></td></tr><tr><td><p><strong>SUPPORTS</strong></p></td><td><p>Join existing if present; run non-transactionally if not.</p></td></tr><tr><td><p><strong>NOT_SUPPORTED</strong></p></td><td><p>Suspend existing transaction; run non-transactionally.</p></td></tr><tr><td><p><strong>MANDATORY</strong></p></td><td><p>Throw if no existing transaction.</p></td></tr><tr><td><p><strong>NEVER</strong></p></td><td><p>Throw if a transaction is active.</p></td></tr></table><p><strong>Isolation Levels</strong></p><table><tr><td><p><strong>READ_UNCOMMITTED</strong></p></td><td><p>Can read uncommitted data (dirty reads). Not safe.</p></td></tr><tr><td><p><strong>READ_COMMITTED</strong></p></td><td><p>Default in most DBs. Prevents dirty reads.</p></td></tr><tr><td><p><strong>REPEATABLE_READ</strong></p></td><td><p>MySQL default. Prevents dirty + non-repeatable reads.</p></td></tr><tr><td><p><strong>SERIALIZABLE</strong></p></td><td><p>Fully serialized. Prevents phantom reads. Slowest.</p></td></tr></table><table><tr><td><p>@Transactional(isolation = Isolation.READ_COMMITTED)</p><p>public void someMethod() { ... }</p></td></tr></table><p><strong>Rollback Rules</strong></p><table><tr><td><p>// Roll back on checked exception too</p><p>@Transactional(rollbackFor = Exception.class)</p><p>public void riskyMethod() throws IOException { ... }</p><p>// Do NOT roll back on a specific exception</p><p>@Transactional(noRollbackFor = OptimisticLockingFailureException.class)</p><p>public void retryableMethod() { ... }</p></td></tr></table><pre><code><strong>@Transactional Self-Invocation Warning</strong></code></pre>
-<p>Calling a @Transactional method from within the same class bypasses the AOP proxy — the transaction annotation is ignored. Always inject self or move the method to a separate service bean if you need transactional behaviour on an internal call.</p><p><strong>9. Advanced Queries</strong></p><p><strong>Top 5 Authors by Published Post Count — JPQL</strong></p><p>Use interface-based projections to map aggregate query results to a typed object:</p><table><tr><td><p>// Projection interface — Spring generates a proxy at runtime</p><p>public interface AuthorStats {</p><p>    String getUsername();</p><p>    String getEmail();</p><p>    Long   getPostCount();</p><p>}</p></td></tr></table><table><tr><td><p>// Repository</p><p>@Query("SELECT u.username AS username, u.email AS email, COUNT(p.id) AS postCount " +</p><p>       "FROM User u JOIN u.posts p " +</p><p>       "WHERE p.status = :status " +</p><p>       "GROUP BY u.id " +</p><p>       "ORDER BY postCount DESC")</p><p>List&lt;AuthorStats&gt; findTopAuthorsByPostCount(</p><p>    @Param("status") Status status,</p><p>    Pageable pageable</p><p>);</p><p>// Caller</p><p>Pageable top5 = PageRequest.of(0, 5);</p><p>List&lt;AuthorStats&gt; result = postRepository.findTopAuthorsByPostCount(Status.PUBLISHED, top5);</p><p>result.forEach(a -&gt; System.out.println(a.getUsername() + ": " + a.getPostCount()));</p></td></tr></table><p><strong>Native SQL Aggregate</strong></p><p>Use @Query(nativeQuery=true) when the JPQL equivalent would be awkward:</p><table><tr><td><p>@Query(</p><p>    value = "SELECT u.username, u.email, COUNT(p.id) AS postCount " +</p><p>            "FROM users u " +</p><p>            "JOIN posts p ON p.authorId = u.id " +</p><p>            "WHERE p.status = 'PUBLISHED' " +</p><p>            "GROUP BY u.id ORDER BY postCount DESC LIMIT 5",</p><p>    nativeQuery = true</p><p>)</p><p>List&lt;AuthorStats&gt; findTopAuthorsNative();</p></td></tr></table><p><strong>Criteria API</strong></p><p>The Criteria API is type-safe and dynamic — useful when WHERE conditions are built at runtime:</p><table><tr><td><p>@Service</p><p>public class PostSearchService {</p><p>    @PersistenceContext</p><p>    private EntityManager em;</p><p>    public List&lt;Post&gt; search(String keyword, Status status) {</p><p>        CriteriaBuilder  cb    = em.getCriteriaBuilder();</p><p>        CriteriaQuery&lt;Post&gt; q  = cb.createQuery(Post.class);</p><p>        Root&lt;Post&gt; root        = q.from(Post.class);</p><p>        List&lt;Predicate&gt; preds = new ArrayList&lt;&gt;();</p><p>        if (keyword != null)</p><p>            preds.add(cb.like(cb.lower(root.get("title")),</p><p>                              "%" + keyword.toLowerCase() + "%"));</p><p>        if (status != null)</p><p>            preds.add(cb.equal(root.get("status"), status));</p><p>        q.where(preds.toArray(new Predicate[0]));</p><p>        q.orderBy(cb.desc(root.get("createdAt")));</p><p>        return em.createQuery(q).getResultList();</p><p>    }</p><p>}</p></td></tr></table><p><strong>JPA Specifications (Spring Data)</strong></p><p>Extend JpaSpecificationExecutor to add Criteria-based queries without boilerplate:</p><table><tr><td><p>public interface PostRepository extends</p><p>        JpaRepository&lt;Post, Long&gt;,</p><p>        JpaSpecificationExecutor&lt;Post&gt; {  // adds findAll(Specification, Pageable)</p><p>}</p><p>// Reusable specification</p><p>public class PostSpecs {</p><p>    public static Specification&lt;Post&gt; hasStatus(Status s) {</p><p>        return (root, query, cb) -&gt; cb.equal(root.get("status"), s);</p><p>    }</p><p>    public static Specification&lt;Post&gt; titleContains(String kw) {</p><p>        return (root, query, cb) -&gt;</p><p>            cb.like(cb.lower(root.get("title")), "%" + kw.toLowerCase() + "%");</p><p>    }</p><p>}</p><p>// Usage</p><p>Page&lt;Post&gt; page = postRepository.findAll(</p><p>    PostSpecs.hasStatus(Status.PUBLISHED).and(PostSpecs.titleContains("jpa")),</p><p>    PageRequest.of(0, 10, Sort.by("createdAt").descending())</p><p>);</p></td></tr></table><p><strong>Optimistic Locking</strong></p><p>Prevents concurrent updates from overwriting each other — common interview topic:</p><table><tr><td><p>// Add @Version field to entity</p><p>@Version</p><p>private Long version;</p><p>// Hibernate automatically adds WHERE version = ? to UPDATE.</p><p>// If another transaction updated the row first, a</p><p>// OptimisticLockingFailureException is thrown.</p></td></tr></table><p><strong>10. Quick Reference</strong></p><table><tr><td><p><strong>Topic / Operation</strong></p></td><td><p><strong>Details / API</strong></p></td></tr><tr><td><p><strong>Starter dependency</strong></p></td><td><p>spring-boot-starter-data-jpa + mysql-connector-j</p></td></tr><tr><td><p><strong>Mark entity</strong></p></td><td><p>@Entity  @Table(name="...")</p></td></tr><tr><td><p><strong>Primary key</strong></p></td><td><p>@Id  @GeneratedValue(strategy = GenerationType.IDENTITY)</p></td></tr><tr><td><p><strong>Column options</strong></p></td><td><p>@Column(length, nullable, unique, columnDefinition)</p></td></tr><tr><td><p><strong>Enum field</strong></p></td><td><p>@Enumerated(EnumType.STRING)</p></td></tr><tr><td><p><strong>Timestamps</strong></p></td><td><p>@CreationTimestamp  /  @UpdateTimestamp (Hibernate)</p></td></tr><tr><td><p><strong>1:N (parent side)</strong></p></td><td><p>@OneToMany(mappedBy, cascade, fetch = LAZY)</p></td></tr><tr><td><p><strong>N:1 (child side)</strong></p></td><td><p>@ManyToOne(fetch = LAZY)  +  @JoinColumn(name="fkCol")</p></td></tr><tr><td><p><strong>N:M</strong></p></td><td><p>@ManyToMany + @JoinTable(name, joinColumns, inverseJoinColumns)</p></td></tr><tr><td><p><strong>Define repository</strong></p></td><td><p>interface Repo extends JpaRepository&lt;T, ID&gt;</p></td></tr><tr><td><p><strong>Derived query</strong></p></td><td><p>findByField / findByFieldAndOther / findByTitleContaining</p></td></tr><tr><td><p><strong>JPQL query</strong></p></td><td><p>@Query("SELECT e FROM Entity e WHERE ...")</p></td></tr><tr><td><p><strong>Native SQL</strong></p></td><td><p>@Query(value="...", nativeQuery=true)</p></td></tr><tr><td><p><strong>Bulk update/delete</strong></p></td><td><p>@Modifying + @Transactional + @Query(...)</p></td></tr><tr><td><p><strong>Pagination</strong></p></td><td><p>findAll(Pageable) / findBy...(Pageable) → Page&lt;T&gt;</p></td></tr><tr><td><p><strong>Projection</strong></p></td><td><p>interface with getX() methods — auto-proxied by Spring</p></td></tr><tr><td><p><strong>Transaction</strong></p></td><td><p>@Transactional (readOnly=true for reads)</p></td></tr><tr><td><p><strong>Propagation</strong></p></td><td><p>REQUIRED (default), REQUIRES_NEW, NESTED, SUPPORTS</p></td></tr><tr><td><p><strong>N+1 fix</strong></p></td><td><p>JOIN FETCH in @Query — loads association in single query</p></td></tr><tr><td><p><strong>Optimistic lock</strong></p></td><td><p>@Version Long version — throws on concurrent update</p></td></tr><tr><td><p><strong>Criteria API</strong></p></td><td><p>em.getCriteriaBuilder() → dynamic type-safe queries</p></td></tr><tr><td><p><strong>Specification</strong></p></td><td><p>JpaSpecificationExecutor + Specification&lt;T&gt; lambdas</p></td></tr><tr><td><p><strong>Schema migrations</strong></p></td><td><p>Flyway: src/main/resources/db/migration/V1__*.sql</p></td></tr><tr><td><p><strong>ddl-auto prod</strong></p></td><td><p>"none" (Flyway runs first) or "validate"</p></td></tr><tr><td><p><strong>Disable OSIV</strong></p></td><td><p>spring.jpa.open-in-view=false (prevents lazy loads in view layer)</p></td></tr></table>
+  <p><strong>Spring Data JPA</strong></p><p>+ Hibernate  —  MySQL Tutorial  —  Blog System</p><p>2026-05-21</p><p><strong>1. Introduction</strong></p><p>Spring Data JPA is the recommended ORM layer for Spring Boot applications. It sits on top of JPA (Java Persistence API — a specification) which is implemented by Hibernate. Understanding the three-layer stack is key to debugging and performance tuning.</p><p><strong>Three-Layer Stack</strong></p><pre><code>  Your Service / Controller
+         │
+         ▼
+  ┌─────────────────────────────────────────────┐
+  │            Spring Data JPA                  │
+  │  PostRepository extends JpaRepository&lt;&gt;     │
+  │  findByStatus()  findByTitle...()  @Query   │
+  └─────────────────────────┬───────────────────┘
+                            │
+                            ▼
+  ┌─────────────────────────────────────────────┐
+  │         JPA  (javax.persistence / jakarta)  │
+  │  EntityManager  │  JPQL  │  Criteria API    │
+  │  @Entity  @Table  @Column  @Id  @OneToMany  │
+  └─────────────────────────┬───────────────────┘
+                            │
+                            ▼
+  ┌─────────────────────────────────────────────┐
+  │       Hibernate  (JPA Provider)             │
+  │  Session  │  HQL  │  SQL Generation         │
+  │  1st-level cache  │  2nd-level cache (opt.) │
+  └─────────────────────────┬───────────────────┘
+                            │
+                            ▼
+                      MySQL Database</code></pre>
+<p><em>Spring Data JPA → JPA → Hibernate → MySQL</em></p><p><strong>Layer Responsibilities</strong></p><table><tr><td><p><strong>Spring Data JPA</strong></p></td><td><p>Adds repository abstraction — auto-generates CRUD + query implementations at runtime. No SQL or JPQL needed for common operations.</p></td></tr><tr><td><p><strong>JPA (specification)</strong></p></td><td><p>Defines @Entity, @Table, @Column, @Id, EntityManager, JPQL, Criteria API. jakarta.persistence (formerly javax.persistence) package.</p></td></tr><tr><td><p><strong>Hibernate</strong></p></td><td><p>JPA implementation. Manages Session (wraps EntityManager), 1st-level cache per transaction, optional 2nd-level cache, SQL generation, and schema DDL.</p></td></tr></table><p><strong>Key Concepts</strong></p><ul><li>Entity — @Entity class that maps to a DB table; instances are managed by EntityManager.</li><li>Repository — interface extending JpaRepository&lt;T, ID&gt;; Spring generates the implementation.</li><li>EntityManager — JPA's core API: persist(), find(), merge(), remove(), createQuery().</li><li>JPQL — object-oriented query language; operates on entity names/fields, not table/column names.</li><li>PersistenceContext — first-level cache per transaction; tracks entity state changes automatically.</li><li>Lazy / Eager loading — controls when related entities are fetched from the DB.</li></ul><p><strong>When to Use</strong></p><ul><li>Standard CRUD-heavy Spring Boot apps with relational data and clear domain model.</li><li>Projects using NestJS or the broader Spring ecosystem (Security, MVC, Batch, etc.).</li><li>When derived query methods and @Query cover most use cases cleanly.</li></ul><p><strong>When NOT to Use</strong></p><ul><li>Reporting-heavy apps with very complex multi-join queries — consider JOOQ or raw JDBC.</li><li>High-performance bulk operations — Hibernate adds overhead vs. JDBC batch inserts.</li></ul><p><strong>Library Info</strong></p><table><tr><td><p><strong>Website</strong></p></td><td><p><a href="https://spring.io/projects/spring-data-jpa" target="_blank" rel="noopener noreferrer">https://spring.io/projects/spring-data-jpa</a></p></td></tr><tr><td><p><strong>Spring Boot</strong></p></td><td><p>3.x (uses jakarta.persistence, Hibernate 6.x)</p></td></tr><tr><td><p><strong>JPA Version</strong></p></td><td><p>Jakarta Persistence 3.1</p></td></tr><tr><td><p><strong>Hibernate</strong></p></td><td><p>6.x (included via spring-boot-starter-data-jpa)</p></td></tr><tr><td><p><strong>DB Used Here</strong></p></td><td><p>MySQL 8</p></td></tr><tr><td><p><strong>Java Version</strong></p></td><td><p>17+ (Spring Boot 3 requirement)</p></td></tr></table><p><strong>2. Installation &amp; Setup</strong></p><p><strong>Maven Dependencies (pom.xml)</strong></p><pre><code>&lt;dependencies&gt;
+    &lt;!-- Spring Data JPA + Hibernate auto-configured --&gt;
+    &lt;dependency&gt;
+        &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+        &lt;artifactId&gt;spring-boot-starter-data-jpa&lt;/artifactId&gt;
+    &lt;/dependency&gt;
+    &lt;!-- MySQL JDBC driver --&gt;
+    &lt;dependency&gt;
+        &lt;groupId&gt;com.mysql&lt;/groupId&gt;
+        &lt;artifactId&gt;mysql-connector-j&lt;/artifactId&gt;
+        &lt;scope&gt;runtime&lt;/scope&gt;
+    &lt;/dependency&gt;
+    &lt;!-- Lombok — reduces boilerplate getters/setters/constructors --&gt;
+    &lt;dependency&gt;
+        &lt;groupId&gt;org.projectlombok&lt;/groupId&gt;
+        &lt;artifactId&gt;lombok&lt;/artifactId&gt;
+        &lt;optional&gt;true&lt;/optional&gt;
+    &lt;/dependency&gt;
+    &lt;!-- Flyway — production DB migrations (recommended) --&gt;
+    &lt;dependency&gt;
+        &lt;groupId&gt;org.flywaydb&lt;/groupId&gt;
+        &lt;artifactId&gt;flyway-mysql&lt;/artifactId&gt;
+    &lt;/dependency&gt;
+&lt;/dependencies&gt;</code></pre>
+<p><strong>application.properties</strong></p><p>Spring Boot auto-configures DataSource, EntityManagerFactory, and TransactionManager from these properties:</p><pre><code># DataSource
+spring.datasource.url=jdbc:mysql://localhost:3306/blog_db?useSSL=false&amp;serverTimezone=UTC
+spring.datasource.username=root
+spring.datasource.password=secret
+spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
+# Connection pool (HikariCP — default in Spring Boot)
+spring.datasource.hikari.maximum-pool-size=10
+spring.datasource.hikari.minimum-idle=2
+# JPA / Hibernate
+spring.jpa.hibernate.ddl-auto=validate
+spring.jpa.show-sql=false
+spring.jpa.properties.hibernate.format_sql=true
+spring.jpa.open-in-view=false
+# Flyway (if using migration files)
+spring.flyway.enabled=true
+spring.flyway.locations=classpath:db/migration</code></pre>
+<p><strong>ddl-auto Values</strong></p><table><tr><td><p><strong>none</strong></p></td><td><p>Do nothing. Use with Flyway/Liquibase in production.</p></td></tr><tr><td><p><strong>validate</strong></p></td><td><p>Validate schema matches entities on startup — fails fast if there is drift.</p></td></tr><tr><td><p><strong>update</strong></p></td><td><p>Alter tables to match entities. Never use in production — can lose data.</p></td></tr><tr><td><p><strong>create</strong></p></td><td><p>Drop and re-create tables on startup. Development / test only.</p></td></tr><tr><td><p><strong>create-drop</strong></p></td><td><p>Create on startup, drop on shutdown. Integration tests.</p></td></tr></table><p><strong>Auto-Configuration Beans</strong></p><p>Spring Boot auto-configures the following beans — you rarely need to declare them manually:</p><ul><li>DataSource — HikariCP connection pool from spring.datasource.* properties.</li><li>LocalContainerEntityManagerFactoryBean — scans @Entity classes, creates EntityManagerFactory.</li><li>JpaTransactionManager — integrates @Transactional with JPA EntityManager lifecycle.</li></ul><p><strong>3. Schema Definition (Entities)</strong></p><p>Each JPA entity is a Java class annotated with @Entity. The class is mapped to a table; fields are mapped to columns. Lombok annotations (@Getter, @Setter, @NoArgsConstructor) eliminate boilerplate. All entities use IDENTITY strategy for auto-increment PKs.</p><p><strong>Status Enum</strong></p><pre><code>// Status.java
+public enum Status {
+    DRAFT, PUBLISHED
+}</code></pre>
+<p><strong>User Entity</strong></p><pre><code>// User.java
+import jakarta.persistence.*;
+import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import java.time.LocalDateTime;
+import java.util.*;
+@Entity
+@Table(name = "users")
+@Getter @Setter
+@NoArgsConstructor
+public class User {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    @Column(length = 50, unique = true, nullable = false)
+    private String username;
+    @Column(length = 255, unique = true, nullable = false)
+    private String email;
+    @Column(length = 255, nullable = false)
+    private String passwordHash;
+    @CreationTimestamp
+    private LocalDateTime createdAt;
+    @OneToMany(mappedBy = "author", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List&lt;Post&gt; posts = new ArrayList&lt;&gt;();
+    @OneToMany(mappedBy = "author", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List&lt;Comment&gt; comments = new ArrayList&lt;&gt;();
+}</code></pre>
+<p><strong>Post Entity</strong></p><pre><code>// Post.java
+import jakarta.persistence.*;
+import lombok.*;
+import org.hibernate.annotations.*;
+import java.time.LocalDateTime;
+import java.util.*;
+@Entity
+@Table(name = "posts")
+@Getter @Setter
+@NoArgsConstructor
+public class Post {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    @Column(length = 255, nullable = false)
+    private String title;
+    @Column(columnDefinition = "TEXT", nullable = false)
+    private String content;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Status status = Status.DRAFT;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "authorId", nullable = false)
+    private User author;
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List&lt;Comment&gt; comments = new ArrayList&lt;&gt;();
+    // post_tags junction table managed by Hibernate
+    @ManyToMany
+    @JoinTable(
+        name = "post_tags",
+        joinColumns        = @JoinColumn(name = "postId"),
+        inverseJoinColumns = @JoinColumn(name = "tagId")
+    )
+    private Set&lt;Tag&gt; tags = new HashSet&lt;&gt;();
+    @CreationTimestamp
+    private LocalDateTime createdAt;
+    @UpdateTimestamp
+    private LocalDateTime updatedAt;
+}</code></pre>
+<p><strong>Comment Entity</strong></p><pre><code>// Comment.java
+@Entity
+@Table(name = "comments")
+@Getter @Setter @NoArgsConstructor
+public class Comment {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    @Column(columnDefinition = "TEXT", nullable = false)
+    private String content;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "postId", nullable = false)
+    private Post post;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "authorId", nullable = false)
+    private User author;
+    @CreationTimestamp
+    private LocalDateTime createdAt;
+}</code></pre>
+<p><strong>Tag Entity</strong></p><pre><code>// Tag.java
+@Entity
+@Table(name = "tags")
+@Getter @Setter @NoArgsConstructor
+public class Tag {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    @Column(length = 100, unique = true, nullable = false)
+    private String name;
+    @ManyToMany(mappedBy = "tags")
+    private Set&lt;Post&gt; posts = new HashSet&lt;&gt;();
+}</code></pre>
+<p><strong>ER Diagram</strong></p><pre><code>  ┌──────────────────┐     ┌────────────────────────┐     ┌──────────────────┐
+  │      users       │     │         posts          │     │     comments     │
+  ├──────────────────┤     ├────────────────────────┤     ├──────────────────┤
+  │ id (PK)          │◄────│ author  @ManyToOne     │◄────│ post @ManyToOne  │
+  │ username UNIQUE  │     │ id (PK)                │     │ author @ManyToOne│
+  │ email UNIQUE     │     │ title                  │     │ id (PK)          │
+  │ passwordHash     │     │ content @Lob           │     │ content @Lob     │
+  │ createdAt        │     │ status @Enumerated     │     │ createdAt        │
+  └──────────────────┘     │ createdAt / updatedAt  │     └──────────────────┘
+                           └────────────────────────┘
+                                      │
+                          @ManyToMany via post_tags
+                                      │
+                                      ▼
+                           ┌──────────────────┐
+                           │       tags       │
+                           ├──────────────────┤
+                           │ id (PK)          │
+                           │ name UNIQUE      │
+                           └──────────────────┘</code></pre>
+<p><em>Blog System — Entity Relationship Diagram</em></p><p><strong>4. CRUD Operations</strong></p><p>Define a repository interface — Spring generates the implementation at startup:</p><pre><code>// PostRepository.java
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+@Repository
+public interface PostRepository extends JpaRepository&lt;Post, Long&gt; {
+    // Additional query methods go here (Section 5)
+}</code></pre>
+<p>JpaRepository&lt;T, ID&gt; already provides: save(), findById(), findAll(), deleteById(), count(), existsById(), and paginated / sorted variants.</p><p><strong>Create</strong></p><pre><code>Post post = new Post();
+post.setTitle("Getting Started with Spring Data JPA");
+post.setContent("Spring Data JPA makes persistence easy...");
+post.setStatus(Status.DRAFT);
+post.setAuthor(userRepository.getReferenceById(L));  // no DB hit
+Post saved = postRepository.save(post);
+System.out.println(saved.getId());  // auto-generated PK</code></pre>
+<p><strong>Find by Primary Key</strong></p><pre><code>Optional&lt;Post&gt; opt = postRepository.findById(L);
+Post post = opt.orElseThrow(() -&gt; new EntityNotFoundException("Post not found"));</code></pre>
+<p><strong>Find All</strong></p><pre><code>List&lt;Post&gt; all = postRepository.findAll();
+// Sorted
+List&lt;Post&gt; sorted = postRepository.findAll(
+    Sort.by(Sort.Direction.DESC, "createdAt")
+);</code></pre>
+<p><strong>Update</strong></p><pre><code>// Load the entity first — Hibernate tracks changes automatically (dirty checking)
+Post post = postRepository.findById(L).orElseThrow();
+post.setTitle("Updated Title");
+post.setStatus(Status.PUBLISHED);
+// save() is optional if called inside a @Transactional method — dirty checking fires on commit
+postRepository.save(post);</code></pre>
+<p><strong>Delete</strong></p><pre><code>postRepository.deleteById(L);
+// Or load + delete (triggers cascades)
+Post post = postRepository.findById(L).orElseThrow();
+postRepository.delete(post);</code></pre>
+<p><strong>getReferenceById vs findById</strong></p><table><tr><td><p><strong>findById(id)</strong></p></td><td><p>Always hits the DB. Returns Optional&lt;T&gt;. Use when you need the entity's data.</p></td></tr><tr><td><p><strong>getReferenceById(id)</strong></p></td><td><p>Returns a proxy — no DB hit. Use when you only need a reference for a FK (e.g., setting post.setAuthor(userRepo.getReferenceById(1L))).</p></td></tr></table><p><strong>5. Querying</strong></p><p><strong>Derived Query Methods</strong></p><p>Spring Data generates SQL from method names automatically — no implementation needed:</p><pre><code>public interface PostRepository extends JpaRepository&lt;Post, Long&gt; {
+    // WHERE status = ?
+    List&lt;Post&gt; findByStatus(Status status);
+    // WHERE author.id = ? AND status = ? ORDER BY createdAt DESC
+    List&lt;Post&gt; findByAuthorIdAndStatusOrderByCreatedAtDesc(
+        Long authorId, Status status
+    );
+    // WHERE title LIKE %?%  (case-insensitive)
+    List&lt;Post&gt; findByTitleContainingIgnoreCase(String keyword);
+    // EXISTS query
+    boolean existsByTitleAndAuthorId(String title, Long authorId);
+    // COUNT
+    long countByStatus(Status status);
+}</code></pre>
+<p><strong>Pagination with Pageable</strong></p><pre><code>// Repository method
+Page&lt;Post&gt; findByStatus(Status status, Pageable pageable);
+// Caller
+Pageable page = PageRequest.of(
+    1,                                  // page index (0-based)
+    10,                                 // page size
+    Sort.by("createdAt").descending()
+);
+Page&lt;Post&gt; result = postRepository.findByStatus(Status.PUBLISHED, page);
+result.getContent();           // List&lt;Post&gt; for this page
+result.getTotalElements();     // total rows matching WHERE
+result.getTotalPages();        // total page count
+result.hasNext();              // is there a next page?</code></pre>
+<pre><code><strong>@Query — JPQL</strong></code></pre>
+<p>JPQL uses entity class names and field names (not table/column names):</p><pre><code>@Query("SELECT p FROM Post p " +
+       "WHERE p.author.id = :authorId AND p.status = :status " +
+       "ORDER BY p.createdAt DESC")
+List&lt;Post&gt; findPublishedByAuthor(
+    @Param("authorId") Long authorId,
+    @Param("status")   Status status
+);</code></pre>
+<pre><code><strong>@Query — Native SQL</strong></code></pre>
+<pre><code>@Query(
+    value  = "SELECT * FROM posts WHERE title LIKE %:kw% AND status = 'PUBLISHED'",
+    nativeQuery = true
+)
+List&lt;Post&gt; searchByKeywordNative(@Param("kw") String keyword);</code></pre>
+<pre><code><strong>@Modifying — UPDATE / DELETE</strong></code></pre>
+<pre><code>@Modifying
+@Transactional
+@Query("UPDATE Post p SET p.status = :status WHERE p.author.id = :authorId")
+int publishAllByAuthor(@Param("authorId") Long authorId, @Param("status") Status status);</code></pre>
+<p><strong>6. Associations &amp; Fetch Strategy</strong></p><p><strong>Fetch Type Defaults</strong></p><table><tr><td><p><strong>@ManyToOne</strong></p></td><td><p>EAGER by default — always loaded immediately. Override to LAZY in most cases.</p></td></tr><tr><td><p><strong>@OneToOne</strong></p></td><td><p>EAGER by default. Usually override to LAZY.</p></td></tr><tr><td><p><strong>@OneToMany</strong></p></td><td><p>LAZY by default — loaded only when accessed.</p></td></tr><tr><td><p><strong>@ManyToMany</strong></p></td><td><p>LAZY by default.</p></td></tr></table><p>Best practice: set ALL associations to FetchType.LAZY and use JOIN FETCH in queries when you need the related data. This avoids unintended DB hits.</p><p><strong>N+1 Problem</strong></p><p>The N+1 problem is a classic interview topic. It occurs when loading a list of N entities triggers N additional queries to load their associations:</p><pre><code>// BAD — triggers 1 query for posts + N queries for each post.author
+List&lt;Post&gt; posts = postRepository.findByStatus(Status.PUBLISHED);
+posts.forEach(p -&gt; System.out.println(p.getAuthor().getUsername()));  // N extra SELECTs</code></pre>
+<p>Fix with JOIN FETCH in JPQL — fetches everything in a single query:</p><pre><code>// GOOD — single JOIN query
+@Query("SELECT p FROM Post p JOIN FETCH p.author WHERE p.status = :status")
+List&lt;Post&gt; findPublishedWithAuthor(@Param("status") Status status);</code></pre>
+<p><strong>Load Posts with Author (1:N)</strong></p><pre><code>// Repository
+@Query("SELECT p FROM Post p JOIN FETCH p.author WHERE p.status = :status " +
+       "ORDER BY p.createdAt DESC")
+List&lt;Post&gt; findPublishedWithAuthor(@Param("status") Status status);
+// Service
+List&lt;Post&gt; posts = postRepository.findPublishedWithAuthor(Status.PUBLISHED);
+posts.forEach(p -&gt; System.out.println(p.getTitle() + " by " + p.getAuthor().getUsername()));</code></pre>
+<p><strong>Cascade Types</strong></p><table><tr><td><p><strong>PERSIST</strong></p></td><td><p>Save child when parent is saved.</p></td></tr><tr><td><p><strong>MERGE</strong></p></td><td><p>Update child when parent is merged.</p></td></tr><tr><td><p><strong>REMOVE</strong></p></td><td><p>Delete child when parent is deleted.</p></td></tr><tr><td><p><strong>REFRESH</strong></p></td><td><p>Reload child when parent is refreshed from DB.</p></td></tr><tr><td><p><strong>DETACH</strong></p></td><td><p>Detach child when parent is detached from persistence context.</p></td></tr><tr><td><p><strong>ALL</strong></p></td><td><p>All of the above — common for @OneToMany parent-owns-child.</p></td></tr></table><p>orphanRemoval = true (on @OneToMany) deletes child rows when they are removed from the parent's collection, even without explicit CascadeType.REMOVE.</p><p><strong>Many-to-Many — Post with Tags</strong></p><pre><code>// Add a tag to a post (inside @Transactional)
+Post post = postRepository.findById(L).orElseThrow();
+Tag  tag  = tagRepository.findByName("java").orElseGet(() -&gt; {
+    Tag t = new Tag(); t.setName("java"); return tagRepository.save(t);
+});
+post.getTags().add(tag);
+// Dirty checking inserts into post_tags on commit — no extra save() needed
+// Fetch post with tags
+@Query("SELECT p FROM Post p JOIN FETCH p.tags WHERE p.id = :id")
+Optional&lt;Post&gt; findWithTags(@Param("id") Long id);</code></pre>
+<p><strong>7. Schema Management</strong></p><p>In production, never rely on Hibernate's ddl-auto=update. Use Flyway (or Liquibase) to manage schema changes as versioned SQL files in source control.</p><p><strong>Flyway Setup</strong></p><p>Add flyway-mysql dependency and configure in application.properties (see Section 2). Migration files go in src/main/resources/db/migration/:</p><pre><code>src/main/resources/db/migration/
+    V1__create_users.sql
+    V2__create_posts.sql
+    V3__create_comments.sql
+    V4__create_tags.sql</code></pre>
+<p><strong>Sample Migration — V1__create_users.sql</strong></p><pre><code>-- V1__create_users.sql
+CREATE TABLE users (
+    id           BIGINT UNSIGNED  NOT NULL AUTO_INCREMENT,
+    username     VARCHAR(50)      NOT NULL,
+    email        VARCHAR(255)     NOT NULL,
+    passwordHash VARCHAR(255)     NOT NULL,
+    createdAt    DATETIME(6)      NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    UNIQUE KEY uq_users_username (username),
+    UNIQUE KEY uq_users_email    (email),
+    PRIMARY KEY (id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;</code></pre>
+<p><strong>Sample Migration — V2__create_posts.sql</strong></p><pre><code>-- V2__create_posts.sql
+CREATE TABLE posts (
+    id        BIGINT UNSIGNED  NOT NULL AUTO_INCREMENT,
+    title     VARCHAR(255)     NOT NULL,
+    content   TEXT             NOT NULL,
+    status    ENUM('DRAFT','PUBLISHED') NOT NULL DEFAULT 'DRAFT',
+    authorId  BIGINT UNSIGNED  NOT NULL,
+    createdAt DATETIME(6)      NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    updatedAt DATETIME(6)      NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+    PRIMARY KEY (id),
+    CONSTRAINT fk_posts_author FOREIGN KEY (authorId) REFERENCES users(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;</code></pre>
+<p><strong>Flyway CLI Commands</strong></p><pre><code># Run pending migrations (also auto-runs on Spring Boot startup)
+mvn flyway:migrate
+# Check migration status
+mvn flyway:info
+# Undo the last migration (requires Flyway Teams)
+mvn flyway:undo
+# Validate applied migrations match files
+mvn flyway:validate</code></pre>
+<p><strong>Flyway vs ddl-auto Comparison</strong></p><table><tr><td><p><strong>ddl-auto=update</strong></p></td><td><p>Quick for development; dangerous in production; no history; conflicts on concurrent deploy.</p></td></tr><tr><td><p><strong>ddl-auto=validate</strong></p></td><td><p>Good safety net; use with Flyway so schema is already correct before app starts.</p></td></tr><tr><td><p><strong>Flyway migrate</strong></p></td><td><p>Production-grade; versioned; repeatable; safe for concurrent deploys; auditable.</p></td></tr><tr><td><p><strong>Liquibase</strong></p></td><td><p>XML/YAML/JSON-based alternative to Flyway; more complex but richer diff tooling.</p></td></tr></table><p><strong>8. Transactions</strong></p><pre><code>@Transactional is a Spring AOP proxy — it wraps the method in a transaction that is committed on normal return or rolled back on any RuntimeException (by default).</code></pre>
+<p><strong>Basic @Transactional Usage</strong></p><pre><code>@Service
+public class PostService {
+    private final PostRepository    postRepository;
+    private final CommentRepository commentRepository;
+    // Constructor injection (Lombok @RequiredArgsConstructor)
+    @Transactional                          // commit on success, rollback on RuntimeException
+    public Post createPostWithComment(CreatePostRequest req, Long authorId) {
+        Post post = new Post();
+        post.setTitle(req.getTitle());
+        post.setContent(req.getContent());
+        post.setStatus(Status.DRAFT);
+        post.setAuthor(userRepository.getReferenceById(authorId));
+        postRepository.save(post);
+        Comment comment = new Comment();
+        comment.setContent("Initial comment.");
+        comment.setPost(post);
+        comment.setAuthor(userRepository.getReferenceById(authorId));
+        commentRepository.save(comment);
+        return post;
+        // Both inserts committed here; if anything throws, both roll back
+    }
+    @Transactional(readOnly = true)         // optimises: no flush, read-only Connection hint
+    public Page&lt;Post&gt; getPublishedPosts(Pageable pageable) {
+        return postRepository.findByStatus(Status.PUBLISHED, pageable);
+    }
+}</code></pre>
+<p><strong>Propagation Types</strong></p><table><tr><td><p><strong>REQUIRED (default)</strong></p></td><td><p>Join existing transaction or start a new one.</p></td></tr><tr><td><p><strong>REQUIRES_NEW</strong></p></td><td><p>Always start a new transaction; suspend the outer one.</p></td></tr><tr><td><p><strong>NESTED</strong></p></td><td><p>Start a savepoint inside the existing transaction.</p></td></tr><tr><td><p><strong>SUPPORTS</strong></p></td><td><p>Join existing if present; run non-transactionally if not.</p></td></tr><tr><td><p><strong>NOT_SUPPORTED</strong></p></td><td><p>Suspend existing transaction; run non-transactionally.</p></td></tr><tr><td><p><strong>MANDATORY</strong></p></td><td><p>Throw if no existing transaction.</p></td></tr><tr><td><p><strong>NEVER</strong></p></td><td><p>Throw if a transaction is active.</p></td></tr></table><p><strong>Isolation Levels</strong></p><table><tr><td><p><strong>READ_UNCOMMITTED</strong></p></td><td><p>Can read uncommitted data (dirty reads). Not safe.</p></td></tr><tr><td><p><strong>READ_COMMITTED</strong></p></td><td><p>Default in most DBs. Prevents dirty reads.</p></td></tr><tr><td><p><strong>REPEATABLE_READ</strong></p></td><td><p>MySQL default. Prevents dirty + non-repeatable reads.</p></td></tr><tr><td><p><strong>SERIALIZABLE</strong></p></td><td><p>Fully serialized. Prevents phantom reads. Slowest.</p></td></tr></table><pre><code>@Transactional(isolation = Isolation.READ_COMMITTED)
+public void someMethod() { ... }</code></pre>
+<p><strong>Rollback Rules</strong></p><pre><code>// Roll back on checked exception too
+@Transactional(rollbackFor = Exception.class)
+public void riskyMethod() throws IOException { ... }
+// Do NOT roll back on a specific exception
+@Transactional(noRollbackFor = OptimisticLockingFailureException.class)
+public void retryableMethod() { ... }</code></pre>
+<pre><code><strong>@Transactional Self-Invocation Warning</strong></code></pre>
+<p>Calling a @Transactional method from within the same class bypasses the AOP proxy — the transaction annotation is ignored. Always inject self or move the method to a separate service bean if you need transactional behaviour on an internal call.</p><p><strong>9. Advanced Queries</strong></p><p><strong>Top 5 Authors by Published Post Count — JPQL</strong></p><p>Use interface-based projections to map aggregate query results to a typed object:</p><pre><code>// Projection interface — Spring generates a proxy at runtime
+public interface AuthorStats {
+    String getUsername();
+    String getEmail();
+    Long   getPostCount();
+}</code></pre>
+<pre><code>// Repository
+@Query("SELECT u.username AS username, u.email AS email, COUNT(p.id) AS postCount " +
+       "FROM User u JOIN u.posts p " +
+       "WHERE p.status = :status " +
+       "GROUP BY u.id " +
+       "ORDER BY postCount DESC")
+List&lt;AuthorStats&gt; findTopAuthorsByPostCount(
+    @Param("status") Status status,
+    Pageable pageable
+);
+// Caller
+Pageable top5 = PageRequest.of(0, 5);
+List&lt;AuthorStats&gt; result = postRepository.findTopAuthorsByPostCount(Status.PUBLISHED, top5);
+result.forEach(a -&gt; System.out.println(a.getUsername() + ": " + a.getPostCount()));</code></pre>
+<p><strong>Native SQL Aggregate</strong></p><p>Use @Query(nativeQuery=true) when the JPQL equivalent would be awkward:</p><pre><code>@Query(
+    value = "SELECT u.username, u.email, COUNT(p.id) AS postCount " +
+            "FROM users u " +
+            "JOIN posts p ON p.authorId = u.id " +
+            "WHERE p.status = 'PUBLISHED' " +
+            "GROUP BY u.id ORDER BY postCount DESC LIMIT 5",
+    nativeQuery = true
+)
+List&lt;AuthorStats&gt; findTopAuthorsNative();</code></pre>
+<p><strong>Criteria API</strong></p><p>The Criteria API is type-safe and dynamic — useful when WHERE conditions are built at runtime:</p><pre><code>@Service
+public class PostSearchService {
+    @PersistenceContext
+    private EntityManager em;
+    public List&lt;Post&gt; search(String keyword, Status status) {
+        CriteriaBuilder  cb    = em.getCriteriaBuilder();
+        CriteriaQuery&lt;Post&gt; q  = cb.createQuery(Post.class);
+        Root&lt;Post&gt; root        = q.from(Post.class);
+        List&lt;Predicate&gt; preds = new ArrayList&lt;&gt;();
+        if (keyword != null)
+            preds.add(cb.like(cb.lower(root.get("title")),
+                              "%" + keyword.toLowerCase() + "%"));
+        if (status != null)
+            preds.add(cb.equal(root.get("status"), status));
+        q.where(preds.toArray(new Predicate[0]));
+        q.orderBy(cb.desc(root.get("createdAt")));
+        return em.createQuery(q).getResultList();
+    }
+}</code></pre>
+<p><strong>JPA Specifications (Spring Data)</strong></p><p>Extend JpaSpecificationExecutor to add Criteria-based queries without boilerplate:</p><pre><code>public interface PostRepository extends
+        JpaRepository&lt;Post, Long&gt;,
+        JpaSpecificationExecutor&lt;Post&gt; {  // adds findAll(Specification, Pageable)
+}
+// Reusable specification
+public class PostSpecs {
+    public static Specification&lt;Post&gt; hasStatus(Status s) {
+        return (root, query, cb) -&gt; cb.equal(root.get("status"), s);
+    }
+    public static Specification&lt;Post&gt; titleContains(String kw) {
+        return (root, query, cb) -&gt;
+            cb.like(cb.lower(root.get("title")), "%" + kw.toLowerCase() + "%");
+    }
+}
+// Usage
+Page&lt;Post&gt; page = postRepository.findAll(
+    PostSpecs.hasStatus(Status.PUBLISHED).and(PostSpecs.titleContains("jpa")),
+    PageRequest.of(0, 10, Sort.by("createdAt").descending())
+);</code></pre>
+<p><strong>Optimistic Locking</strong></p><p>Prevents concurrent updates from overwriting each other — common interview topic:</p><pre><code>// Add @Version field to entity
+@Version
+private Long version;
+// Hibernate automatically adds WHERE version = ? to UPDATE.
+// If another transaction updated the row first, a
+// OptimisticLockingFailureException is thrown.</code></pre>
+<p><strong>10. Quick Reference</strong></p><table><tr><td><p><strong>Topic / Operation</strong></p></td><td><p><strong>Details / API</strong></p></td></tr><tr><td><p><strong>Starter dependency</strong></p></td><td><p>spring-boot-starter-data-jpa + mysql-connector-j</p></td></tr><tr><td><p><strong>Mark entity</strong></p></td><td><p>@Entity  @Table(name="...")</p></td></tr><tr><td><p><strong>Primary key</strong></p></td><td><p>@Id  @GeneratedValue(strategy = GenerationType.IDENTITY)</p></td></tr><tr><td><p><strong>Column options</strong></p></td><td><p>@Column(length, nullable, unique, columnDefinition)</p></td></tr><tr><td><p><strong>Enum field</strong></p></td><td><p>@Enumerated(EnumType.STRING)</p></td></tr><tr><td><p><strong>Timestamps</strong></p></td><td><p>@CreationTimestamp  /  @UpdateTimestamp (Hibernate)</p></td></tr><tr><td><p><strong>1:N (parent side)</strong></p></td><td><p>@OneToMany(mappedBy, cascade, fetch = LAZY)</p></td></tr><tr><td><p><strong>N:1 (child side)</strong></p></td><td><p>@ManyToOne(fetch = LAZY)  +  @JoinColumn(name="fkCol")</p></td></tr><tr><td><p><strong>N:M</strong></p></td><td><p>@ManyToMany + @JoinTable(name, joinColumns, inverseJoinColumns)</p></td></tr><tr><td><p><strong>Define repository</strong></p></td><td><p>interface Repo extends JpaRepository&lt;T, ID&gt;</p></td></tr><tr><td><p><strong>Derived query</strong></p></td><td><p>findByField / findByFieldAndOther / findByTitleContaining</p></td></tr><tr><td><p><strong>JPQL query</strong></p></td><td><p>@Query("SELECT e FROM Entity e WHERE ...")</p></td></tr><tr><td><p><strong>Native SQL</strong></p></td><td><p>@Query(value="...", nativeQuery=true)</p></td></tr><tr><td><p><strong>Bulk update/delete</strong></p></td><td><p>@Modifying + @Transactional + @Query(...)</p></td></tr><tr><td><p><strong>Pagination</strong></p></td><td><p>findAll(Pageable) / findBy...(Pageable) → Page&lt;T&gt;</p></td></tr><tr><td><p><strong>Projection</strong></p></td><td><p>interface with getX() methods — auto-proxied by Spring</p></td></tr><tr><td><p><strong>Transaction</strong></p></td><td><p>@Transactional (readOnly=true for reads)</p></td></tr><tr><td><p><strong>Propagation</strong></p></td><td><p>REQUIRED (default), REQUIRES_NEW, NESTED, SUPPORTS</p></td></tr><tr><td><p><strong>N+1 fix</strong></p></td><td><p>JOIN FETCH in @Query — loads association in single query</p></td></tr><tr><td><p><strong>Optimistic lock</strong></p></td><td><p>@Version Long version — throws on concurrent update</p></td></tr><tr><td><p><strong>Criteria API</strong></p></td><td><p>em.getCriteriaBuilder() → dynamic type-safe queries</p></td></tr><tr><td><p><strong>Specification</strong></p></td><td><p>JpaSpecificationExecutor + Specification&lt;T&gt; lambdas</p></td></tr><tr><td><p><strong>Schema migrations</strong></p></td><td><p>Flyway: src/main/resources/db/migration/V1__*.sql</p></td></tr><tr><td><p><strong>ddl-auto prod</strong></p></td><td><p>"none" (Flyway runs first) or "validate"</p></td></tr><tr><td><p><strong>Disable OSIV</strong></p></td><td><p>spring.jpa.open-in-view=false (prevents lazy loads in view layer)</p></td></tr></table>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
   <script>
     

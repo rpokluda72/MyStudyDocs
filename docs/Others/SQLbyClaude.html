@@ -12,7 +12,377 @@
     <h1 style="margin:0 0 8px;">SQLbyClaude</h1>
     <a href="SQLbyClaude.docx" download style="font-size:13px;color:#555;text-decoration:none;border:1px solid #ccc;border-radius:4px;padding:3px 9px;background:#f5f5f5;" title="Download original .docx">&#8681; .docx</a>
   </div>
-  <p><strong>SQL</strong></p><p>Complete Study Guide</p><p>From Fundamentals to Window Functions · Database-Agnostic</p><p><strong>1. SELECT Fundamentals</strong></p><p>SELECT retrieves data from one or more tables. It is the most used SQL statement — mastering it is the foundation of everything else.</p><table><tr><td><p>  SELECT  what_to_return         ← columns, expressions, *</p><p>  FROM    source_table           ← where data lives</p><p>  WHERE   filter_condition       ← row filter (optional)</p><p>  ORDER BY column ASC|DESC       ← sort (optional)</p><p>  LIMIT   n;                     ← row cap (optional)</p></td></tr></table><p><strong>All Columns vs Specific Columns</strong></p><table><tr><td><p>-- all columns (avoid in production — expensive, fragile)</p><p>SELECT * FROM employees;</p><p>-- specific columns (preferred)</p><p>SELECT first_name, last_name, salary FROM employees;</p></td></tr></table><p><strong>Column Aliases — AS</strong></p><table><tr><td><p>SELECT</p><p>    first_name                          AS first,</p><p>    salary * 12                      AS annual_salary,</p><p>    UPPER(last_name)              AS last_name_upper,</p><p>    salary * 0.2                    AS tax_estimate</p><p>FROM employees;</p></td></tr></table><p><strong>DISTINCT — Remove Duplicates</strong></p><table><tr><td><p>-- unique departments</p><p>SELECT DISTINCT department FROM employees;</p><p>-- unique combination of department + job_title</p><p>SELECT DISTINCT department, job_title FROM employees;</p></td></tr></table><p><em>Note: DISTINCT applies to the full row, not just the first column.</em></p><p><strong>Expressions &amp; CASE WHEN</strong></p><table><tr><td><p>SELECT</p><p>    name,</p><p>    salary,</p><p>    CASE</p><p>        WHEN salary &gt;= 90000 THEN 'Senior'</p><p>        WHEN salary &gt;= 60000 THEN 'Mid'</p><p>        ELSE 'Junior'</p><p>    END AS level,</p><p>    CASE WHEN bonus IS NULL THEN 0 ELSE bonus END AS bonus_safe</p><p>FROM employees;</p></td></tr></table><p><strong>Logical Execution Order</strong></p><p>SQL clauses execute in a different order than they are written:</p><table><tr><td><p>  Written order:     FROM → WHERE → GROUP BY → HAVING → SELECT → ORDER BY → LIMIT</p><p>                                                                                   </p><p>  Key implication:  You CANNOT use a SELECT alias in WHERE or GROUP BY             </p><p>                    because WHERE runs before SELECT is evaluated.                 </p><p>                                                                                   </p><p>  ✗  SELECT salary * 12 AS annual FROM emp WHERE annual &gt; 100000  -- error        </p><p>  ✓  SELECT salary * 12 AS annual FROM emp WHERE salary * 12 &gt; 100000  -- correct </p></td></tr></table><p><strong>2. Filtering &amp; Sorting</strong></p><p><strong>WHERE — Comparison Operators</strong></p><table><tr><td><p>SELECT * FROM employees WHERE salary &gt; 70000;</p><p>SELECT * FROM employees WHERE department &lt;&gt; 'HR';  -- != also works</p><p>SELECT * FROM employees WHERE hire_date &gt;= '2022-01-01';</p></td></tr></table><p><strong>AND, OR, NOT</strong></p><table><tr><td><p>SELECT * FROM employees</p><p>WHERE salary &gt; 60000 AND department = 'Engineering';</p><p>SELECT * FROM employees</p><p>WHERE department = 'HR' OR department = 'Finance';</p><p>SELECT * FROM employees</p><p>WHERE NOT department = 'HR';</p><p>-- use parentheses to control precedence (AND binds tighter than OR)</p><p>SELECT * FROM employees</p><p>WHERE (department = 'HR' OR department = 'Finance') AND salary &gt; 50000;</p></td></tr></table><p><strong>BETWEEN, IN, LIKE, IS NULL</strong></p><table><tr><td><p>-- BETWEEN (inclusive on both ends)</p><p>SELECT * FROM employees WHERE salary BETWEEN 50000 AND 90000;</p><p>-- IN (matches any value in the list)</p><p>SELECT * FROM employees WHERE department IN ('HR', 'Finance', 'Legal');</p><p>-- LIKE pattern matching  (% = any chars,  _ = one char)</p><p>SELECT * FROM employees WHERE last_name LIKE 'Sm%';     -- starts with Sm</p><p>SELECT * FROM employees WHERE last_name LIKE '_mith';    -- 5-char, ends ith</p><p>SELECT * FROM employees WHERE email    LIKE '%@gmail.com';</p><p>-- NULL checks (always use IS NULL, never = NULL)</p><p>SELECT * FROM employees WHERE manager_id IS NULL;   -- no manager = top level</p><p>SELECT * FROM employees WHERE bonus      IS NOT NULL;</p></td></tr></table><p><em>Note: NULL = NULL evaluates to NULL (unknown), not TRUE. Always use IS NULL / IS NOT NULL.</em></p><p><strong>ORDER BY</strong></p><table><tr><td><p>-- single column</p><p>SELECT * FROM employees ORDER BY salary DESC;</p><p>-- multiple columns — sort by dept asc, then salary desc within each dept</p><p>SELECT * FROM employees ORDER BY department ASC, salary DESC;</p><p>-- NULLs sort last by default in most DBs; explicit control:</p><p>SELECT * FROM employees ORDER BY bonus DESC NULLS LAST;  -- PostgreSQL</p></td></tr></table><p><strong>LIMIT / OFFSET — Pagination</strong></p><table><tr><td><p>-- top 5 highest paid</p><p>SELECT * FROM employees ORDER BY salary DESC LIMIT 5;</p><p>-- page 3, 10 rows per page  (skip first 20)</p><p>SELECT * FROM employees ORDER BY id LIMIT 10 OFFSET 20;</p><p>-- SQL Server / MS Access equivalent:</p><p>SELECT TOP 5 * FROM employees ORDER BY salary DESC;</p></td></tr></table><p><strong>3. Aggregations</strong></p><p>Aggregate functions collapse many rows into a single value. They are always used with GROUP BY (or alone to aggregate the whole table).</p><p><strong>Aggregate Functions</strong></p><table><tr><td><p><strong>Function</strong></p></td><td><p><strong>Returns</strong></p></td><td><p><strong>NULL handling</strong></p></td></tr><tr><td><p>COUNT(*)</p></td><td><p>Total number of rows</p></td><td><p>Counts all rows including NULLs</p></td></tr><tr><td><p>COUNT(col)</p></td><td><p>Rows where col is not NULL</p></td><td><p>Skips NULL values</p></td></tr><tr><td><p>SUM(col)</p></td><td><p>Sum of all values</p></td><td><p>Skips NULLs</p></td></tr><tr><td><p>AVG(col)</p></td><td><p>Average of non-NULL values</p></td><td><p>Skips NULLs (denominator = non-NULL count)</p></td></tr><tr><td><p>MIN(col)</p></td><td><p>Smallest value</p></td><td><p>Skips NULLs</p></td></tr><tr><td><p>MAX(col)</p></td><td><p>Largest value</p></td><td><p>Skips NULLs</p></td></tr></table><table><tr><td><p>-- aggregate the whole table</p><p>SELECT</p><p>    COUNT(*)           AS total_rows,</p><p>    COUNT(bonus)       AS employees_with_bonus,</p><p>    SUM(salary)        AS payroll,</p><p>    AVG(salary)        AS avg_salary,</p><p>    MIN(salary)        AS lowest,</p><p>    MAX(salary)        AS highest</p><p>FROM employees;</p></td></tr></table><p><strong>GROUP BY — Aggregate Per Group</strong></p><table><tr><td><p>-- headcount and average salary per department</p><p>SELECT</p><p>    department,</p><p>    COUNT(*)    AS headcount,</p><p>    AVG(salary) AS avg_salary,</p><p>    MAX(salary) AS top_salary</p><p>FROM employees</p><p>GROUP BY department</p><p>ORDER BY avg_salary DESC;</p><p>-- group by multiple columns</p><p>SELECT department, job_title, COUNT(*) AS cnt</p><p>FROM employees</p><p>GROUP BY department, job_title;</p></td></tr></table><p><em>Note: Every column in SELECT must either be in GROUP BY or be inside an aggregate function.</em></p><p><strong>HAVING — Filter Groups</strong></p><table><tr><td><p>-- departments with more than 5 employees AND avg salary &gt; 70k</p><p>SELECT department, COUNT(*) AS cnt, AVG(salary) AS avg_sal</p><p>FROM employees</p><p>GROUP BY department</p><p>HAVING COUNT(*) &gt; 5 AND AVG(salary) &gt; 70000</p><p>ORDER BY avg_sal DESC;</p></td></tr></table><table><tr><td></td><td><p><strong>WHERE</strong></p></td><td><p><strong>HAVING</strong></p></td></tr><tr><td><p>When it runs</p></td><td><p>Before GROUP BY — filters individual rows</p></td><td><p>After GROUP BY — filters groups</p></td></tr><tr><td><p>Can use aggregates?</p></td><td><p>No</p></td><td><p>Yes</p></td></tr><tr><td><p>Example</p></td><td><p>WHERE salary &gt; 50000</p></td><td><p>HAVING COUNT(*) &gt; 5</p></td></tr></table><p><strong>COUNT DISTINCT</strong></p><table><tr><td><p>-- how many unique departments exist?</p><p>SELECT COUNT(DISTINCT department) AS dept_count FROM employees;</p><p>-- unique customers per product</p><p>SELECT product_id, COUNT(DISTINCT customer_id) AS unique_buyers</p><p>FROM orders</p><p>GROUP BY product_id;</p></td></tr></table><p><strong>4. JOINs</strong></p><p>JOINs combine rows from two or more tables using a related column. The most common pattern is linking a foreign key to a primary key.</p><table><tr><td><p>  employees table              departments table</p><p>  ┌────┬──────────┬────────┐   ┌────┬─────────────┐</p><p>  │ id │ name     │dept_id │   │ id │ name        │</p><p>  ├────┼──────────┼────────┤   ├────┼─────────────┤</p><p>  │  1 │ Alice    │   1    │   │  1 │ Engineering │</p><p>  │  2 │ Bob      │   2    │   │  2 │ HR          │</p><p>  │  3 │ Carol    │   1    │   │  3 │ Finance     │</p><p>  │  4 │ Dave     │  NULL  │   └────┴─────────────┘</p><p>  └────┴──────────┴────────┘</p><p>                                                    </p><p>  INNER JOIN  → Alice, Bob, Carol   (Dave excluded — no dept)</p><p>  LEFT JOIN   → Alice, Bob, Carol, Dave  (Dave dept = NULL)</p><p>  RIGHT JOIN  → Alice, Bob, Carol   + Finance row with NULL employee</p><p>  FULL OUTER  → all of the above combined</p></td></tr></table><p><strong>INNER JOIN</strong></p><table><tr><td><p>-- only employees that have a matching department</p><p>SELECT e.name, e.salary, d.name AS department</p><p>FROM employees e</p><p>INNER JOIN departments d ON e.dept_id = d.id;</p><p>-- INNER JOIN = JOIN (INNER is optional)</p></td></tr></table><p><strong>LEFT JOIN</strong></p><table><tr><td><p>-- all employees, even those with no department</p><p>SELECT e.name, d.name AS department</p><p>FROM employees e</p><p>LEFT JOIN departments d ON e.dept_id = d.id;</p><p>-- Dave appears with department = NULL</p><p>-- find employees with NO department (anti-join pattern)</p><p>SELECT e.name</p><p>FROM employees e</p><p>LEFT JOIN departments d ON e.dept_id = d.id</p><p>WHERE d.id IS NULL;</p></td></tr></table><p><strong>RIGHT JOIN</strong></p><table><tr><td><p>-- all departments, even those with no employees</p><p>SELECT e.name, d.name AS department</p><p>FROM employees e</p><p>RIGHT JOIN departments d ON e.dept_id = d.id;</p><p>-- Finance row appears with e.name = NULL</p><p>-- Tip: RIGHT JOIN can always be rewritten as LEFT JOIN (swap tables)</p></td></tr></table><p><strong>FULL OUTER JOIN</strong></p><table><tr><td><p>-- all employees AND all departments</p><p>SELECT e.name, d.name AS department</p><p>FROM employees e</p><p>FULL OUTER JOIN departments d ON e.dept_id = d.id;</p><p>-- Dave (no dept) and Finance (no employee) both appear with NULLs</p></td></tr></table><p><strong>CROSS JOIN</strong></p><table><tr><td><p>-- every employee paired with every department (cartesian product)</p><p>-- result rows = employees_count × departments_count</p><p>SELECT e.name, d.name AS department</p><p>FROM employees e</p><p>CROSS JOIN departments d;</p><p>-- practical: generate all size × color combinations for a product</p><p>SELECT s.label AS size, c.name AS color</p><p>FROM sizes s CROSS JOIN colors c;</p></td></tr></table><p><strong>Self JOIN</strong></p><table><tr><td><p>-- employees with their manager name (manager is also in employees table)</p><p>SELECT</p><p>    e.name         AS employee,</p><p>    m.name         AS manager</p><p>FROM employees e</p><p>LEFT JOIN employees m ON e.manager_id = m.id;</p><p>-- LEFT JOIN ensures top-level employees (no manager) appear with NULL</p></td></tr></table><p><strong>JOIN on Multiple Conditions</strong></p><table><tr><td><p>SELECT o.id, o.amount, d.rate</p><p>FROM orders o</p><p>JOIN discount_rules d</p><p>    ON o.customer_id = d.customer_id</p><p>   AND o.amount BETWEEN d.min_amount AND d.max_amount;</p></td></tr></table><table><tr><td><p><strong>JOIN Type</strong></p></td><td><p><strong>Returns</strong></p></td></tr><tr><td><p>INNER JOIN</p></td><td><p>Rows that match in BOTH tables</p></td></tr><tr><td><p>LEFT JOIN</p></td><td><p>All left rows + matched right (NULL if no match)</p></td></tr><tr><td><p>RIGHT JOIN</p></td><td><p>All right rows + matched left (NULL if no match)</p></td></tr><tr><td><p>FULL OUTER JOIN</p></td><td><p>All rows from both tables (NULL where no match)</p></td></tr><tr><td><p>CROSS JOIN</p></td><td><p>Cartesian product — every left row × every right row</p></td></tr><tr><td><p>Self JOIN</p></td><td><p>Table joined with itself using aliases</p></td></tr></table><p><strong>5. Subqueries &amp; CTEs</strong></p><p>A subquery is a SELECT nested inside another SQL statement. A CTE (Common Table Expression) is a named, reusable subquery defined with WITH.</p><p><strong>Scalar Subquery — Single Value</strong></p><table><tr><td><p>-- employees earning above the company average</p><p>SELECT name, salary</p><p>FROM employees</p><p>WHERE salary &gt; (SELECT AVG(salary) FROM employees), </p><p>ORDER BY salary DESC;</p><p>-- use scalar subquery in SELECT column</p><p>SELECT name, salary,</p><p>       salary - (SELECT AVG(salary) FROM employees) AS diff_from_avg</p><p>FROM employees;</p></td></tr></table><p><strong>IN Subquery</strong></p><table><tr><td><p>-- employees in departments located in New York</p><p>SELECT name FROM employees</p><p>WHERE dept_id IN (</p><p>    SELECT id FROM departments WHERE city = 'New York'</p><p>);</p></td></tr></table><p><strong>EXISTS vs IN</strong></p><table><tr><td><p>-- EXISTS: true if subquery returns at least one row</p><p>SELECT name FROM customers c</p><p>WHERE EXISTS (</p><p>    SELECT 1 FROM orders o WHERE o.customer_id = c.id</p><p>);</p><p>-- NOT EXISTS: customers who never placed an order (anti-join)</p><p>SELECT name FROM customers c</p><p>WHERE NOT EXISTS (</p><p>    SELECT 1 FROM orders o WHERE o.customer_id = c.id</p><p>);</p></td></tr></table><table><tr><td></td><td><p><strong>EXISTS</strong></p></td><td><p><strong>IN</strong></p></td></tr><tr><td><p>Stops at first match?</p></td><td><p>Yes — more efficient for large subqueries</p></td><td><p>No — evaluates all</p></td></tr><tr><td><p>Handles NULLs?</p></td><td><p>Yes — safely</p></td><td><p>Tricky — NOT IN fails if subquery has NULLs</p></td></tr><tr><td><p>Best when</p></td><td><p>Checking existence (correlated)</p></td><td><p>Matching a small fixed list</p></td></tr><tr><td><p>Recommendation</p></td><td><p>Prefer EXISTS for NOT checks</p></td><td><p>Fine for small IN lists</p></td></tr></table><p><strong>Correlated Subquery</strong></p><p>A correlated subquery references columns from the outer query — it runs once per outer row.</p><table><tr><td><p>-- employees who earn more than the average of their own department</p><p>SELECT e1.name, e1.salary, e1.department</p><p>FROM employees e1</p><p>WHERE e1.salary &gt; (</p><p>    SELECT AVG(e2.salary)</p><p>    FROM employees e2</p><p>    WHERE e2.department = e1.department  ← references outer query</p><p>);</p></td></tr></table><p><em>Note: Correlated subqueries can be slow on large tables — a window function (AVG OVER PARTITION BY) is usually faster.</em></p><p><strong>Subquery in FROM — Derived Table</strong></p><table><tr><td><p>-- department-level stats, then filter on those stats</p><p>SELECT dept_stats.department, dept_stats.avg_salary</p><p>FROM (</p><p>    SELECT department, AVG(salary) AS avg_salary</p><p>    FROM employees</p><p>    GROUP BY department</p><p>) AS dept_stats</p><p>WHERE dept_stats.avg_salary &gt; 75000;</p></td></tr></table><p><strong>CTE — WITH Clause</strong></p><p>A CTE gives the subquery a name and makes the query easier to read. It can be referenced multiple times in the same query.</p><table><tr><td><p>-- single CTE</p><p>WITH high_earners AS (</p><p>    SELECT * FROM employees WHERE salary &gt; 80000</p><p>)</p><p>SELECT department, COUNT(*) AS cnt</p><p>FROM high_earners</p><p>GROUP BY department;</p><p>-- multiple CTEs chained together</p><p>WITH</p><p>    dept_avg AS (</p><p>        SELECT department, AVG(salary) AS avg_sal</p><p>        FROM employees GROUP BY department</p><p>    ),</p><p>    top_depts AS (</p><p>        SELECT * FROM dept_avg WHERE avg_sal &gt; 70000</p><p>    )</p><p>SELECT e.name, e.salary, t.avg_sal</p><p>FROM employees e</p><p>JOIN top_depts t ON e.department = t.department;</p></td></tr></table><p><strong>6. Window Functions</strong></p><p>Window functions compute a value across a set of rows related to the current row — without collapsing them into one row (unlike GROUP BY). They use the OVER() clause.</p><table><tr><td><p>  SELECT                                                                   </p><p>      name,                                                                </p><p>      salary,                                                              </p><p>      AVG(salary) OVER (PARTITION BY department) AS dept_avg              </p><p>                  ────  ────────────────────────                           </p><p>                   │         window definition                             </p><p>                   │                                                       </p><p>              function name   PARTITION BY  = group rows (like GROUP BY)   </p><p>                              ORDER BY      = defines row order within window</p><p>                              ROWS/RANGE    = frame size (optional)        </p><p>                                                                           </p><p>  Result: each row keeps its own data PLUS the window aggregate value.     </p></td></tr></table><p><strong>OVER Clause Anatomy</strong></p><table><tr><td><p>FUNCTION() OVER (</p><p>    PARTITION BY column        -- reset window per group</p><p>    ORDER BY column ASC|DESC    -- row order within window</p><p>    ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW  -- frame</p><p>)</p></td></tr></table><p><strong>Ranking Functions</strong></p><table><tr><td><p>SELECT</p><p>    name,</p><p>    department,</p><p>    salary,</p><p>    ROW_NUMBER() OVER (PARTITION BY department ORDER BY salary DESC) AS row_num,</p><p>    RANK()       OVER (PARTITION BY department ORDER BY salary DESC) AS rank,</p><p>    DENSE_RANK()  OVER (PARTITION BY department ORDER BY salary DESC) AS dense_rank</p><p>FROM employees;</p></td></tr></table><table><tr><td><p><strong>Function</strong></p></td><td><p><strong>Ties</strong></p></td><td><p><strong>Gap after tie?</strong></p></td><td><p><strong>Example (salaries: 90k, 90k, 80k)</strong></p></td></tr><tr><td><p>ROW_NUMBER()</p></td><td><p>Different numbers assigned arbitrarily</p></td><td><p>n/a</p></td><td><p>1, 2, 3</p></td></tr><tr><td><p>RANK()</p></td><td><p>Same rank for ties</p></td><td><p>Yes</p></td><td><p>1, 1, 3</p></td></tr><tr><td><p>DENSE_RANK()</p></td><td><p>Same rank for ties</p></td><td><p>No</p></td><td><p>1, 1, 2</p></td></tr></table><p><strong>Top N Per Group — Common Interview Pattern</strong></p><table><tr><td><p>-- top 2 earners per department</p><p>WITH ranked AS (</p><p>    SELECT name, department, salary,</p><p>           ROW_NUMBER() OVER (PARTITION BY department ORDER BY salary DESC) AS rn</p><p>    FROM employees</p><p>)</p><p>SELECT name, department, salary</p><p>FROM ranked</p><p>WHERE rn &lt;= 2;</p></td></tr></table><p><strong>Running Total — SUM OVER</strong></p><table><tr><td><p>SELECT</p><p>    order_date,</p><p>    amount,</p><p>    SUM(amount) OVER (ORDER BY order_date) AS running_total,</p><p>    SUM(amount) OVER (PARTITION BY customer_id ORDER BY order_date) AS customer_running_total</p><p>FROM orders;</p></td></tr></table><p><strong>LAG &amp; LEAD — Access Adjacent Rows</strong></p><table><tr><td><p>SELECT</p><p>    order_date,</p><p>    amount,</p><p>    LAG(amount) OVER (ORDER BY order_date) AS prev_amount,</p><p>    LEAD(amount) OVER (ORDER BY order_date) AS next_amount,</p><p>    amount - LAG(amount, 1, 0) OVER (ORDER BY order_date) AS change</p><p>FROM orders;</p><p>-- LAG(col, offset, default)  — offset rows back, default if no prior row</p></td></tr></table><p><strong>Other Useful Window Functions</strong></p><table><tr><td><p><strong>Function</strong></p></td><td><p><strong>Description</strong></p></td></tr><tr><td><p>NTILE(n)</p></td><td><p>Divides rows into n equal buckets (quartiles, deciles)</p></td></tr><tr><td><p>PERCENT_RANK()</p></td><td><p>Relative rank as 0.0–1.0</p></td></tr><tr><td><p>CUME_DIST()</p></td><td><p>Cumulative distribution — fraction of rows ≤ current</p></td></tr><tr><td><p>FIRST_VALUE(col)</p></td><td><p>First value in the window frame</p></td></tr><tr><td><p>LAST_VALUE(col)</p></td><td><p>Last value in the window frame</p></td></tr><tr><td><p>NTH_VALUE(col, n)</p></td><td><p>Nth value in the window frame</p></td></tr></table><p><strong>7. Data Modification</strong></p><p><strong>INSERT</strong></p><table><tr><td><p>-- single row</p><p>INSERT INTO employees (name, department, salary)</p><p>VALUES ('Alice', 'Engineering', 85000);</p><p>-- multiple rows</p><p>INSERT INTO employees (name, department, salary) VALUES</p><p>    ('Bob',   'HR',          62000),</p><p>    ('Carol', 'Finance',     71000),</p><p>    ('Dave',  'Engineering', 90000);</p><p>-- INSERT from SELECT (copy rows)</p><p>INSERT INTO employees_archive</p><p>SELECT * FROM employees WHERE hire_date &lt; '2020-01-01';</p></td></tr></table><p><strong>UPDATE</strong></p><table><tr><td><p>-- update one column</p><p>UPDATE employees</p><p>SET salary = 95000</p><p>WHERE name = 'Alice';</p><p>-- update multiple columns</p><p>UPDATE employees</p><p>SET salary = salary * 1.10, department = 'Senior Engineering'</p><p>WHERE department = 'Engineering' AND salary &lt; 80000;</p><p>-- update using a subquery</p><p>UPDATE employees</p><p>SET department = 'Leadership'</p><p>WHERE id IN (SELECT manager_id FROM employees WHERE manager_id IS NOT NULL);</p></td></tr></table><p><em>Note: Always use WHERE in UPDATE. Without it, every row is updated.</em></p><p><strong>DELETE</strong></p><table><tr><td><p>-- delete specific rows</p><p>DELETE FROM employees WHERE department = 'HR';</p><p>-- delete using a subquery</p><p>DELETE FROM orders</p><p>WHERE customer_id IN (</p><p>    SELECT id FROM customers WHERE active = FALSE</p><p>);</p><p>-- delete all rows but keep table structure</p><p>DELETE FROM employees;</p><p>-- faster bulk delete (cannot be rolled back in most DBs)</p><p>TRUNCATE TABLE employees;</p></td></tr></table><table><tr><td></td><td><p><strong>DELETE</strong></p></td><td><p><strong>TRUNCATE</strong></p></td></tr><tr><td><p>Filters rows?</p></td><td><p>Yes — use WHERE</p></td><td><p>No — always removes all rows</p></td></tr><tr><td><p>Rollback possible?</p></td><td><p>Yes (inside a transaction)</p></td><td><p>No in most DBs (DDL, auto-commits)</p></td></tr><tr><td><p>Speed</p></td><td><p>Slower — logs each row</p></td><td><p>Faster — minimal logging</p></td></tr><tr><td><p>Resets auto-ID?</p></td><td><p>No</p></td><td><p>Yes (in most DBs)</p></td></tr></table><p><strong>8. Schema &amp; Constraints</strong></p><p><strong>Common Data Types</strong></p><table><tr><td><p><strong>Category</strong></p></td><td><p><strong>Type</strong></p></td><td><p><strong>Notes</strong></p></td></tr><tr><td><p>Integer</p></td><td><p>INT / INTEGER</p></td><td><p>Whole number (4 bytes, up to ~2 billion)</p></td></tr><tr><td><p>Integer</p></td><td><p>BIGINT</p></td><td><p>Large whole number (8 bytes)</p></td></tr><tr><td><p>Integer</p></td><td><p>SMALLINT</p></td><td><p>Small whole number (2 bytes)</p></td></tr><tr><td><p>Decimal</p></td><td><p>DECIMAL(p,s) / NUMERIC</p></td><td><p>Exact fixed-point — use for money</p></td></tr><tr><td><p>Decimal</p></td><td><p>FLOAT / REAL</p></td><td><p>Approximate floating-point — not for money</p></td></tr><tr><td><p>String</p></td><td><p>VARCHAR(n)</p></td><td><p>Variable-length string, max n chars</p></td></tr><tr><td><p>String</p></td><td><p>CHAR(n)</p></td><td><p>Fixed-length string, padded with spaces</p></td></tr><tr><td><p>String</p></td><td><p>TEXT</p></td><td><p>Unlimited string (not in all DBs)</p></td></tr><tr><td><p>Date/Time</p></td><td><p>DATE</p></td><td><p>Calendar date only — YYYY-MM-DD</p></td></tr><tr><td><p>Date/Time</p></td><td><p>TIMESTAMP</p></td><td><p>Date + time</p></td></tr><tr><td><p>Date/Time</p></td><td><p>TIME</p></td><td><p>Time only</p></td></tr><tr><td><p>Other</p></td><td><p>BOOLEAN</p></td><td><p>TRUE / FALSE (BIT in SQL Server)</p></td></tr><tr><td><p>Other</p></td><td><p>UUID</p></td><td><p>Universally unique identifier</p></td></tr></table><p><strong>CREATE TABLE with Constraints</strong></p><table><tr><td><p>CREATE TABLE employees (</p><p>    id         INT          PRIMARY KEY,         -- unique + NOT NULL</p><p>    name       VARCHAR(100) NOT NULL,</p><p>    email      VARCHAR(150) UNIQUE,</p><p>    salary     DECIMAL(10,2) NOT NULL CHECK(salary &gt; 0),</p><p>    dept_id    INT          REFERENCES departments(id), -- FK</p><p>    hire_date  DATE         DEFAULT CURRENT_DATE,</p><p>    active     BOOLEAN      DEFAULT TRUE</p><p>);</p></td></tr></table><p><strong>Constraints Summary</strong></p><table><tr><td><p><strong>Constraint</strong></p></td><td><p><strong>Meaning</strong></p></td></tr><tr><td><p>PRIMARY KEY</p></td><td><p>Uniquely identifies each row — implies UNIQUE + NOT NULL</p></td></tr><tr><td><p>FOREIGN KEY … REFERENCES</p></td><td><p>Value must exist in referenced table — enforces referential integrity</p></td></tr><tr><td><p>UNIQUE</p></td><td><p>No two rows can have the same value in this column (NULLs excluded)</p></td></tr><tr><td><p>NOT NULL</p></td><td><p>Column must always have a value</p></td></tr><tr><td><p>CHECK (expr)</p></td><td><p>Row must satisfy the expression, e.g. CHECK (salary &gt; 0)</p></td></tr><tr><td><p>DEFAULT value</p></td><td><p>Fallback value when INSERT omits this column</p></td></tr></table><p><strong>Indexes</strong></p><p>Indexes speed up SELECT queries on large tables. They come at a cost: slower INSERT/UPDATE/DELETE and extra disk space.</p><table><tr><td><p>-- single column index</p><p>CREATE INDEX idx_emp_dept ON employees (department);</p><p>-- composite index (order matters — most selective column first)</p><p>CREATE INDEX idx_emp_dept_salary ON employees (department, salary);</p><p>-- unique index (also enforces uniqueness)</p><p>CREATE UNIQUE INDEX idx_emp_email ON employees (email);</p><p>-- drop index</p><p>DROP INDEX idx_emp_dept;</p></td></tr></table><p><strong>ALTER TABLE</strong></p><table><tr><td><p>-- add a column</p><p>ALTER TABLE employees ADD COLUMN phone VARCHAR(20);</p><p>-- drop a column</p><p>ALTER TABLE employees DROP COLUMN phone;</p><p>-- rename a column (PostgreSQL / MySQL 8+)</p><p>ALTER TABLE employees RENAME COLUMN phone TO mobile;</p><p>-- add a foreign key constraint</p><p>ALTER TABLE employees</p><p>ADD CONSTRAINT fk_dept FOREIGN KEY (dept_id) REFERENCES departments(id);</p><p>-- drop a constraint</p><p>ALTER TABLE employees DROP CONSTRAINT fk_dept;</p></td></tr></table><p><strong>DROP TABLE</strong></p><table><tr><td><p>DROP TABLE employees;</p><p>DROP TABLE IF EXISTS employees;          -- no error if table does not exist</p><p>DROP TABLE departments CASCADE;    -- also drops dependent objects (FK refs)</p></td></tr></table><p><strong>9. Transactions &amp; ACID</strong></p><p>A transaction is a group of SQL statements that execute as a single unit — either all succeed or all fail.</p><p><strong>ACID Properties</strong></p><table><tr><td><p><strong>Property</strong></p></td><td><p><strong>Meaning</strong></p></td><td><p><strong>Example</strong></p></td></tr><tr><td><p>Atomicity</p></td><td><p>All operations succeed or none do</p></td><td><p>Transfer money: debit + credit both happen or neither does</p></td></tr><tr><td><p>Consistency</p></td><td><p>DB moves from one valid state to another</p></td><td><p>Account balance cannot go negative if CHECK constraint exists</p></td></tr><tr><td><p>Isolation</p></td><td><p>Concurrent transactions do not interfere</p></td><td><p>Two transfers at the same time see consistent balances</p></td></tr><tr><td><p>Durability</p></td><td><p>Committed data survives crashes</p></td><td><p>After COMMIT, data is written to disk even if server restarts</p></td></tr></table><p><strong>Basic Transaction</strong></p><table><tr><td><p>BEGIN;                         -- start transaction</p><p>UPDATE accounts SET balance = balance - 500 WHERE id = 1;</p><p>UPDATE accounts SET balance = balance + 500 WHERE id = 2;</p><p>COMMIT;                        -- save both changes permanently</p><p>-- if something goes wrong:</p><p>ROLLBACK;                      -- undo all changes since BEGIN</p></td></tr></table><p><strong>SAVEPOINT — Partial Rollback</strong></p><table><tr><td><p>BEGIN;</p><p>INSERT INTO orders (customer_id, amount) VALUES (1, 200);</p><p>SAVEPOINT after_order;</p><p>INSERT INTO payments (order_id, amount) VALUES (1, 200);</p><p>-- payment failed — roll back only the payment, keep the order</p><p>ROLLBACK TO after_order;</p><p>COMMIT;  -- commits only the order insert</p></td></tr></table><p><strong>Isolation Levels</strong></p><p>Isolation levels control what a transaction can see from other concurrent transactions.</p><table><tr><td><p><strong>Level</strong></p></td><td><p><strong>Dirty Read</strong></p></td><td><p><strong>Non-repeatable Read</strong></p></td><td><p><strong>Phantom Read</strong></p></td><td><p><strong>Notes</strong></p></td></tr><tr><td><p>READ UNCOMMITTED</p></td><td><p>Yes</p></td><td><p>Yes</p></td><td><p>Yes</p></td><td><p>Lowest isolation — can read uncommitted data</p></td></tr><tr><td><p>READ COMMITTED</p></td><td><p>No</p></td><td><p>Yes</p></td><td><p>Yes</p></td><td><p>Default in most DBs — reads only committed data</p></td></tr><tr><td><p>REPEATABLE READ</p></td><td><p>No</p></td><td><p>No</p></td><td><p>Yes</p></td><td><p>Same row returns same value within transaction</p></td></tr><tr><td><p>SERIALIZABLE</p></td><td><p>No</p></td><td><p>No</p></td><td><p>No</p></td><td><p>Highest isolation — transactions run as if serial</p></td></tr></table><table><tr><td><p>-- set isolation level (PostgreSQL)</p><p>BEGIN;</p><p>SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;</p><p>-- ... your statements ...</p><p>COMMIT;</p></td></tr></table><p><strong>Read Anomalies</strong></p><table><tr><td><p><strong>Anomaly</strong></p></td><td><p><strong>Description</strong></p></td></tr><tr><td><p>Dirty Read</p></td><td><p>Transaction reads data written by another uncommitted transaction</p></td></tr><tr><td><p>Non-repeatable Read</p></td><td><p>Same row read twice returns different values (another TX committed a change)</p></td></tr><tr><td><p>Phantom Read</p></td><td><p>Same query returns different rows (another TX inserted/deleted matching rows)</p></td></tr></table><p><strong>10. Interview Patterns Cheat Sheet</strong></p><p><strong>Find Duplicates</strong></p><table><tr><td><p>-- find emails that appear more than once</p><p>SELECT email, COUNT(*) AS cnt</p><p>FROM employees</p><p>GROUP BY email</p><p>HAVING COUNT(*) &gt; 1;</p><p>-- show the full duplicate rows</p><p>SELECT * FROM employees</p><p>WHERE email IN (</p><p>    SELECT email FROM employees</p><p>    GROUP BY email HAVING COUNT(*) &gt; 1</p><p>);</p></td></tr></table><p><strong>Second Highest Salary</strong></p><table><tr><td><p>-- approach 1: subquery</p><p>SELECT MAX(salary) FROM employees</p><p>WHERE salary &lt; (SELECT MAX(salary) FROM employees);</p><p>-- approach 2: window function (generalises to Nth)</p><p>SELECT salary FROM (</p><p>    SELECT salary, DENSE_RANK() OVER (ORDER BY salary DESC) AS rnk</p><p>    FROM employees</p><p>) ranked WHERE rnk = 2;  -- change 2 → N for Nth highest</p></td></tr></table><p><strong>Cumulative / Running Total</strong></p><table><tr><td><p>SELECT order_date, amount,</p><p>       SUM(amount) OVER (ORDER BY order_date ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS running_total</p><p>FROM orders;</p></td></tr></table><p><strong>Month-over-Month Change</strong></p><table><tr><td><p>WITH monthly AS (</p><p>    SELECT DATE_TRUNC('month', order_date) AS month,</p><p>           SUM(amount) AS revenue</p><p>    FROM orders GROUP BY 1</p><p>)</p><p>SELECT month, revenue,</p><p>       LAG(revenue) OVER (ORDER BY month) AS prev_month,</p><p>       revenue - LAG(revenue) OVER (ORDER BY month) AS change</p><p>FROM monthly;</p></td></tr></table><p><strong>Delete Duplicates — Keep One</strong></p><table><tr><td><p>-- keep the row with the lowest id, delete the rest</p><p>DELETE FROM employees</p><p>WHERE id NOT IN (</p><p>    SELECT MIN(id)</p><p>    FROM employees</p><p>    GROUP BY email</p><p>);</p></td></tr></table><p><strong>NULL Handling Patterns</strong></p><table><tr><td><p>-- replace NULL with a default value</p><p>SELECT name, COALESCE(bonus, 0) AS bonus FROM employees;</p><p>-- COALESCE returns first non-NULL argument</p><p>SELECT COALESCE(mobile, phone, email, 'no contact') AS contact FROM customers;</p><p>-- NULLIF — returns NULL if two values are equal (avoid divide-by-zero)</p><p>SELECT total / NULLIF(quantity, 0) AS unit_price FROM orders;</p><p>-- sort NULLs last explicitly</p><p>SELECT * FROM employees ORDER BY bonus DESC NULLS LAST;</p></td></tr></table><p><strong>Pivot — Rows to Columns with CASE WHEN</strong></p><table><tr><td><p>-- count employees per department for Q1, Q2, Q3, Q4</p><p>SELECT</p><p>    SUM(CASE WHEN quarter = 1 THEN 1 ELSE 0 END) AS Q1,</p><p>    SUM(CASE WHEN quarter = 2 THEN 1 ELSE 0 END) AS Q2,</p><p>    SUM(CASE WHEN quarter = 3 THEN 1 ELSE 0 END) AS Q3,</p><p>    SUM(CASE WHEN quarter = 4 THEN 1 ELSE 0 END) AS Q4</p><p>FROM hires;</p></td></tr></table><p><strong>Common Pitfalls (Past)</strong></p><table><tr><td><p><strong>Pitfall (Past)</strong></p></td><td><p><strong>Rule</strong></p></td></tr><tr><td><p>NULL comparisons</p></td><td><p>NULL = NULL → NULL (not TRUE). Always use IS NULL.</p></td></tr><tr><td><p>NOT IN with NULLs</p></td><td><p>NOT IN fails silently if subquery contains any NULL. Use NOT EXISTS instead.</p></td></tr><tr><td><p>SELECT alias in WHERE</p></td><td><p>Not allowed — WHERE runs before SELECT. Repeat the expression.</p></td></tr><tr><td><p>GROUP BY order</p></td><td><p>Non-aggregated SELECT columns must be in GROUP BY.</p></td></tr><tr><td><p>COUNT(*) vs COUNT(col)</p></td><td><p>COUNT(*) counts all rows; COUNT(col) skips NULLs.</p></td></tr><tr><td><p>UPDATE without WHERE</p></td><td><p>Updates every row. Always double-check the WHERE clause.</p></td></tr><tr><td><p>DELETE without WHERE</p></td><td><p>Deletes every row. Always double-check the WHERE clause.</p></td></tr><tr><td><p>Implicit JOIN</p></td><td><p>Never use comma join (FROM a, b WHERE a.id=b.x) — use explicit JOIN.</p></td></tr><tr><td><p>Floating point money</p></td><td><p>Use DECIMAL/NUMERIC for currency, not FLOAT/REAL.</p></td></tr></table><p><strong>Full Clause Order Reference</strong></p><table><tr><td><p>SELECT    columns, AGG(col) AS alias,   WINDOW_FN() OVER (...)   -- 6th: evaluated</p><p>FROM      table                                                    -- 1st</p><p>JOIN      other ON condition                               -- 2nd</p><p>WHERE     row_filter                                               -- 3rd</p><p>GROUP BY  columns                                                  -- 4th</p><p>HAVING    aggregate_filter                                         -- 5th</p><p>ORDER BY  columns ASC|DESC                                -- 7th</p><p>LIMIT     n OFFSET m;                                           -- 8th</p></td></tr></table>
+  <p><strong>SQL</strong></p><p>Complete Study Guide</p><p>From Fundamentals to Window Functions · Database-Agnostic</p><p><strong>1. SELECT Fundamentals</strong></p><p>SELECT retrieves data from one or more tables. It is the most used SQL statement — mastering it is the foundation of everything else.</p><table><tr><td><p>  SELECT  what_to_return         ← columns, expressions, *</p><p>  FROM    source_table           ← where data lives</p><p>  WHERE   filter_condition       ← row filter (optional)</p><p>  ORDER BY column ASC|DESC       ← sort (optional)</p><p>  LIMIT   n;                     ← row cap (optional)</p></td></tr></table><p><strong>All Columns vs Specific Columns</strong></p><pre><code>-- all columns (avoid in production — expensive, fragile)
+SELECT * FROM employees;
+-- specific columns (preferred)
+SELECT first_name, last_name, salary FROM employees;</code></pre>
+<p><strong>Column Aliases — AS</strong></p><pre><code>SELECT
+    first_name                          AS first,
+    salary * 12                      AS annual_salary,
+    UPPER(last_name)              AS last_name_upper,
+    salary * 0.2                    AS tax_estimate
+FROM employees;</code></pre>
+<p><strong>DISTINCT — Remove Duplicates</strong></p><pre><code>-- unique departments
+SELECT DISTINCT department FROM employees;
+-- unique combination of department + job_title
+SELECT DISTINCT department, job_title FROM employees;</code></pre>
+<p><em>Note: DISTINCT applies to the full row, not just the first column.</em></p><p><strong>Expressions &amp; CASE WHEN</strong></p><pre><code>SELECT
+    name,
+    salary,
+    CASE
+        WHEN salary &gt;= 90000 THEN 'Senior'
+        WHEN salary &gt;= 60000 THEN 'Mid'
+        ELSE 'Junior'
+    END AS level,
+    CASE WHEN bonus IS NULL THEN 0 ELSE bonus END AS bonus_safe
+FROM employees;</code></pre>
+<p><strong>Logical Execution Order</strong></p><p>SQL clauses execute in a different order than they are written:</p><table><tr><td><p>  Written order:     FROM → WHERE → GROUP BY → HAVING → SELECT → ORDER BY → LIMIT</p><p>                                                                                   </p><p>  Key implication:  You CANNOT use a SELECT alias in WHERE or GROUP BY             </p><p>                    because WHERE runs before SELECT is evaluated.                 </p><p>                                                                                   </p><p>  ✗  SELECT salary * 12 AS annual FROM emp WHERE annual &gt; 100000  -- error        </p><p>  ✓  SELECT salary * 12 AS annual FROM emp WHERE salary * 12 &gt; 100000  -- correct </p></td></tr></table><p><strong>2. Filtering &amp; Sorting</strong></p><p><strong>WHERE — Comparison Operators</strong></p><pre><code>SELECT * FROM employees WHERE salary &gt; 70000;
+SELECT * FROM employees WHERE department &lt;&gt; 'HR';  -- != also works
+SELECT * FROM employees WHERE hire_date &gt;= '2022-01-01';</code></pre>
+<p><strong>AND, OR, NOT</strong></p><pre><code>SELECT * FROM employees
+WHERE salary &gt; 60000 AND department = 'Engineering';
+SELECT * FROM employees
+WHERE department = 'HR' OR department = 'Finance';
+SELECT * FROM employees
+WHERE NOT department = 'HR';
+-- use parentheses to control precedence (AND binds tighter than OR)
+SELECT * FROM employees
+WHERE (department = 'HR' OR department = 'Finance') AND salary &gt; 50000;</code></pre>
+<p><strong>BETWEEN, IN, LIKE, IS NULL</strong></p><pre><code>-- BETWEEN (inclusive on both ends)
+SELECT * FROM employees WHERE salary BETWEEN 50000 AND 90000;
+-- IN (matches any value in the list)
+SELECT * FROM employees WHERE department IN ('HR', 'Finance', 'Legal');
+-- LIKE pattern matching  (% = any chars,  _ = one char)
+SELECT * FROM employees WHERE last_name LIKE 'Sm%';     -- starts with Sm
+SELECT * FROM employees WHERE last_name LIKE '_mith';    -- 5-char, ends ith
+SELECT * FROM employees WHERE email    LIKE '%@gmail.com';
+-- NULL checks (always use IS NULL, never = NULL)
+SELECT * FROM employees WHERE manager_id IS NULL;   -- no manager = top level
+SELECT * FROM employees WHERE bonus      IS NOT NULL;</code></pre>
+<p><em>Note: NULL = NULL evaluates to NULL (unknown), not TRUE. Always use IS NULL / IS NOT NULL.</em></p><p><strong>ORDER BY</strong></p><pre><code>-- single column
+SELECT * FROM employees ORDER BY salary DESC;
+-- multiple columns — sort by dept asc, then salary desc within each dept
+SELECT * FROM employees ORDER BY department ASC, salary DESC;
+-- NULLs sort last by default in most DBs; explicit control:
+SELECT * FROM employees ORDER BY bonus DESC NULLS LAST;  -- PostgreSQL</code></pre>
+<p><strong>LIMIT / OFFSET — Pagination</strong></p><pre><code>-- top 5 highest paid
+SELECT * FROM employees ORDER BY salary DESC LIMIT 5;
+-- page 3, 10 rows per page  (skip first 20)
+SELECT * FROM employees ORDER BY id LIMIT 10 OFFSET 20;
+-- SQL Server / MS Access equivalent:
+SELECT TOP 5 * FROM employees ORDER BY salary DESC;</code></pre>
+<p><strong>3. Aggregations</strong></p><p>Aggregate functions collapse many rows into a single value. They are always used with GROUP BY (or alone to aggregate the whole table).</p><p><strong>Aggregate Functions</strong></p><table><tr><td><p><strong>Function</strong></p></td><td><p><strong>Returns</strong></p></td><td><p><strong>NULL handling</strong></p></td></tr><tr><td><p>COUNT(*)</p></td><td><p>Total number of rows</p></td><td><p>Counts all rows including NULLs</p></td></tr><tr><td><p>COUNT(col)</p></td><td><p>Rows where col is not NULL</p></td><td><p>Skips NULL values</p></td></tr><tr><td><p>SUM(col)</p></td><td><p>Sum of all values</p></td><td><p>Skips NULLs</p></td></tr><tr><td><p>AVG(col)</p></td><td><p>Average of non-NULL values</p></td><td><p>Skips NULLs (denominator = non-NULL count)</p></td></tr><tr><td><p>MIN(col)</p></td><td><p>Smallest value</p></td><td><p>Skips NULLs</p></td></tr><tr><td><p>MAX(col)</p></td><td><p>Largest value</p></td><td><p>Skips NULLs</p></td></tr></table><pre><code>-- aggregate the whole table
+SELECT
+    COUNT(*)           AS total_rows,
+    COUNT(bonus)       AS employees_with_bonus,
+    SUM(salary)        AS payroll,
+    AVG(salary)        AS avg_salary,
+    MIN(salary)        AS lowest,
+    MAX(salary)        AS highest
+FROM employees;</code></pre>
+<p><strong>GROUP BY — Aggregate Per Group</strong></p><pre><code>-- headcount and average salary per department
+SELECT
+    department,
+    COUNT(*)    AS headcount,
+    AVG(salary) AS avg_salary,
+    MAX(salary) AS top_salary
+FROM employees
+GROUP BY department
+ORDER BY avg_salary DESC;
+-- group by multiple columns
+SELECT department, job_title, COUNT(*) AS cnt
+FROM employees
+GROUP BY department, job_title;</code></pre>
+<p><em>Note: Every column in SELECT must either be in GROUP BY or be inside an aggregate function.</em></p><p><strong>HAVING — Filter Groups</strong></p><pre><code>-- departments with more than 5 employees AND avg salary &gt; 70k
+SELECT department, COUNT(*) AS cnt, AVG(salary) AS avg_sal
+FROM employees
+GROUP BY department
+HAVING COUNT(*) &gt; 5 AND AVG(salary) &gt; 70000
+ORDER BY avg_sal DESC;</code></pre>
+<table><tr><td></td><td><p><strong>WHERE</strong></p></td><td><p><strong>HAVING</strong></p></td></tr><tr><td><p>When it runs</p></td><td><p>Before GROUP BY — filters individual rows</p></td><td><p>After GROUP BY — filters groups</p></td></tr><tr><td><p>Can use aggregates?</p></td><td><p>No</p></td><td><p>Yes</p></td></tr><tr><td><p>Example</p></td><td><p>WHERE salary &gt; 50000</p></td><td><p>HAVING COUNT(*) &gt; 5</p></td></tr></table><p><strong>COUNT DISTINCT</strong></p><pre><code>-- how many unique departments exist?
+SELECT COUNT(DISTINCT department) AS dept_count FROM employees;
+-- unique customers per product
+SELECT product_id, COUNT(DISTINCT customer_id) AS unique_buyers
+FROM orders
+GROUP BY product_id;</code></pre>
+<p><strong>4. JOINs</strong></p><p>JOINs combine rows from two or more tables using a related column. The most common pattern is linking a foreign key to a primary key.</p><table><tr><td><p>  employees table              departments table</p><p>  ┌────┬──────────┬────────┐   ┌────┬─────────────┐</p><p>  │ id │ name     │dept_id │   │ id │ name        │</p><p>  ├────┼──────────┼────────┤   ├────┼─────────────┤</p><p>  │  1 │ Alice    │   1    │   │  1 │ Engineering │</p><p>  │  2 │ Bob      │   2    │   │  2 │ HR          │</p><p>  │  3 │ Carol    │   1    │   │  3 │ Finance     │</p><p>  │  4 │ Dave     │  NULL  │   └────┴─────────────┘</p><p>  └────┴──────────┴────────┘</p><p>                                                    </p><p>  INNER JOIN  → Alice, Bob, Carol   (Dave excluded — no dept)</p><p>  LEFT JOIN   → Alice, Bob, Carol, Dave  (Dave dept = NULL)</p><p>  RIGHT JOIN  → Alice, Bob, Carol   + Finance row with NULL employee</p><p>  FULL OUTER  → all of the above combined</p></td></tr></table><p><strong>INNER JOIN</strong></p><pre><code>-- only employees that have a matching department
+SELECT e.name, e.salary, d.name AS department
+FROM employees e
+INNER JOIN departments d ON e.dept_id = d.id;
+-- INNER JOIN = JOIN (INNER is optional)</code></pre>
+<p><strong>LEFT JOIN</strong></p><pre><code>-- all employees, even those with no department
+SELECT e.name, d.name AS department
+FROM employees e
+LEFT JOIN departments d ON e.dept_id = d.id;
+-- Dave appears with department = NULL
+-- find employees with NO department (anti-join pattern)
+SELECT e.name
+FROM employees e
+LEFT JOIN departments d ON e.dept_id = d.id
+WHERE d.id IS NULL;</code></pre>
+<p><strong>RIGHT JOIN</strong></p><pre><code>-- all departments, even those with no employees
+SELECT e.name, d.name AS department
+FROM employees e
+RIGHT JOIN departments d ON e.dept_id = d.id;
+-- Finance row appears with e.name = NULL
+-- Tip: RIGHT JOIN can always be rewritten as LEFT JOIN (swap tables)</code></pre>
+<p><strong>FULL OUTER JOIN</strong></p><pre><code>-- all employees AND all departments
+SELECT e.name, d.name AS department
+FROM employees e
+FULL OUTER JOIN departments d ON e.dept_id = d.id;
+-- Dave (no dept) and Finance (no employee) both appear with NULLs</code></pre>
+<p><strong>CROSS JOIN</strong></p><pre><code>-- every employee paired with every department (cartesian product)
+-- result rows = employees_count × departments_count
+SELECT e.name, d.name AS department
+FROM employees e
+CROSS JOIN departments d;
+-- practical: generate all size × color combinations for a product
+SELECT s.label AS size, c.name AS color
+FROM sizes s CROSS JOIN colors c;</code></pre>
+<p><strong>Self JOIN</strong></p><pre><code>-- employees with their manager name (manager is also in employees table)
+SELECT
+    e.name         AS employee,
+    m.name         AS manager
+FROM employees e
+LEFT JOIN employees m ON e.manager_id = m.id;
+-- LEFT JOIN ensures top-level employees (no manager) appear with NULL</code></pre>
+<p><strong>JOIN on Multiple Conditions</strong></p><pre><code>SELECT o.id, o.amount, d.rate
+FROM orders o
+JOIN discount_rules d
+    ON o.customer_id = d.customer_id
+   AND o.amount BETWEEN d.min_amount AND d.max_amount;</code></pre>
+<table><tr><td><p><strong>JOIN Type</strong></p></td><td><p><strong>Returns</strong></p></td></tr><tr><td><p>INNER JOIN</p></td><td><p>Rows that match in BOTH tables</p></td></tr><tr><td><p>LEFT JOIN</p></td><td><p>All left rows + matched right (NULL if no match)</p></td></tr><tr><td><p>RIGHT JOIN</p></td><td><p>All right rows + matched left (NULL if no match)</p></td></tr><tr><td><p>FULL OUTER JOIN</p></td><td><p>All rows from both tables (NULL where no match)</p></td></tr><tr><td><p>CROSS JOIN</p></td><td><p>Cartesian product — every left row × every right row</p></td></tr><tr><td><p>Self JOIN</p></td><td><p>Table joined with itself using aliases</p></td></tr></table><p><strong>5. Subqueries &amp; CTEs</strong></p><p>A subquery is a SELECT nested inside another SQL statement. A CTE (Common Table Expression) is a named, reusable subquery defined with WITH.</p><p><strong>Scalar Subquery — Single Value</strong></p><pre><code>-- employees earning above the company average
+SELECT name, salary
+FROM employees
+WHERE salary &gt; (SELECT AVG(salary) FROM employees), 
+ORDER BY salary DESC;
+-- use scalar subquery in SELECT column
+SELECT name, salary,
+       salary - (SELECT AVG(salary) FROM employees) AS diff_from_avg
+FROM employees;</code></pre>
+<p><strong>IN Subquery</strong></p><pre><code>-- employees in departments located in New York
+SELECT name FROM employees
+WHERE dept_id IN (
+    SELECT id FROM departments WHERE city = 'New York'
+);</code></pre>
+<p><strong>EXISTS vs IN</strong></p><pre><code>-- EXISTS: true if subquery returns at least one row
+SELECT name FROM customers c
+WHERE EXISTS (
+    SELECT 1 FROM orders o WHERE o.customer_id = c.id
+);
+-- NOT EXISTS: customers who never placed an order (anti-join)
+SELECT name FROM customers c
+WHERE NOT EXISTS (
+    SELECT 1 FROM orders o WHERE o.customer_id = c.id
+);</code></pre>
+<table><tr><td></td><td><p><strong>EXISTS</strong></p></td><td><p><strong>IN</strong></p></td></tr><tr><td><p>Stops at first match?</p></td><td><p>Yes — more efficient for large subqueries</p></td><td><p>No — evaluates all</p></td></tr><tr><td><p>Handles NULLs?</p></td><td><p>Yes — safely</p></td><td><p>Tricky — NOT IN fails if subquery has NULLs</p></td></tr><tr><td><p>Best when</p></td><td><p>Checking existence (correlated)</p></td><td><p>Matching a small fixed list</p></td></tr><tr><td><p>Recommendation</p></td><td><p>Prefer EXISTS for NOT checks</p></td><td><p>Fine for small IN lists</p></td></tr></table><p><strong>Correlated Subquery</strong></p><p>A correlated subquery references columns from the outer query — it runs once per outer row.</p><pre><code>-- employees who earn more than the average of their own department
+SELECT e1.name, e1.salary, e1.department
+FROM employees e1
+WHERE e1.salary &gt; (
+    SELECT AVG(e2.salary)
+    FROM employees e2
+    WHERE e2.department = e1.department  ← references outer query
+);</code></pre>
+<p><em>Note: Correlated subqueries can be slow on large tables — a window function (AVG OVER PARTITION BY) is usually faster.</em></p><p><strong>Subquery in FROM — Derived Table</strong></p><pre><code>-- department-level stats, then filter on those stats
+SELECT dept_stats.department, dept_stats.avg_salary
+FROM (
+    SELECT department, AVG(salary) AS avg_salary
+    FROM employees
+    GROUP BY department
+) AS dept_stats
+WHERE dept_stats.avg_salary &gt; 75000;</code></pre>
+<p><strong>CTE — WITH Clause</strong></p><p>A CTE gives the subquery a name and makes the query easier to read. It can be referenced multiple times in the same query.</p><pre><code>-- single CTE
+WITH high_earners AS (
+    SELECT * FROM employees WHERE salary &gt; 80000
+)
+SELECT department, COUNT(*) AS cnt
+FROM high_earners
+GROUP BY department;
+-- multiple CTEs chained together
+WITH
+    dept_avg AS (
+        SELECT department, AVG(salary) AS avg_sal
+        FROM employees GROUP BY department
+    ),
+    top_depts AS (
+        SELECT * FROM dept_avg WHERE avg_sal &gt; 70000
+    )
+SELECT e.name, e.salary, t.avg_sal
+FROM employees e
+JOIN top_depts t ON e.department = t.department;</code></pre>
+<p><strong>6. Window Functions</strong></p><p>Window functions compute a value across a set of rows related to the current row — without collapsing them into one row (unlike GROUP BY). They use the OVER() clause.</p><pre><code>  SELECT                                                                   
+      name,                                                                
+      salary,                                                              
+      AVG(salary) OVER (PARTITION BY department) AS dept_avg              
+                  ────  ────────────────────────                           
+                   │         window definition                             
+                   │                                                       
+              function name   PARTITION BY  = group rows (like GROUP BY)   
+                              ORDER BY      = defines row order within window
+                              ROWS/RANGE    = frame size (optional)        
+                                                                           
+  Result: each row keeps its own data PLUS the window aggregate value.     </code></pre>
+<p><strong>OVER Clause Anatomy</strong></p><pre><code>FUNCTION() OVER (
+    PARTITION BY column        -- reset window per group
+    ORDER BY column ASC|DESC    -- row order within window
+    ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW  -- frame
+)</code></pre>
+<p><strong>Ranking Functions</strong></p><pre><code>SELECT
+    name,
+    department,
+    salary,
+    ROW_NUMBER() OVER (PARTITION BY department ORDER BY salary DESC) AS row_num,
+    RANK()       OVER (PARTITION BY department ORDER BY salary DESC) AS rank,
+    DENSE_RANK()  OVER (PARTITION BY department ORDER BY salary DESC) AS dense_rank
+FROM employees;</code></pre>
+<table><tr><td><p><strong>Function</strong></p></td><td><p><strong>Ties</strong></p></td><td><p><strong>Gap after tie?</strong></p></td><td><p><strong>Example (salaries: 90k, 90k, 80k)</strong></p></td></tr><tr><td><p>ROW_NUMBER()</p></td><td><p>Different numbers assigned arbitrarily</p></td><td><p>n/a</p></td><td><p>1, 2, 3</p></td></tr><tr><td><p>RANK()</p></td><td><p>Same rank for ties</p></td><td><p>Yes</p></td><td><p>1, 1, 3</p></td></tr><tr><td><p>DENSE_RANK()</p></td><td><p>Same rank for ties</p></td><td><p>No</p></td><td><p>1, 1, 2</p></td></tr></table><p><strong>Top N Per Group — Common Interview Pattern</strong></p><pre><code>-- top 2 earners per department
+WITH ranked AS (
+    SELECT name, department, salary,
+           ROW_NUMBER() OVER (PARTITION BY department ORDER BY salary DESC) AS rn
+    FROM employees
+)
+SELECT name, department, salary
+FROM ranked
+WHERE rn &lt;= 2;</code></pre>
+<p><strong>Running Total — SUM OVER</strong></p><pre><code>SELECT
+    order_date,
+    amount,
+    SUM(amount) OVER (ORDER BY order_date) AS running_total,
+    SUM(amount) OVER (PARTITION BY customer_id ORDER BY order_date) AS customer_running_total
+FROM orders;</code></pre>
+<p><strong>LAG &amp; LEAD — Access Adjacent Rows</strong></p><pre><code>SELECT
+    order_date,
+    amount,
+    LAG(amount) OVER (ORDER BY order_date) AS prev_amount,
+    LEAD(amount) OVER (ORDER BY order_date) AS next_amount,
+    amount - LAG(amount, 1, 0) OVER (ORDER BY order_date) AS change
+FROM orders;
+-- LAG(col, offset, default)  — offset rows back, default if no prior row</code></pre>
+<p><strong>Other Useful Window Functions</strong></p><table><tr><td><p><strong>Function</strong></p></td><td><p><strong>Description</strong></p></td></tr><tr><td><p>NTILE(n)</p></td><td><p>Divides rows into n equal buckets (quartiles, deciles)</p></td></tr><tr><td><p>PERCENT_RANK()</p></td><td><p>Relative rank as 0.0–1.0</p></td></tr><tr><td><p>CUME_DIST()</p></td><td><p>Cumulative distribution — fraction of rows ≤ current</p></td></tr><tr><td><p>FIRST_VALUE(col)</p></td><td><p>First value in the window frame</p></td></tr><tr><td><p>LAST_VALUE(col)</p></td><td><p>Last value in the window frame</p></td></tr><tr><td><p>NTH_VALUE(col, n)</p></td><td><p>Nth value in the window frame</p></td></tr></table><p><strong>7. Data Modification</strong></p><p><strong>INSERT</strong></p><pre><code>-- single row
+INSERT INTO employees (name, department, salary)
+VALUES ('Alice', 'Engineering', 85000);
+-- multiple rows
+INSERT INTO employees (name, department, salary) VALUES
+    ('Bob',   'HR',          62000),
+    ('Carol', 'Finance',     71000),
+    ('Dave',  'Engineering', 90000);
+-- INSERT from SELECT (copy rows)
+INSERT INTO employees_archive
+SELECT * FROM employees WHERE hire_date &lt; '2020-01-01';</code></pre>
+<p><strong>UPDATE</strong></p><pre><code>-- update one column
+UPDATE employees
+SET salary = 95000
+WHERE name = 'Alice';
+-- update multiple columns
+UPDATE employees
+SET salary = salary * 1.10, department = 'Senior Engineering'
+WHERE department = 'Engineering' AND salary &lt; 80000;
+-- update using a subquery
+UPDATE employees
+SET department = 'Leadership'
+WHERE id IN (SELECT manager_id FROM employees WHERE manager_id IS NOT NULL);</code></pre>
+<p><em>Note: Always use WHERE in UPDATE. Without it, every row is updated.</em></p><p><strong>DELETE</strong></p><pre><code>-- delete specific rows
+DELETE FROM employees WHERE department = 'HR';
+-- delete using a subquery
+DELETE FROM orders
+WHERE customer_id IN (
+    SELECT id FROM customers WHERE active = FALSE
+);
+-- delete all rows but keep table structure
+DELETE FROM employees;
+-- faster bulk delete (cannot be rolled back in most DBs)
+TRUNCATE TABLE employees;</code></pre>
+<table><tr><td></td><td><p><strong>DELETE</strong></p></td><td><p><strong>TRUNCATE</strong></p></td></tr><tr><td><p>Filters rows?</p></td><td><p>Yes — use WHERE</p></td><td><p>No — always removes all rows</p></td></tr><tr><td><p>Rollback possible?</p></td><td><p>Yes (inside a transaction)</p></td><td><p>No in most DBs (DDL, auto-commits)</p></td></tr><tr><td><p>Speed</p></td><td><p>Slower — logs each row</p></td><td><p>Faster — minimal logging</p></td></tr><tr><td><p>Resets auto-ID?</p></td><td><p>No</p></td><td><p>Yes (in most DBs)</p></td></tr></table><p><strong>8. Schema &amp; Constraints</strong></p><p><strong>Common Data Types</strong></p><table><tr><td><p><strong>Category</strong></p></td><td><p><strong>Type</strong></p></td><td><p><strong>Notes</strong></p></td></tr><tr><td><p>Integer</p></td><td><p>INT / INTEGER</p></td><td><p>Whole number (4 bytes, up to ~2 billion)</p></td></tr><tr><td><p>Integer</p></td><td><p>BIGINT</p></td><td><p>Large whole number (8 bytes)</p></td></tr><tr><td><p>Integer</p></td><td><p>SMALLINT</p></td><td><p>Small whole number (2 bytes)</p></td></tr><tr><td><p>Decimal</p></td><td><p>DECIMAL(p,s) / NUMERIC</p></td><td><p>Exact fixed-point — use for money</p></td></tr><tr><td><p>Decimal</p></td><td><p>FLOAT / REAL</p></td><td><p>Approximate floating-point — not for money</p></td></tr><tr><td><p>String</p></td><td><p>VARCHAR(n)</p></td><td><p>Variable-length string, max n chars</p></td></tr><tr><td><p>String</p></td><td><p>CHAR(n)</p></td><td><p>Fixed-length string, padded with spaces</p></td></tr><tr><td><p>String</p></td><td><p>TEXT</p></td><td><p>Unlimited string (not in all DBs)</p></td></tr><tr><td><p>Date/Time</p></td><td><p>DATE</p></td><td><p>Calendar date only — YYYY-MM-DD</p></td></tr><tr><td><p>Date/Time</p></td><td><p>TIMESTAMP</p></td><td><p>Date + time</p></td></tr><tr><td><p>Date/Time</p></td><td><p>TIME</p></td><td><p>Time only</p></td></tr><tr><td><p>Other</p></td><td><p>BOOLEAN</p></td><td><p>TRUE / FALSE (BIT in SQL Server)</p></td></tr><tr><td><p>Other</p></td><td><p>UUID</p></td><td><p>Universally unique identifier</p></td></tr></table><p><strong>CREATE TABLE with Constraints</strong></p><table><tr><td><p>CREATE TABLE employees (</p><p>    id         INT          PRIMARY KEY,         -- unique + NOT NULL</p><p>    name       VARCHAR(100) NOT NULL,</p><p>    email      VARCHAR(150) UNIQUE,</p><p>    salary     DECIMAL(10,2) NOT NULL CHECK(salary &gt; 0),</p><p>    dept_id    INT          REFERENCES departments(id), -- FK</p><p>    hire_date  DATE         DEFAULT CURRENT_DATE,</p><p>    active     BOOLEAN      DEFAULT TRUE</p><p>);</p></td></tr></table><p><strong>Constraints Summary</strong></p><table><tr><td><p><strong>Constraint</strong></p></td><td><p><strong>Meaning</strong></p></td></tr><tr><td><p>PRIMARY KEY</p></td><td><p>Uniquely identifies each row — implies UNIQUE + NOT NULL</p></td></tr><tr><td><p>FOREIGN KEY … REFERENCES</p></td><td><p>Value must exist in referenced table — enforces referential integrity</p></td></tr><tr><td><p>UNIQUE</p></td><td><p>No two rows can have the same value in this column (NULLs excluded)</p></td></tr><tr><td><p>NOT NULL</p></td><td><p>Column must always have a value</p></td></tr><tr><td><p>CHECK (expr)</p></td><td><p>Row must satisfy the expression, e.g. CHECK (salary &gt; 0)</p></td></tr><tr><td><p>DEFAULT value</p></td><td><p>Fallback value when INSERT omits this column</p></td></tr></table><p><strong>Indexes</strong></p><p>Indexes speed up SELECT queries on large tables. They come at a cost: slower INSERT/UPDATE/DELETE and extra disk space.</p><pre><code>-- single column index
+CREATE INDEX idx_emp_dept ON employees (department);
+-- composite index (order matters — most selective column first)
+CREATE INDEX idx_emp_dept_salary ON employees (department, salary);
+-- unique index (also enforces uniqueness)
+CREATE UNIQUE INDEX idx_emp_email ON employees (email);
+-- drop index
+DROP INDEX idx_emp_dept;</code></pre>
+<p><strong>ALTER TABLE</strong></p><pre><code>-- add a column
+ALTER TABLE employees ADD COLUMN phone VARCHAR(20);
+-- drop a column
+ALTER TABLE employees DROP COLUMN phone;
+-- rename a column (PostgreSQL / MySQL 8+)
+ALTER TABLE employees RENAME COLUMN phone TO mobile;
+-- add a foreign key constraint
+ALTER TABLE employees
+ADD CONSTRAINT fk_dept FOREIGN KEY (dept_id) REFERENCES departments(id);
+-- drop a constraint
+ALTER TABLE employees DROP CONSTRAINT fk_dept;</code></pre>
+<p><strong>DROP TABLE</strong></p><table><tr><td><p>DROP TABLE employees;</p><p>DROP TABLE IF EXISTS employees;          -- no error if table does not exist</p><p>DROP TABLE departments CASCADE;    -- also drops dependent objects (FK refs)</p></td></tr></table><p><strong>9. Transactions &amp; ACID</strong></p><p>A transaction is a group of SQL statements that execute as a single unit — either all succeed or all fail.</p><p><strong>ACID Properties</strong></p><table><tr><td><p><strong>Property</strong></p></td><td><p><strong>Meaning</strong></p></td><td><p><strong>Example</strong></p></td></tr><tr><td><p>Atomicity</p></td><td><p>All operations succeed or none do</p></td><td><p>Transfer money: debit + credit both happen or neither does</p></td></tr><tr><td><p>Consistency</p></td><td><p>DB moves from one valid state to another</p></td><td><p>Account balance cannot go negative if CHECK constraint exists</p></td></tr><tr><td><p>Isolation</p></td><td><p>Concurrent transactions do not interfere</p></td><td><p>Two transfers at the same time see consistent balances</p></td></tr><tr><td><p>Durability</p></td><td><p>Committed data survives crashes</p></td><td><p>After COMMIT, data is written to disk even if server restarts</p></td></tr></table><p><strong>Basic Transaction</strong></p><pre><code>BEGIN;                         -- start transaction
+UPDATE accounts SET balance = balance - 500 WHERE id = 1;
+UPDATE accounts SET balance = balance + 500 WHERE id = 2;
+COMMIT;                        -- save both changes permanently
+-- if something goes wrong:
+ROLLBACK;                      -- undo all changes since BEGIN</code></pre>
+<p><strong>SAVEPOINT — Partial Rollback</strong></p><pre><code>BEGIN;
+INSERT INTO orders (customer_id, amount) VALUES (1, 200);
+SAVEPOINT after_order;
+INSERT INTO payments (order_id, amount) VALUES (1, 200);
+-- payment failed — roll back only the payment, keep the order
+ROLLBACK TO after_order;
+COMMIT;  -- commits only the order insert</code></pre>
+<p><strong>Isolation Levels</strong></p><p>Isolation levels control what a transaction can see from other concurrent transactions.</p><table><tr><td><p><strong>Level</strong></p></td><td><p><strong>Dirty Read</strong></p></td><td><p><strong>Non-repeatable Read</strong></p></td><td><p><strong>Phantom Read</strong></p></td><td><p><strong>Notes</strong></p></td></tr><tr><td><p>READ UNCOMMITTED</p></td><td><p>Yes</p></td><td><p>Yes</p></td><td><p>Yes</p></td><td><p>Lowest isolation — can read uncommitted data</p></td></tr><tr><td><p>READ COMMITTED</p></td><td><p>No</p></td><td><p>Yes</p></td><td><p>Yes</p></td><td><p>Default in most DBs — reads only committed data</p></td></tr><tr><td><p>REPEATABLE READ</p></td><td><p>No</p></td><td><p>No</p></td><td><p>Yes</p></td><td><p>Same row returns same value within transaction</p></td></tr><tr><td><p>SERIALIZABLE</p></td><td><p>No</p></td><td><p>No</p></td><td><p>No</p></td><td><p>Highest isolation — transactions run as if serial</p></td></tr></table><pre><code>-- set isolation level (PostgreSQL)
+BEGIN;
+SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;
+-- ... your statements ...
+COMMIT;</code></pre>
+<p><strong>Read Anomalies</strong></p><table><tr><td><p><strong>Anomaly</strong></p></td><td><p><strong>Description</strong></p></td></tr><tr><td><p>Dirty Read</p></td><td><p>Transaction reads data written by another uncommitted transaction</p></td></tr><tr><td><p>Non-repeatable Read</p></td><td><p>Same row read twice returns different values (another TX committed a change)</p></td></tr><tr><td><p>Phantom Read</p></td><td><p>Same query returns different rows (another TX inserted/deleted matching rows)</p></td></tr></table><p><strong>10. Interview Patterns Cheat Sheet</strong></p><p><strong>Find Duplicates</strong></p><pre><code>-- find emails that appear more than once
+SELECT email, COUNT(*) AS cnt
+FROM employees
+GROUP BY email
+HAVING COUNT(*) &gt; 1;
+-- show the full duplicate rows
+SELECT * FROM employees
+WHERE email IN (
+    SELECT email FROM employees
+    GROUP BY email HAVING COUNT(*) &gt; 1
+);</code></pre>
+<p><strong>Second Highest Salary</strong></p><pre><code>-- approach 1: subquery
+SELECT MAX(salary) FROM employees
+WHERE salary &lt; (SELECT MAX(salary) FROM employees);
+-- approach 2: window function (generalises to Nth)
+SELECT salary FROM (
+    SELECT salary, DENSE_RANK() OVER (ORDER BY salary DESC) AS rnk
+    FROM employees
+) ranked WHERE rnk = 2;  -- change 2 → N for Nth highest</code></pre>
+<p><strong>Cumulative / Running Total</strong></p><pre><code>SELECT order_date, amount,
+       SUM(amount) OVER (ORDER BY order_date ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS running_total
+FROM orders;</code></pre>
+<p><strong>Month-over-Month Change</strong></p><pre><code>WITH monthly AS (
+    SELECT DATE_TRUNC('month', order_date) AS month,
+           SUM(amount) AS revenue
+    FROM orders GROUP BY 1
+)
+SELECT month, revenue,
+       LAG(revenue) OVER (ORDER BY month) AS prev_month,
+       revenue - LAG(revenue) OVER (ORDER BY month) AS change
+FROM monthly;</code></pre>
+<p><strong>Delete Duplicates — Keep One</strong></p><pre><code>-- keep the row with the lowest id, delete the rest
+DELETE FROM employees
+WHERE id NOT IN (
+    SELECT MIN(id)
+    FROM employees
+    GROUP BY email
+);</code></pre>
+<p><strong>NULL Handling Patterns</strong></p><pre><code>-- replace NULL with a default value
+SELECT name, COALESCE(bonus, 0) AS bonus FROM employees;
+-- COALESCE returns first non-NULL argument
+SELECT COALESCE(mobile, phone, email, 'no contact') AS contact FROM customers;
+-- NULLIF — returns NULL if two values are equal (avoid divide-by-zero)
+SELECT total / NULLIF(quantity, 0) AS unit_price FROM orders;
+-- sort NULLs last explicitly
+SELECT * FROM employees ORDER BY bonus DESC NULLS LAST;</code></pre>
+<p><strong>Pivot — Rows to Columns with CASE WHEN</strong></p><pre><code>-- count employees per department for Q1, Q2, Q3, Q4
+SELECT
+    SUM(CASE WHEN quarter = 1 THEN 1 ELSE 0 END) AS Q1,
+    SUM(CASE WHEN quarter = 2 THEN 1 ELSE 0 END) AS Q2,
+    SUM(CASE WHEN quarter = 3 THEN 1 ELSE 0 END) AS Q3,
+    SUM(CASE WHEN quarter = 4 THEN 1 ELSE 0 END) AS Q4
+FROM hires;</code></pre>
+<p><strong>Common Pitfalls (Past)</strong></p><table><tr><td><p><strong>Pitfall (Past)</strong></p></td><td><p><strong>Rule</strong></p></td></tr><tr><td><p>NULL comparisons</p></td><td><p>NULL = NULL → NULL (not TRUE). Always use IS NULL.</p></td></tr><tr><td><p>NOT IN with NULLs</p></td><td><p>NOT IN fails silently if subquery contains any NULL. Use NOT EXISTS instead.</p></td></tr><tr><td><p>SELECT alias in WHERE</p></td><td><p>Not allowed — WHERE runs before SELECT. Repeat the expression.</p></td></tr><tr><td><p>GROUP BY order</p></td><td><p>Non-aggregated SELECT columns must be in GROUP BY.</p></td></tr><tr><td><p>COUNT(*) vs COUNT(col)</p></td><td><p>COUNT(*) counts all rows; COUNT(col) skips NULLs.</p></td></tr><tr><td><p>UPDATE without WHERE</p></td><td><p>Updates every row. Always double-check the WHERE clause.</p></td></tr><tr><td><p>DELETE without WHERE</p></td><td><p>Deletes every row. Always double-check the WHERE clause.</p></td></tr><tr><td><p>Implicit JOIN</p></td><td><p>Never use comma join (FROM a, b WHERE a.id=b.x) — use explicit JOIN.</p></td></tr><tr><td><p>Floating point money</p></td><td><p>Use DECIMAL/NUMERIC for currency, not FLOAT/REAL.</p></td></tr></table><p><strong>Full Clause Order Reference</strong></p><table><tr><td><p>SELECT    columns, AGG(col) AS alias,   WINDOW_FN() OVER (...)   -- 6th: evaluated</p><p>FROM      table                                                    -- 1st</p><p>JOIN      other ON condition                               -- 2nd</p><p>WHERE     row_filter                                               -- 3rd</p><p>GROUP BY  columns                                                  -- 4th</p><p>HAVING    aggregate_filter                                         -- 5th</p><p>ORDER BY  columns ASC|DESC                                -- 7th</p><p>LIMIT     n OFFSET m;                                           -- 8th</p></td></tr></table>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
   <script>
     

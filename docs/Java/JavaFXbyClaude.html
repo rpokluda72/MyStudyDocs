@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>JavaFXbyClaude</title>
+  <link rel="stylesheet" href="../assets/content.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+</head>
+<body>
+  <div style="display:flex;align-items:baseline;gap:12px;margin-bottom:4px;">
+    <h1 style="margin:0 0 8px;">JavaFXbyClaude</h1>
+    <a href="JavaFXbyClaude.docx" download style="font-size:13px;color:#555;text-decoration:none;border:1px solid #ccc;border-radius:4px;padding:3px 9px;background:#f5f5f5;" title="Download original .docx">&#8681; .docx</a>
+  </div>
+  <p><strong>1. Introduction to JavaFX 24</strong></p><p>JavaFX is the modern Java UI toolkit for building desktop rich-client applications. It replaced Swing as Oracle's recommended GUI framework and ships separately as the open-source OpenJFX project (openjfx.io) since Java 11. JavaFX 24 is the current LTS-adjacent release and requires JDK 21+.</p><p><strong>JavaFX vs Swing</strong></p><table><tr><td><p><strong>Aspect</strong></p></td><td><p><strong>JavaFX</strong></p></td><td><p><strong>Swing</strong></p></td></tr><tr><td><p>Release model</p></td><td><p>OpenJFX — separate from JDK since Java 11</p></td><td><p>Bundled with JDK; legacy mode</p></td></tr><tr><td><p>UI definition</p></td><td><p>FXML markup + Java code</p></td><td><p>Java code only</p></td></tr><tr><td><p>Styling</p></td><td><p>CSS with -fx- prefix</p></td><td><p>Look-and-Feel (LAF)</p></td></tr><tr><td><p>Rendering</p></td><td><p>Hardware-accelerated (Prism pipeline)</p></td><td><p>Software renderer (Java2D)</p></td></tr><tr><td><p>Properties</p></td><td><p>Built-in Observable/Binding API</p></td><td><p>Manual PropertyChangeListener</p></td></tr><tr><td><p>Threading</p></td><td><p>JavaFX Application Thread (explicit)</p></td><td><p>Event Dispatch Thread (EDT)</p></td></tr><tr><td><p>Animation</p></td><td><p>First-class Timeline / Transition API</p></td><td><p>Timer-based hacks</p></td></tr><tr><td><p>3D graphics</p></td><td><p>Limited 3D: Box, Sphere, Cylinder</p></td><td><p>Not supported</p></td></tr><tr><td><p>FXML/tooling</p></td><td><p>Scene Builder visual editor</p></td><td><p>Matisse (NetBeans only)</p></td></tr></table><p><strong>Maven Dependencies (JavaFX 24)</strong></p><pre><code>&lt;dependency&gt;
+  &lt;groupId&gt;org.openjfx&lt;/groupId&gt;
+  &lt;artifactId&gt;javafx-controls&lt;/artifactId&gt;
+  &lt;version&gt;24&lt;/version&gt;
+&lt;/dependency&gt;
+&lt;!-- Repeat for: javafx-fxml  javafx-graphics  javafx-base --&gt;
+&lt;plugin&gt;
+  &lt;groupId&gt;org.openjfx&lt;/groupId&gt;
+  &lt;artifactId&gt;javafx-maven-plugin&lt;/artifactId&gt;
+  &lt;version&gt;0.0.8&lt;/version&gt;
+  &lt;configuration&gt;&lt;mainClass&gt;com.example.App&lt;/mainClass&gt;&lt;/configuration&gt;
+&lt;/plugin&gt;
+&lt;!-- mvn javafx:run --&gt;</code></pre>
+<p><strong>Hello World Application</strong></p><pre><code>import javafx.application.Application;
+import javafx.scene.*;  import javafx.stage.Stage;
+import javafx.scene.control.Label;  import javafx.scene.layout.StackPane;
+public class HelloApp extends Application {
+  @Override
+  public void start(Stage stage) {
+    Label lbl = new Label("Hello, JavaFX 24!");
+    StackPane root = new StackPane();
+    root.getChildren().add(lbl);
+    stage.setScene(new Scene(root, 800, 600));
+    stage.setTitle("Hello App");
+    stage.show();
+  }
+  public static void main(String[] args) { launch(args); }
+}</code></pre>
+<p><strong>2. Application Architecture</strong></p><p>JavaFX uses a scene graph — a tree of Node objects. All rendering, event dispatch, and property binding operate on this tree. The primary rule: all scene graph mutations must happen on the JavaFX Application Thread.</p><p><strong>Stage / Scene / Node Hierarchy</strong></p><pre><code>  ┌─────────────────────────────────────────────────────┐
+  │  Application  (lifecycle: init → start → stop)     │
+  └──────────────────────────┬──────────────────────────┘
+                             │  creates
+                             ▼
+  ┌─────────────────────────────────────────────────────┐
+  │  Stage  (OS window)   stage.setScene(scene)         │
+  └──────────────────────────┬──────────────────────────┘
+                             │  contains
+                             ▼
+  ┌─────────────────────────────────────────────────────┐
+  │  Scene  (root node + width/height + stylesheets)    │
+  └──────────────────────────┬──────────────────────────┘
+                             │  root
+                             ▼
+  ┌─────────────────────────────────────────────────────┐
+  │  Node  (base)                                       │
+  │  └── Parent  (has children)                        │
+  │       └── Region  (has background, border, padding)│
+  │            ├── Pane (HBox/VBox/GridPane/...)        │
+  │            └── Control (Button/Label/TextField/...) │
+  └─────────────────────────────────────────────────────┘</code></pre>
+<p><strong>Application Lifecycle Methods</strong></p><table><tr><td><p><strong>Method</strong></p></td><td><p><strong>Thread</strong></p></td><td><p><strong>Purpose</strong></p></td></tr><tr><td><p>init()</p></td><td><p>Launcher thread</p></td><td><p>Load resources, parse params — no UI construction here</p></td></tr><tr><td><p>start(Stage)</p></td><td><p>JavaFX Application Thread</p></td><td><p>Build and show the primary stage</p></td></tr><tr><td><p>stop()</p></td><td><p>JavaFX Application Thread</p></td><td><p>Release resources, close DB/network connections</p></td></tr></table><p><strong>Threading Rules</strong></p><pre><code>// ❌  Background thread must NOT touch UI nodes
+new Thread(() -&gt; label.setText("bad")).start();
+// ✅  Wrap UI update in Platform.runLater()
+new Thread(() -&gt; {
+  String result = doHeavyWork();
+  Platform.runLater(() -&gt; label.setText(result));
+}).start();
+// Check which thread you're on:
+boolean onFx = Platform.isFxApplicationThread();</code></pre>
+<p><strong>3. UI Controls</strong></p><p>All controls live in javafx.scene.control and inherit from Control → Region → Parent → Node. They expose Observable properties and support CSS pseudo-classes (:hover, :focused, :disabled).</p><p><strong>Common Controls Reference</strong></p><table><tr><td><p><strong>Control</strong></p></td><td><p><strong>Key Properties / Methods</strong></p></td><td><p><strong>Typical Use</strong></p></td></tr><tr><td><p>Button</p></td><td><p>text, graphic, onAction</p></td><td><p>Clickable trigger</p></td></tr><tr><td><p>Label</p></td><td><p>text, graphic, textAlignment</p></td><td><p>Static text / icon caption</p></td></tr><tr><td><p>TextField</p></td><td><p>text, promptText, editable</p></td><td><p>Single-line input</p></td></tr><tr><td><p>TextArea</p></td><td><p>text, wrapText, prefRowCount</p></td><td><p>Multi-line input</p></td></tr><tr><td><p>PasswordField</p></td><td><p>text (masked display)</p></td><td><p>Password input</p></td></tr><tr><td><p>CheckBox</p></td><td><p>selected, indeterminate, text</p></td><td><p>Boolean toggle</p></td></tr><tr><td><p>RadioButton</p></td><td><p>selected, toggleGroup, text</p></td><td><p>Mutually-exclusive option</p></td></tr><tr><td><p>ToggleButton</p></td><td><p>selected, toggleGroup</p></td><td><p>Sticky on/off button</p></td></tr><tr><td><p>ComboBox&lt;T&gt;</p></td><td><p>items, value, promptText, editable</p></td><td><p>Dropdown selector</p></td></tr><tr><td><p>ChoiceBox&lt;T&gt;</p></td><td><p>items, value</p></td><td><p>Simple non-editable dropdown</p></td></tr><tr><td><p>ListView&lt;T&gt;</p></td><td><p>items, selectionModel, cellFactory</p></td><td><p>Scrollable list</p></td></tr><tr><td><p>TableView&lt;T&gt;</p></td><td><p>items, columns, selectionModel</p></td><td><p>Tabular data grid</p></td></tr><tr><td><p>Slider</p></td><td><p>value, min, max, majorTickUnit</p></td><td><p>Numeric range input</p></td></tr><tr><td><p>ProgressBar</p></td><td><p>progress (0.0–1.0), indeterminate</p></td><td><p>Task progress display</p></td></tr><tr><td><p>Spinner&lt;T&gt;</p></td><td><p>value, valueFactory</p></td><td><p>Up/down stepper</p></td></tr><tr><td><p>DatePicker</p></td><td><p>value (LocalDate), promptText</p></td><td><p>Calendar date chooser</p></td></tr><tr><td><p>ColorPicker</p></td><td><p>value (Color)</p></td><td><p>Color chooser</p></td></tr><tr><td><p>MenuBar</p></td><td><p>menus (list of Menu)</p></td><td><p>Top-level application menu</p></td></tr><tr><td><p>ContextMenu</p></td><td><p>items, show(node, x, y)</p></td><td><p>Right-click popup</p></td></tr><tr><td><p>TabPane</p></td><td><p>tabs, side, tabClosingPolicy</p></td><td><p>Tabbed view container</p></td></tr><tr><td><p>Accordion</p></td><td><p>panes (list of TitledPane)</p></td><td><p>Collapsible sections</p></td></tr><tr><td><p>SplitPane</p></td><td><p>items, dividerPositions, orientation</p></td><td><p>Resizable split layout</p></td></tr><tr><td><p>ScrollPane</p></td><td><p>content, hbarPolicy, vbarPolicy, fitToWidth</p></td><td><p>Scrollable viewport</p></td></tr><tr><td><p>TreeView&lt;T&gt;</p></td><td><p>root, selectionModel, cellFactory</p></td><td><p>Hierarchical tree</p></td></tr><tr><td><p>Tooltip</p></td><td><p>text, showDelay, graphic</p></td><td><p>Hover hint on any node</p></td></tr></table><p><strong>Button &amp; TextField Examples</strong></p><pre><code>Button btn = new Button("Save");
+btn.setOnAction(e -&gt; save());
+btn.setDisable(true);   // greyed-out
+btn.setDefaultButton(true);  // triggers on Enter key
+TextField tf = new TextField();
+tf.setPromptText("Enter name…");
+tf.textProperty().addListener((obs, old, nv) -&gt;
+  System.out.println("Changed: " + nv));
+// ComboBox
+ComboBox&lt;String&gt; cb = new ComboBox&lt;&gt;();
+cb.getItems().addAll("Alpha", "Beta", "Gamma");
+cb.setValue("Alpha");
+String sel = cb.getValue();</code></pre>
+<p><strong>4. Layout Panes</strong></p><p>Layout panes automatically arrange child nodes and recompute layout on resize. All extend Pane → Region → Parent.</p><p><strong>Pane Hierarchy</strong></p><table><tr><td><p>  Node</p><p>  └── Parent</p><p>      └── Region</p><p>          ├── Control   (Button, Label, TextField …)</p><p>          └── Pane</p><p>              ├── AnchorPane   pixel anchoring to edges</p><p>              ├── BorderPane   5 zones: top/right/bottom/left/center</p><p>              ├── FlowPane     wrapping row or column flow</p><p>              ├── GridPane     rows + columns grid</p><p>              ├── HBox         horizontal linear row</p><p>              ├── StackPane    Z-axis layers (default: centered)</p><p>              ├── TilePane     uniform-size tiles</p><p>              └── VBox         vertical linear column</p></td></tr></table><p><strong>Layout Pane Reference</strong></p><table><tr><td><p><strong>Pane</strong></p></td><td><p><strong>Strategy</strong></p></td><td><p><strong>Key Properties</strong></p></td></tr><tr><td><p>HBox</p></td><td><p>Left-to-right row</p></td><td><p>spacing, alignment, padding, fillHeight</p></td></tr><tr><td><p>VBox</p></td><td><p>Top-to-bottom column</p></td><td><p>spacing, alignment, padding, fillWidth</p></td></tr><tr><td><p>BorderPane</p></td><td><p>5 named regions</p></td><td><p>top, bottom, left, right, center</p></td></tr><tr><td><p>GridPane</p></td><td><p>Row/column grid</p></td><td><p>hgap, vgap; GridPane.setColumnIndex(node,c)</p></td></tr><tr><td><p>StackPane</p></td><td><p>Layered, default centered</p></td><td><p>alignment, padding</p></td></tr><tr><td><p>AnchorPane</p></td><td><p>Pixel anchors to 4 edges</p></td><td><p>AnchorPane.setTopAnchor(node, px)</p></td></tr><tr><td><p>FlowPane</p></td><td><p>Wraps on overflow</p></td><td><p>hgap, vgap, orientation, prefWrapLength</p></td></tr><tr><td><p>TilePane</p></td><td><p>Fixed-size tiles</p></td><td><p>tileWidth, tileHeight, hgap, vgap</p></td></tr><tr><td><p>SplitPane</p></td><td><p>Resizable split</p></td><td><p>items, dividerPositions, orientation</p></td></tr><tr><td><p>ScrollPane</p></td><td><p>Scrollable viewport</p></td><td><p>content, hbarPolicy, vbarPolicy, fitToWidth</p></td></tr></table><p><strong>HBox / VBox</strong></p><pre><code>HBox hbox = new HBox(10);  // spacing = 10 px
+hbox.setAlignment(Pos.CENTER);
+hbox.setPadding(new Insets(8));
+hbox.getChildren().addAll(btn1, btn2, btn3);
+VBox vbox = new VBox(12);
+VBox.setVgrow(textArea, Priority.ALWAYS);  // fill remaining vertical space
+vbox.getChildren().addAll(label, textArea, hbox);</code></pre>
+<p><strong>GridPane</strong></p><pre><code>GridPane grid = new GridPane();
+grid.setHgap(10);  grid.setVgap(8);
+grid.setPadding(new Insets(15));
+// add(node, col, row)
+grid.add(new Label("Name:"), 0, 0);
+grid.add(nameField, 1, 0);
+grid.add(new Label("Email:"), 0, 1);
+grid.add(emailField, 1, 1);
+// add(node, col, row, colSpan, rowSpan)
+grid.add(submitBtn, 1, 2, 1, 1);</code></pre>
+<p><strong>BorderPane</strong></p><pre><code>BorderPane root = new BorderPane();
+root.setTop(menuBar);        // fixed height
+root.setLeft(navSidebar);     // fixed width
+root.setCenter(contentArea);  // takes all remaining space
+root.setBottom(statusBar);    // fixed height
+root.setRight(propertiesPanel);</code></pre>
+<p><strong>5. FXML &amp; Scene Builder</strong></p><p>FXML is an XML-based declarative language for defining JavaFX UIs. It separates layout from logic — the controller class handles events while FXML defines structure. Scene Builder is a visual drag-and-drop tool that generates FXML.</p><p><strong>FXML File (main.fxml)</strong></p><pre><code>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;?import javafx.scene.control.*?&gt;
+&lt;?import javafx.scene.layout.*?&gt;
+&lt;VBox xmlns:fx="<a href="http://javafx.com/fxml" target="_blank" rel="noopener noreferrer">http://javafx.com/fxml</a>"
+      fx:controller="com.example.MainController"
+      spacing="10" padding="15"&gt;
+  &lt;Label text="Username:"/&gt;
+  &lt;TextField fx:id="usernameField"
+             promptText="Enter username"/&gt;
+  &lt;Button text="Submit" onAction="#handleSubmit"/&gt;
+&lt;/VBox&gt;</code></pre>
+<p><strong>Controller Class</strong></p><pre><code>public class MainController {
+  @FXML  // injected by FXMLLoader
+  private TextField usernameField;
+  @FXML
+  private void initialize() {           // called after all @FXML fields are injected
+    usernameField.setPromptText("Type here…");
+  }
+  @FXML
+  private void handleSubmit(ActionEvent event) {
+    String name = usernameField.getText();
+    System.out.println("Hello " + name);
+  }
+}</code></pre>
+<p><strong>Loading FXML in start()</strong></p><pre><code>@Override
+public void start(Stage stage) throws IOException {
+  FXMLLoader loader = new FXMLLoader(
+      getClass().getResource("/com/example/main.fxml"));
+  Parent root = loader.load();
+  // Access controller after loading
+  MainController ctrl = loader.getController();
+  ctrl.initData(myModel);
+  stage.setScene(new Scene(root, 800, 600));
+  stage.show();
+}</code></pre>
+<p><strong>Scene Builder Workflow</strong></p><table><tr><td><p><strong>Task</strong></p></td><td><p><strong>How in Scene Builder</strong></p></td></tr><tr><td><p>Open FXML</p></td><td><p>File → Open (or drag .fxml onto window)</p></td></tr><tr><td><p>Set controller</p></td><td><p>Document panel (bottom-left) → Controller class name field</p></td></tr><tr><td><p>Assign fx:id</p></td><td><p>Code panel (right) → fx:id field for the selected node</p></td></tr><tr><td><p>Wire onAction</p></td><td><p>Code panel → On Action → type handler method name</p></td></tr><tr><td><p>Preview UI</p></td><td><p>View → Show Preview in Window</p></td></tr><tr><td><p>Generate skeleton</p></td><td><p>View → Show Sample Controller Skeleton — copy into IDE</p></td></tr></table><p><strong>FXML vs Pure Java — When to Use Each</strong></p><table><tr><td><p><strong>Prefer FXML</strong></p></td><td><p><strong>Prefer pure Java</strong></p></td></tr><tr><td><p>Complex static layouts designed in Scene Builder</p></td><td><p>Dynamically generated rows/cells at runtime</p></td></tr><tr><td><p>Team with a UI designer who knows XML</p></td><td><p>Simple one-class demos and prototypes</p></td></tr><tr><td><p>Strict separation of layout and controller logic</p></td><td><p>Programmatic animations or heavily custom controls</p></td></tr></table><p><strong>6. Properties &amp; Bindings</strong></p><p>JavaFX properties are observable wrappers around values. They power binding — linking a UI control's state directly to a model field so that changes propagate automatically without manual listeners in most cases.</p><p><strong>Property Type Hierarchy</strong></p><table><tr><td><p>  Observable</p><p>  └── ObservableValue&lt;T&gt;</p><p>      ├── ReadOnlyProperty&lt;T&gt;</p><p>      │   └── Property&lt;T&gt;                        (read + write)</p><p>      │       ├── StringProperty   → SimpleStringProperty</p><p>      │       ├── IntegerProperty  → SimpleIntegerProperty</p><p>      │       ├── LongProperty     → SimpleLongProperty</p><p>      │       ├── DoubleProperty   → SimpleDoubleProperty</p><p>      │       ├── BooleanProperty  → SimpleBooleanProperty</p><p>      │       └── ObjectProperty&lt;T&gt;→ SimpleObjectProperty&lt;T&gt;</p><p>      └── ObservableList&lt;E&gt;</p><p>          ├── FilteredList&lt;E&gt;   (live-filtered view)</p><p>          └── SortedList&lt;E&gt;     (live-sorted view)</p></td></tr></table><p><strong>Model Class — Property Pattern</strong></p><pre><code>public class Person {
+  private final StringProperty  name = new SimpleStringProperty();
+  private final IntegerProperty age  = new SimpleIntegerProperty();
+  // Standard accessor triple per property:
+  public String         getName()         { return name.get(); }
+  public void           setName(String v)  { name.set(v); }
+  public StringProperty nameProperty()         { return name; }
+  public int             getAge()         { return age.get(); }
+  public void            setAge(int v)     { age.set(v); }
+  public IntegerProperty ageProperty()         { return age; }
+}</code></pre>
+<p><strong>One-Way Binding (bind)</strong></p><pre><code>Label label = new Label();
+// label.text always mirrors person.name
+label.textProperty().bind(person.nameProperty());
+// Composed expression: 'Alice is 30'
+label.textProperty().bind(
+  person.nameProperty().concat(" is ").concat(person.ageProperty().asString())
+);
+label.textProperty().unbind();  // must unbind before calling setText()</code></pre>
+<p><strong>Bidirectional Binding</strong></p><pre><code>// Changes in tf propagate to model and vice-versa
+tf.textProperty().bindBidirectional(person.nameProperty());
+// Cross-type: IntegerProperty ↔ TextField text
+tf.textProperty().bindBidirectional(
+  person.ageProperty(), new NumberStringConverter());</code></pre>
+<p><strong>ChangeListener &amp; InvalidationListener</strong></p><pre><code>// ChangeListener&lt;T&gt;: receives old + new value
+person.nameProperty().addListener((obs, oldVal, newVal) -&gt;
+  System.out.println(oldVal + " → " + newVal));
+// InvalidationListener: fires when value *may* have changed
+// cheaper — does not force evaluation of lazy bindings
+person.ageProperty().addListener(obs -&gt;
+  System.out.println("Age invalidated"));</code></pre>
+<p><strong>Bindings Utility — Conditional &amp; Math Bindings</strong></p><pre><code>IntegerProperty a = new SimpleIntegerProperty(5), b = new SimpleIntegerProperty(3);
+NumberBinding  sum  = a.add(b);             // a + b
+NumberBinding  prod = Bindings.multiply(a, b);  // a * b
+BooleanBinding gt   = a.greaterThan(b);       // a &gt; b
+// Ternary-style binding
+label.textProperty().bind(
+  Bindings.when(gt).then("A wins").otherwise("B wins")
+);
+// Disable a button when a field is blank
+saveBtn.disableProperty().bind(
+  nameField.textProperty().isEmpty().or(emailField.textProperty().isEmpty())
+);</code></pre>
+<p><strong>7. Event Handling</strong></p><p>Events travel through the scene graph in three phases: capture (root→target), at-target, then bubble (target→root). Filters intercept events during capture; handlers process them during bubbling.</p><p><strong>Event Dispatch Phases</strong></p><pre><code>  ┌──────────────────────────────────────────────────────┐
+  │  1. CAPTURE (root ──► target)                        │
+  │     addEventFilter() handlers called top-down        │
+  ├──────────────────────────────────────────────────────┤
+  │  2. AT-TARGET                                        │
+  │     Both filters and handlers called on target node  │
+  ├──────────────────────────────────────────────────────┤
+  │  3. BUBBLE (target ──► root)                         │
+  │     addEventHandler() handlers called bottom-up      │
+  └──────────────────────────────────────────────────────┘
+  event.consume() → stops further propagation anywhere
+  setOnAction()   → shorthand for addEventHandler(ActionEvent)</code></pre>
+<p><strong>Common Event Types</strong></p><table><tr><td><p><strong>Event Type Constant</strong></p></td><td><p><strong>Class</strong></p></td><td><p><strong>Sources</strong></p></td></tr><tr><td><p>ActionEvent.ACTION</p></td><td><p>javafx.event.ActionEvent</p></td><td><p>Button, MenuItem, TextField (Enter)</p></td></tr><tr><td><p>MouseEvent.MOUSE_CLICKED</p></td><td><p>javafx.scene.input.MouseEvent</p></td><td><p>Any Node</p></td></tr><tr><td><p>MouseEvent.MOUSE_PRESSED</p></td><td><p>javafx.scene.input.MouseEvent</p></td><td><p>Any Node</p></td></tr><tr><td><p>MouseEvent.MOUSE_DRAGGED</p></td><td><p>javafx.scene.input.MouseEvent</p></td><td><p>Any Node</p></td></tr><tr><td><p>MouseEvent.MOUSE_ENTERED/EXITED</p></td><td><p>javafx.scene.input.MouseEvent</p></td><td><p>Any Node (hover)</p></td></tr><tr><td><p>KeyEvent.KEY_PRESSED</p></td><td><p>javafx.scene.input.KeyEvent</p></td><td><p>Focusable nodes</p></td></tr><tr><td><p>KeyEvent.KEY_RELEASED</p></td><td><p>javafx.scene.input.KeyEvent</p></td><td><p>Focusable nodes</p></td></tr><tr><td><p>KeyEvent.KEY_TYPED</p></td><td><p>javafx.scene.input.KeyEvent</p></td><td><p>Text input nodes</p></td></tr><tr><td><p>ScrollEvent.SCROLL</p></td><td><p>javafx.scene.input.ScrollEvent</p></td><td><p>ScrollPane, any node</p></td></tr><tr><td><p>DragEvent.DRAG_DETECTED</p></td><td><p>javafx.scene.input.DragEvent</p></td><td><p>Any Node</p></td></tr><tr><td><p>WindowEvent.WINDOW_CLOSE_REQUEST</p></td><td><p>javafx.stage.WindowEvent</p></td><td><p>Stage</p></td></tr></table><p><strong>Mouse, Keyboard &amp; Close Events</strong></p><pre><code>// Double-click detection
+node.setOnMouseClicked(e -&gt; {
+  if (e.getButton() == MouseButton.PRIMARY
+      &amp;&amp; e.getClickCount() == 2) {
+    System.out.println("double-click @ " + e.getX());
+  }
+});
+// Keyboard shortcut on Scene
+scene.setOnKeyPressed(e -&gt; {
+  if (e.isControlDown() &amp;&amp; e.getCode() == KeyCode.S)
+    handleSave();
+  if (e.getCode() == KeyCode.ESCAPE)
+    stage.close();
+});
+// Intercept window close (ask to save)
+stage.setOnCloseRequest(e -&gt; {
+  e.consume();  // prevent close
+  boolean ok = showConfirmDialog();
+  if (ok) Platform.exit();
+});</code></pre>
+<p><strong>8. CSS Styling</strong></p><p>JavaFX uses a subset of CSS 2.1 with -fx- prefixed properties. Stylesheets attach to a Scene or any Node. CSS specificity mirrors web CSS: inline style &gt; id selector &gt; class selector &gt; type selector.</p><p><strong>Attaching Stylesheets</strong></p><pre><code>// Attach to whole scene (recommended)
+scene.getStylesheets().add(
+  getClass().getResource("/styles/app.css").toExternalForm()));
+// Inline style (overrides stylesheet — avoid for maintainability)
+btn.setStyle("-fx-background-color: #2196F3; -fx-text-fill: white;");
+// CSS class — maps to  .my-button { }  in the stylesheet
+btn.getStyleClass().add("my-button");
+// CSS id — maps to  #submit-btn { }  in the stylesheet
+btn.setId("submit-btn");</code></pre>
+<p><strong>app.css — Example Stylesheet</strong></p><pre><code>/* Root background */
+.root { -fx-background-color: #F5F5F5; -fx-font-family: 'Segoe UI'; }
+.primary-button {
+  -fx-background-color: #2196F3;  -fx-text-fill: white;
+  -fx-font-size: 13px;            -fx-padding: 8 20 8 20;
+  -fx-background-radius: 4;       -fx-cursor: hand;
+}
+.primary-button:hover   { -fx-background-color: #1976D2; }
+.primary-button:pressed { -fx-background-color: #0D47A1; }
+.primary-button:disabled{ -fx-opacity: 0.4; }
+/* TableView header */
+.table-view .column-header-background { -fx-background-color: #E0E0E0; }
+.table-view .column-header .label { -fx-font-weight: bold; }
+/* Text field focus ring */
+.text-field:focused { -fx-border-color: #2196F3; -fx-border-width: 2; }</code></pre>
+<p><strong>Key -fx- CSS Properties</strong></p><table><tr><td><p><strong>-fx- Property</strong></p></td><td><p><strong>Maps to (CSS)</strong></p></td><td><p><strong>Example Value</strong></p></td></tr><tr><td><p>-fx-background-color</p></td><td><p>background-color</p></td><td><p>#336699  or  linear-gradient(to bottom, #aaa, #fff)</p></td></tr><tr><td><p>-fx-text-fill</p></td><td><p>color</p></td><td><p>white  or  #333333</p></td></tr><tr><td><p>-fx-font-size</p></td><td><p>font-size</p></td><td><p>14px  or  0.9em</p></td></tr><tr><td><p>-fx-font-family</p></td><td><p>font-family</p></td><td><p>'Segoe UI', sans-serif</p></td></tr><tr><td><p>-fx-font-weight</p></td><td><p>font-weight</p></td><td><p>bold  or  normal</p></td></tr><tr><td><p>-fx-font-style</p></td><td><p>font-style</p></td><td><p>italic  or  normal</p></td></tr><tr><td><p>-fx-padding</p></td><td><p>padding</p></td><td><p>8 16 8 16  (top right bottom left)</p></td></tr><tr><td><p>-fx-border-color</p></td><td><p>border-color</p></td><td><p>#AAAAAA</p></td></tr><tr><td><p>-fx-border-width</p></td><td><p>border-width</p></td><td><p>1px</p></td></tr><tr><td><p>-fx-border-radius</p></td><td><p>border-radius</p></td><td><p>6</p></td></tr><tr><td><p>-fx-background-radius</p></td><td><p>(background corners)</p></td><td><p>6</p></td></tr><tr><td><p>-fx-opacity</p></td><td><p>opacity</p></td><td><p>0.0 – 1.0</p></td></tr><tr><td><p>-fx-cursor</p></td><td><p>cursor</p></td><td><p>hand  /  default  /  text  /  crosshair</p></td></tr><tr><td><p>-fx-alignment</p></td><td><p>(HBox/VBox/cell align)</p></td><td><p>CENTER  /  TOP-LEFT</p></td></tr><tr><td><p>-fx-spacing</p></td><td><p>(HBox/VBox gap)</p></td><td><p>10</p></td></tr><tr><td><p>-fx-pref-width</p></td><td><p>width hint</p></td><td><p>200px</p></td></tr><tr><td><p>-fx-min-height</p></td><td><p>min-height</p></td><td><p>30px</p></td></tr><tr><td><p>-fx-effect</p></td><td><p>box-shadow (approx)</p></td><td><p>dropshadow(gaussian, rgba(0,0,0,.3), 6, 0, 0, 2)</p></td></tr></table><p><strong>9. TableView &amp; Observable Collections</strong></p><p>TableView&lt;T&gt; is JavaFX's primary data grid. It binds directly to an ObservableList&lt;T&gt; — mutations to the list auto-refresh the table. PropertyValueFactory maps a column to the JavaFX property accessor on the model class.</p><p><strong>Full TableView Setup</strong></p><pre><code>// ① Model with JavaFX properties
+public class Product {
+  private final StringProperty  name  = new SimpleStringProperty();
+  private final DoubleProperty  price = new SimpleDoubleProperty();
+  private final IntegerProperty qty   = new SimpleIntegerProperty();
+  /* getters / setters / nameProperty() / priceProperty() … */
+}
+// ② Columns — type params: &lt;ModelType, CellType&gt;
+TableColumn&lt;Product,String&gt;  nameCol  = new TableColumn&lt;&gt;("Name");
+TableColumn&lt;Product,Double&gt;  priceCol = new TableColumn&lt;&gt;("Price");
+TableColumn&lt;Product,Integer&gt; qtyCol   = new TableColumn&lt;&gt;("Qty");
+// String arg must match the xProperty() method name prefix
+nameCol.setCellValueFactory(new PropertyValueFactory&lt;&gt;("name"));
+priceCol.setCellValueFactory(new PropertyValueFactory&lt;&gt;("price"));
+qtyCol.setCellValueFactory(new PropertyValueFactory&lt;&gt;("qty"));
+// ③ Data source
+ObservableList&lt;Product&gt; data = FXCollections.observableArrayList();
+data.addAll(new Product("Widget", 9.99, 50), /* … */);
+// ④ Wire up
+TableView&lt;Product&gt; table = new TableView&lt;&gt;();
+table.getColumns().addAll(nameCol, priceCol, qtyCol);
+table.setItems(data);</code></pre>
+<p><strong>Custom Cell Factory</strong></p><pre><code>// Format price with color coding
+priceCol.setCellFactory(col -&gt; new TableCell&lt;Product, Double&gt;() {
+  @Override
+  protected void updateItem(Double price, boolean empty) {
+    super.updateItem(price, empty);
+    if (empty || price == null) { setText(null); setStyle(""); return; }
+    setText(String.format("$%.2f", price));
+    setStyle(price &gt; 100 ? "-fx-text-fill: red;" : "");
+  }
+});</code></pre>
+<p><strong>Filtering &amp; Sorting with FilteredList / SortedList</strong></p><pre><code>ObservableList&lt;Product&gt; master = FXCollections.observableArrayList(/* … */);
+FilteredList&lt;Product&gt; filtered = new FilteredList&lt;&gt;(master, p -&gt; true);
+searchField.textProperty().addListener((obs, old, txt) -&gt;
+  filtered.setPredicate(p -&gt; {
+    if (txt == null || txt.isBlank()) return true;
+    return p.getName().toLowerCase().contains(txt.toLowerCase());
+  })
+);
+SortedList&lt;Product&gt; sorted = new SortedList&lt;&gt;(filtered);
+sorted.comparatorProperty().bind(table.comparatorProperty());
+table.setItems(sorted);</code></pre>
+<p><strong>Row Selection</strong></p><pre><code>// React to single-selection change
+table.getSelectionModel().selectedItemProperty().addListener((obs, old, item) -&gt; {
+  if (item != null) populateForm(item);
+});
+// Enable multi-row selection
+table.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+ObservableList&lt;Product&gt; sel = table.getSelectionModel().getSelectedItems();
+// Programmatically select row 0
+table.getSelectionModel().select(0);</code></pre>
+<p><strong>10. Concurrency &amp; Quick Reference</strong></p><p>JavaFX provides Task&lt;T&gt; and Service&lt;T&gt; in javafx.concurrent for safe background work. Their progress, message, and value properties auto-post updates to the JavaFX Application Thread, so binding them to UI nodes is safe.</p><p><strong>Task&lt;T&gt; — One-Shot Background Operation</strong></p><pre><code>Task&lt;List&lt;Product&gt;&gt; task = new Task&lt;&gt;() {
+  @Override
+  protected List&lt;Product&gt; call() throws Exception {
+    updateMessage("Loading…");
+    List&lt;Product&gt; list = db.fetchAll();
+    updateProgress(1, 1);
+    return list;
+  }
+};
+// Bind UI to Task properties — safe across threads
+progressBar.progressProperty().bind(task.progressProperty());
+statusLabel.textProperty().bind(task.messageProperty());
+task.setOnSucceeded(e -&gt; {
+  table.setItems(FXCollections.observableArrayList(task.getValue()));
+  progressBar.progressProperty().unbind();
+});
+task.setOnFailed(e -&gt; task.getException().printStackTrace());
+new Thread(task).start();  // or executor.submit(task)</code></pre>
+<p><strong>Service&lt;T&gt; — Restartable Background Service</strong></p><pre><code>public class SearchService extends Service&lt;List&lt;Product&gt;&gt; {
+  private String query;
+  public void setQuery(String q) { this.query = q; }
+  @Override
+  protected Task&lt;List&lt;Product&gt;&gt; createTask() {
+    String q = query;  // capture — lambda runs on bg thread
+    return new Task&lt;&gt;() {
+      protected List&lt;Product&gt; call() {
+        return db.search(q);
+      }
+    };
+  }
+}
+SearchService svc = new SearchService();
+svc.setOnSucceeded(e -&gt; table.setItems(FXCollections.observableArrayList(svc.getValue())));
+searchField.textProperty().addListener((obs, old, txt) -&gt; {
+  svc.setQuery(txt);
+  svc.restart();  // cancels current task, starts new one
+});</code></pre>
+<p><strong>Task vs Service</strong></p><table><tr><td><p><strong>Aspect</strong></p></td><td><p><strong>Task&lt;T&gt;</strong></p></td><td><p><strong>Service&lt;T&gt;</strong></p></td></tr><tr><td><p>Reuse</p></td><td><p>Single run only</p></td><td><p>restart() for repeated execution</p></td></tr><tr><td><p>Class style</p></td><td><p>Anonymous inner class</p></td><td><p>Named subclass</p></td></tr><tr><td><p>Best for</p></td><td><p>Load-once on page open</p></td><td><p>Search-as-you-type, polling, refresh</p></td></tr><tr><td><p>Executor</p></td><td><p>new Thread(task).start()</p></td><td><p>Built-in; override setExecutor() to customise</p></td></tr><tr><td><p>State cycle</p></td><td><p>READY → RUNNING → SUCCEEDED/FAILED/CANCELLED</p></td><td><p>Same + returns to READY on restart()</p></td></tr></table><p><strong>Dialogs &amp; File Choosers</strong></p><pre><code>// Information / Warning / Error / Confirmation alert
+Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+alert.setTitle("Unsaved Changes");
+alert.setHeaderText("Save before closing?");
+Optional&lt;ButtonType&gt; result = alert.showAndWait();
+if (result.orElse(ButtonType.CANCEL) == ButtonType.OK) save();
+// Text input dialog
+TextInputDialog dlg = new TextInputDialog("default");
+dlg.setHeaderText("Enter file name:");
+dlg.showAndWait().ifPresent(name -&gt; createFile(name));
+// File chooser
+FileChooser fc = new FileChooser();
+fc.setTitle("Open CSV");
+fc.getExtensionFilters().add(new ExtensionFilter("CSV", "*.csv"));
+File f = fc.showOpenDialog(stage);  // null if cancelled</code></pre>
+<p><strong>Quick Reference — Key Classes by Package</strong></p><table><tr><td><p><strong>Class / Interface</strong></p></td><td><p><strong>Package</strong></p></td><td><p><strong>Purpose</strong></p></td></tr><tr><td><p>Application</p></td><td><p>javafx.application</p></td><td><p>App entry point; override start(Stage)</p></td></tr><tr><td><p>Platform</p></td><td><p>javafx.application</p></td><td><p>runLater(), exit(), isFxApplicationThread()</p></td></tr><tr><td><p>Stage</p></td><td><p>javafx.stage</p></td><td><p>OS window; set scene, title, show/hide</p></td></tr><tr><td><p>Scene</p></td><td><p>javafx.scene</p></td><td><p>Root node + dimensions + stylesheets</p></td></tr><tr><td><p>Node</p></td><td><p>javafx.scene</p></td><td><p>Base for all scene graph objects</p></td></tr><tr><td><p>Parent</p></td><td><p>javafx.scene</p></td><td><p>Base for container nodes (has children list)</p></td></tr><tr><td><p>Region</p></td><td><p>javafx.scene.layout</p></td><td><p>Resizable node with padding/borders</p></td></tr><tr><td><p>Pane</p></td><td><p>javafx.scene.layout</p></td><td><p>Base layout container</p></td></tr><tr><td><p>HBox / VBox</p></td><td><p>javafx.scene.layout</p></td><td><p>Horizontal / vertical linear layout</p></td></tr><tr><td><p>GridPane</p></td><td><p>javafx.scene.layout</p></td><td><p>Row/column grid layout</p></td></tr><tr><td><p>BorderPane</p></td><td><p>javafx.scene.layout</p></td><td><p>5-region (top/bottom/left/right/center) layout</p></td></tr><tr><td><p>StackPane</p></td><td><p>javafx.scene.layout</p></td><td><p>Z-axis stacked layers</p></td></tr><tr><td><p>AnchorPane</p></td><td><p>javafx.scene.layout</p></td><td><p>Pixel-anchor children to edges</p></td></tr><tr><td><p>FXMLLoader</p></td><td><p>javafx.fxml</p></td><td><p>Parses FXML, injects @FXML fields</p></td></tr><tr><td><p>Control</p></td><td><p>javafx.scene.control</p></td><td><p>Base class for all UI controls</p></td></tr><tr><td><p>TableView&lt;T&gt;</p></td><td><p>javafx.scene.control</p></td><td><p>Data grid with sortable columns</p></td></tr><tr><td><p>TableColumn&lt;S,T&gt;</p></td><td><p>javafx.scene.control</p></td><td><p>Column definition for TableView</p></td></tr><tr><td><p>PropertyValueFactory</p></td><td><p>javafx.scene.control.cell</p></td><td><p>Maps column to model property name</p></td></tr><tr><td><p>ListView&lt;T&gt;</p></td><td><p>javafx.scene.control</p></td><td><p>Scrollable list of items</p></td></tr><tr><td><p>TreeView&lt;T&gt;</p></td><td><p>javafx.scene.control</p></td><td><p>Hierarchical tree structure</p></td></tr><tr><td><p>StringProperty</p></td><td><p>javafx.beans.property</p></td><td><p>Observable String value</p></td></tr><tr><td><p>IntegerProperty</p></td><td><p>javafx.beans.property</p></td><td><p>Observable int value</p></td></tr><tr><td><p>DoubleProperty</p></td><td><p>javafx.beans.property</p></td><td><p>Observable double value</p></td></tr><tr><td><p>BooleanProperty</p></td><td><p>javafx.beans.property</p></td><td><p>Observable boolean value</p></td></tr><tr><td><p>ObjectProperty&lt;T&gt;</p></td><td><p>javafx.beans.property</p></td><td><p>Observable object wrapper</p></td></tr><tr><td><p>Bindings</p></td><td><p>javafx.beans.binding</p></td><td><p>Factory for computed/conditional bindings</p></td></tr><tr><td><p>ObservableList&lt;T&gt;</p></td><td><p>javafx.collections</p></td><td><p>List that fires change events</p></td></tr><tr><td><p>FXCollections</p></td><td><p>javafx.collections</p></td><td><p>Factory: observableArrayList(), etc.</p></td></tr><tr><td><p>FilteredList&lt;T&gt;</p></td><td><p>javafx.collections.transformation</p></td><td><p>Live-filtered view of ObservableList</p></td></tr><tr><td><p>SortedList&lt;T&gt;</p></td><td><p>javafx.collections.transformation</p></td><td><p>Live-sorted view of ObservableList</p></td></tr><tr><td><p>Task&lt;T&gt;</p></td><td><p>javafx.concurrent</p></td><td><p>One-shot background operation</p></td></tr><tr><td><p>Service&lt;T&gt;</p></td><td><p>javafx.concurrent</p></td><td><p>Restartable background service</p></td></tr><tr><td><p>Timeline</p></td><td><p>javafx.animation</p></td><td><p>Keyframe-based custom animation</p></td></tr><tr><td><p>FadeTransition</p></td><td><p>javafx.animation</p></td><td><p>Pre-built opacity transition</p></td></tr><tr><td><p>Alert</p></td><td><p>javafx.scene.control</p></td><td><p>Modal dialog (info/warn/error/confirm)</p></td></tr><tr><td><p>FileChooser</p></td><td><p>javafx.stage</p></td><td><p>OS native open/save file dialog</p></td></tr><tr><td><p>Tooltip</p></td><td><p>javafx.scene.control</p></td><td><p>Hover hint attached to any Node</p></td></tr></table><p><strong>Common Pitfalls &amp; Interview Points</strong></p><table><tr><td><p><strong>Topic</strong></p></td><td><p><strong>Key Point</strong></p></td></tr><tr><td><p>UI from wrong thread</p></td><td><p>Any scene graph write off the JavaFX Application Thread throws IllegalStateException at runtime. Wrap with Platform.runLater() or use Task properties.</p></td></tr><tr><td><p>Binding memory leak</p></td><td><p>A bound property holds a strong reference to the binding source. Always unbind() before discarding a node, or use WeakChangeListener.</p></td></tr><tr><td><p>ObservableList mutation</p></td><td><p>TableView / ListView only auto-refresh when items are mutated on the ObservableList (add/set/remove). Mutating a plain List inside it has no effect.</p></td></tr><tr><td><p>PropertyValueFactory matching</p></td><td><p>The String argument (e.g. "name") must match the xProperty() method name prefix exactly (case-sensitive). Mismatch → empty column, no exception.</p></td></tr><tr><td><p>@FXML field injection</p></td><td><p>The @FXML field name must match fx:id exactly. Mismatch leaves the field null; NullPointerException surfaces in initialize().</p></td></tr><tr><td><p>Task.call() thread</p></td><td><p>call() runs on a background thread. Never read or write scene graph nodes inside call(). Use updateMessage() / updateProgress() for safe UI feedback.</p></td></tr><tr><td><p>Module system (Java 9+)</p></td><td><p>Without module-info.java, add VM args: --add-opens javafx.graphics/... or open the controller package to javafx.fxml via module-info.</p></td></tr><tr><td><p>Stage ownership</p></td><td><p>Additional windows: new Stage(); newStage.initOwner(primaryStage) so they minimize/close together with the primary window.</p></td></tr><tr><td><p>TableView placeholder</p></td><td><p>An empty TableView shows 'No content in table'. Override with table.setPlaceholder(new Label("No results")).</p></td></tr><tr><td><p>FXML resources path</p></td><td><p>Use getClass().getResource("/absolute/path.fxml") (leading slash = classpath root). Relative paths break in JARs.</p></td></tr></table>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>
+    document.querySelectorAll('pre code').forEach(function(el){if(!el.className)el.classList.add('language-java');});
+    document.querySelectorAll('pre code').forEach(function(el){ hljs.highlightElement(el); });
+  </script>
+  <script>(function () {
+    var marks = [];
+    var idx = -1;
+
+    function clearMarks() {
+        marks.forEach(function (m) {
+            var p = m.parentNode;
+            if (p) { p.replaceChild(document.createTextNode(m.textContent), m); p.normalize(); }
+        });
+        marks = [];
+        idx = -1;
+    }
+
+    function markText(query) {
+        var results = [];
+        var lower = query.toLowerCase();
+        var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null);
+        var nodes = [];
+        var n;
+        while ((n = walker.nextNode())) {
+            if (n.nodeValue.toLowerCase().includes(lower)) nodes.push(n);
+        }
+        nodes.forEach(function (textNode) {
+            var text  = textNode.nodeValue;
+            var ltext = text.toLowerCase();
+            var par   = textNode.parentNode;
+            if (!par) return;
+            var frag = document.createDocumentFragment();
+            var last = 0, i;
+            while ((i = ltext.indexOf(lower, last)) !== -1) {
+                if (i > last) frag.appendChild(document.createTextNode(text.slice(last, i)));
+                var m = document.createElement('mark');
+                m.className = 'dsm';
+                m.style.cssText = 'background:#ffe066;color:inherit;border-radius:2px;';
+                m.textContent = text.slice(i, i + query.length);
+                frag.appendChild(m);
+                results.push(m);
+                last = i + query.length;
+            }
+            if (last < text.length) frag.appendChild(document.createTextNode(text.slice(last)));
+            par.replaceChild(frag, textNode);
+        });
+        return results;
+    }
+
+    function highlight() {
+        marks.forEach(function (m, i) {
+            m.style.background = i === idx ? '#ff9900' : '#ffe066';
+            m.style.outline    = i === idx ? '2px solid #e65c00' : 'none';
+        });
+        if (marks[idx]) marks[idx].scrollIntoView({ block: 'center' });
+    }
+
+    function reply(src) {
+        src.postMessage({ type: 'searchResult', count: marks.length, current: idx }, '*');
+    }
+
+    window.addEventListener('message', function (e) {
+        var d = e.data;
+        if (!d || !d.type) return;
+        if (d.type === 'search') {
+            clearMarks();
+            if (d.query) {
+                marks = markText(d.query);
+                if (marks.length) idx = 0;
+                highlight();
+            }
+            reply(e.source);
+        } else if (d.type === 'searchNav') {
+            if (!marks.length) return;
+            idx = d.dir === 'next'
+                ? (idx + 1) % marks.length
+                : (idx - 1 + marks.length) % marks.length;
+            highlight();
+            reply(e.source);
+        } else if (d.type === 'searchClear') {
+            clearMarks();
+        }
+    });
+})();</script>
+</body>
+</html>

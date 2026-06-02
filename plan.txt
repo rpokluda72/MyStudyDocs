@@ -28,3 +28,15 @@ Could you fix it ?
 I added new document Angular-sync-async.docx to the Angular folder. In this case transformation to html was not correct. Code part looks like tables. I can see problem in that one only.
 
 Angular_sync_async.html looks better, part code has black background and looks like in IntelliJ, but each code row started on position 1 and not structured by tab.
+
+I added new documents Java/JavaFXbyGeeks, Java/JavaFXbyClaude, Others/ClaudeCodeSkillsByClaude. In this case transformation to html was not correct.
+Code part looks like tables. Make code parts with black background and looks like in IntelliJ. The same issue we solved few days ago. Why you not remember this rule ?
+
+There several parts in document with black background.
+For example parts in Others/ClaudeCodeSkillsByClaude :
+- How Skills Work — Progressive Disclosure
+- Minimal SKILL.md Structure
+- Step-by-Step: Create a Summarize-Changes Skill (three parts transferred to the html table)
+- Invocation Control (Řízení vyvolání) — Key Combinations
+- etc.
+Is it possible to see it like in original document ?

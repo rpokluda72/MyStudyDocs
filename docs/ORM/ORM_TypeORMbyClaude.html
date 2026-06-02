@@ -12,7 +12,285 @@
     <h1 style="margin:0 0 8px;">ORM_TypeORMbyClaude</h1>
     <a href="ORM_TypeORMbyClaude.docx" download style="font-size:13px;color:#555;text-decoration:none;border:1px solid #ccc;border-radius:4px;padding:3px 9px;background:#f5f5f5;" title="Download original .docx">&#8681; .docx</a>
   </div>
-  <p><strong>TypeORM</strong></p><p>MySQL Tutorial — Blog System</p><p>2026-05-21</p><p><strong>1. Introduction</strong></p><p>TypeORM (2016) is a TypeScript-first ORM that uses ES6/ES7 decorator metadata to map classes to database tables. It supports both Active Record and Data Mapper patterns and integrates tightly with TypeScript's type system, making it the go-to ORM for NestJS projects.</p><p><strong>Key Concepts</strong></p><ul><li>Entity — a class decorated with @Entity() that maps to a database table.</li><li>DataSource — the connection config object; the entry point to all DB operations (v0.3+).</li><li>Repository&lt;T&gt; — obtained via dataSource.getRepository(Entity); provides CRUD + query methods.</li><li>QueryBuilder — fluent API for building complex SQL with full TypeScript support.</li><li>Decorators — @Column, @PrimaryGeneratedColumn, @OneToMany, @ManyToMany, etc.</li></ul><p><strong>When to Use</strong></p><ul><li>TypeScript projects, especially NestJS apps, needing decorator-based DI and strong typing.</li><li>Teams who prefer writing domain classes that mirror the database schema.</li><li>Projects that need both Active Record convenience and Data Mapper testability.</li></ul><p><strong>When NOT to Use</strong></p><ul><li>JavaScript-only projects (Sequelize has much wider JS community support).</li><li>Projects where adding reflect-metadata and tsconfig decorator flags is not acceptable.</li></ul><p><strong>Library Info</strong></p><table><tr><td><p><strong>Website</strong></p></td><td><p><a href="https://typeorm.io" target="_blank" rel="noopener noreferrer">https://typeorm.io</a></p></td></tr><tr><td><p><strong>Version</strong></p></td><td><p>v0.3.x (latest)</p></td></tr><tr><td><p><strong>Language</strong></p></td><td><p>TypeScript (primary)</p></td></tr><tr><td><p><strong>Pattern</strong></p></td><td><p>Active Record + Data Mapper</p></td></tr><tr><td><p><strong>DB Support</strong></p></td><td><p>MySQL, PostgreSQL, SQLite, MariaDB, MSSQL, Oracle, MongoDB</p></td></tr><tr><td><p><strong>License</strong></p></td><td><p>MIT</p></td></tr><tr><td><p><strong>GitHub Stars</strong></p></td><td><p>~34 000</p></td></tr></table><p><strong>2. Installation &amp; Setup</strong></p><p><strong>Install Packages</strong></p><table><tr><td><p>npm install typeorm mysql2 reflect-metadata</p></td></tr></table><p><strong>tsconfig.json</strong></p><p>TypeORM requires experimental decorator support. Add these compiler options:</p><table><tr><td><p>{</p><p>  "compilerOptions": {</p><p>    "target":                  "ES2020",</p><p>    "module":                  "commonjs",</p><p>    "experimentalDecorators":  true,</p><p>    "emitDecoratorMetadata":   true,</p><p>    "strict":                  true</p><p>  }</p><p>}</p></td></tr></table><p><strong>Entry Point — import reflect-metadata first</strong></p><p>reflect-metadata must be the very first import in your application entry file:</p><table><tr><td><p>// index.ts</p><p>import 'reflect-metadata';          // MUST be first</p><p>import { AppDataSource } from './data-source';</p><p>AppDataSource.initialize()</p><p>  .then(() =&gt; console.log('DB connected'))</p><p>  .catch(console.error);</p></td></tr></table><p><strong>DataSource Configuration</strong></p><table><tr><td><p>// data-source.ts</p><p>import { DataSource } from 'typeorm';</p><p>import { User }    from './entity/User';</p><p>import { Post }    from './entity/Post';</p><p>import { Comment } from './entity/Comment';</p><p>import { Tag }     from './entity/Tag';</p><p>export const AppDataSource = new DataSource({</p><p>  type:        'mysql',</p><p>  host:        'localhost',</p><p>  port:        3306,</p><p>  username:    'root',</p><p>  password:    'secret',</p><p>  database:    'blog_db',</p><p>  charset:     'utf8mb4',</p><p>  entities:    [User, Post, Comment, Tag],</p><p>  migrations:  ['src/migration/*.ts'],</p><p>  synchronize: false,  // never true in production</p><p>  logging:     false,</p><p>});</p></td></tr></table><p><strong>3. Schema Definition</strong></p><p>Each entity is a TypeScript class decorated with @Entity(). Relationships are declared directly on the entity using @OneToMany / @ManyToOne / @ManyToMany.</p><p><strong>User Entity</strong></p><table><tr><td><p>// entity/User.ts</p><p>import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, OneToMany } from 'typeorm';</p><p>import { Post }    from './Post';</p><p>import { Comment } from './Comment';</p><p>@Entity('users')</p><p>export class User {</p><p>  @PrimaryGeneratedColumn({ unsigned: true })</p><p>  id: number;</p><p>  @Column({ length: 50, unique: true })</p><p>  username: string;</p><p>  @Column({ length: 255, unique: true })</p><p>  email: string;</p><p>  @Column({ length: 255 })</p><p>  passwordHash: string;</p><p>  @CreateDateColumn()</p><p>  createdAt: Date;</p><p>  @OneToMany(() =&gt; Post,    post    =&gt; post.author)</p><p>  posts: Post[];</p><p>  @OneToMany(() =&gt; Comment, comment =&gt; comment.author)</p><p>  comments: Comment[];</p><p>}</p></td></tr></table><p><strong>Post Entity</strong></p><table><tr><td><p>// entity/Post.ts</p><p>import {</p><p>  Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn,</p><p>  ManyToOne, OneToMany, ManyToMany, JoinTable,</p><p>} from 'typeorm';</p><p>import { User }    from './User';</p><p>import { Comment } from './Comment';</p><p>import { Tag }     from './Tag';</p><p>@Entity('posts')</p><p>export class Post {</p><p>  @PrimaryGeneratedColumn({ unsigned: true })</p><p>  id: number;</p><p>  @Column({ length: 255 })</p><p>  title: string;</p><p>  @Column({ type: 'text' })</p><p>  content: string;</p><p>  @Column({ type: 'enum', enum: ['draft', 'published'], default: 'draft' })</p><p>  status: 'draft' | 'published';</p><p>  @ManyToOne(() =&gt; User, user =&gt; user.posts)</p><p>  author: User;</p><p>  @OneToMany(() =&gt; Comment, comment =&gt; comment.post)</p><p>  comments: Comment[];</p><p>  // TypeORM auto-creates the post_tags junction table from @JoinTable</p><p>  @ManyToMany(() =&gt; Tag, tag =&gt; tag.posts)</p><p>  @JoinTable({ name: 'post_tags' })</p><p>  tags: Tag[];</p><p>  @CreateDateColumn() createdAt: Date;</p><p>  @UpdateDateColumn() updatedAt: Date;</p><p>}</p></td></tr></table><p><strong>Comment Entity</strong></p><table><tr><td><p>// entity/Comment.ts</p><p>import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, ManyToOne } from 'typeorm';</p><p>import { Post } from './Post';</p><p>import { User } from './User';</p><p>@Entity('comments')</p><p>export class Comment {</p><p>  @PrimaryGeneratedColumn({ unsigned: true })</p><p>  id: number;</p><p>  @Column({ type: 'text' })</p><p>  content: string;</p><p>  @ManyToOne(() =&gt; Post, post =&gt; post.comments)</p><p>  post: Post;</p><p>  @ManyToOne(() =&gt; User, user =&gt; user.comments)</p><p>  author: User;</p><p>  @CreateDateColumn()</p><p>  createdAt: Date;</p><p>}</p></td></tr></table><p><strong>Tag Entity</strong></p><table><tr><td><p>// entity/Tag.ts</p><p>import { Entity, PrimaryGeneratedColumn, Column, ManyToMany } from 'typeorm';</p><p>import { Post } from './Post';</p><p>@Entity('tags')</p><p>export class Tag {</p><p>  @PrimaryGeneratedColumn({ unsigned: true })</p><p>  id: number;</p><p>  @Column({ length: 100, unique: true })</p><p>  name: string;</p><p>  @ManyToMany(() =&gt; Post, post =&gt; post.tags)</p><p>  posts: Post[];</p><p>}</p></td></tr></table><p><strong>ER Diagram</strong></p><table><tr><td><p>  ┌──────────────────┐     ┌────────────────────────┐     ┌──────────────────┐</p><p>  │      users       │     │         posts          │     │     comments     │</p><p>  ├──────────────────┤     ├────────────────────────┤     ├──────────────────┤</p><p>  │ id (PK)          │◄────│ authorId (FK)          │◄────│ postId (FK)      │</p><p>  │ username UNIQUE  │     │ id (PK)                │     │ authorId (FK)──► │</p><p>  │ email UNIQUE     │     │ title                  │     │ id (PK)          │</p><p>  │ passwordHash     │     │ content                │     │ content          │</p><p>  │ createdAt        │     │ status ENUM            │     │ createdAt        │</p><p>  └──────────────────┘     │ createdAt / updatedAt  │     └──────────────────┘</p><p>                           └────────────────────────┘</p><p>                                       │</p><p>                          N:M via post_tags junction</p><p>                                       │</p><p>                                       ▼</p><p>                           ┌──────────────────┐</p><p>                           │       tags       │</p><p>                           ├──────────────────┤</p><p>                           │ id (PK)          │</p><p>                           │ name UNIQUE      │</p><p>                           └──────────────────┘</p></td></tr></table><p><em>Blog System — Entity Relationship Diagram</em></p><p><strong>4. CRUD Operations</strong></p><p>Get a typed repository via AppDataSource.getRepository(Entity):</p><table><tr><td><p>const postRepo = AppDataSource.getRepository(Post);</p></td></tr></table><p><strong>Create</strong></p><table><tr><td><p>const post = postRepo.create({</p><p>  title:   'Getting Started with TypeORM',</p><p>  content: 'TypeORM uses TypeScript decorators...',</p><p>  status:  'draft',</p><p>  author:  { id: 1 },  // reference by ID — no need to load the full User</p><p>});</p><p>await postRepo.save(post);</p><p>console.log(post.id);  // populated after save()</p></td></tr></table><p><strong>Find by Primary Key</strong></p><table><tr><td><p>const post = await postRepo.findOneBy({ id: 42 });</p><p>if (!post) throw new Error('Post not found');</p></td></tr></table><p><strong>Find All</strong></p><table><tr><td><p>const posts = await postRepo.find({</p><p>  where: { status: 'published' },</p><p>  order: { createdAt: 'DESC' },</p><p>});</p></td></tr></table><p><strong>Update</strong></p><table><tr><td><p>// Update via save()</p><p>post.title = 'Updated Title';</p><p>await postRepo.save(post);</p><p>// Partial update — no need to load the entity first</p><p>await postRepo.update({ author: { id: 1 } }, { status: 'published' });</p></td></tr></table><p><strong>Delete</strong></p><table><tr><td><p>await postRepo.delete(42);                    // by PK</p><p>await postRepo.delete({ status: 'draft' });   // by criteria</p></td></tr></table><p><strong>5. Querying</strong></p><p><strong>WHERE with Multiple Conditions</strong></p><table><tr><td><p>const posts = await postRepo.find({</p><p>  where: {</p><p>    author: { id: 5 },</p><p>    status: 'published',</p><p>  },</p><p>  order: { createdAt: 'DESC' },</p><p>});</p></td></tr></table><p><strong>Pagination</strong></p><table><tr><td><p>const PAGE     = 2;</p><p>const PER_PAGE = 10;</p><p>const [posts, total] = await postRepo.findAndCount({</p><p>  where: { status: 'published' },</p><p>  order: { createdAt: 'DESC' },</p><p>  take:  PER_PAGE,</p><p>  skip:  (PAGE - 1) * PER_PAGE,</p><p>});</p><p>console.log(`Page ${PAGE} of ${Math.ceil(total / PER_PAGE)}`);</p></td></tr></table><p><strong>Select Specific Fields</strong></p><table><tr><td><p>const posts = await postRepo.find({</p><p>  select: { title: true, createdAt: true },</p><p>  where:  { status: 'published' },</p><p>});</p></td></tr></table><p><strong>LIKE Search with QueryBuilder</strong></p><table><tr><td><p>const posts = await postRepo</p><p>  .createQueryBuilder('post')</p><p>  .where('post.title LIKE :kw', { kw: '%typeorm%' })</p><p>  .orderBy('post.createdAt', 'DESC')</p><p>  .getMany();</p></td></tr></table><p><strong>6. Associations</strong></p><p><strong>Load Posts with Author (1:N)</strong></p><table><tr><td><p>const posts = await postRepo.find({</p><p>  relations: { author: true },</p><p>  where:     { status: 'published' },</p><p>});</p><p>posts.forEach(p =&gt; console.log(p.title, p.author.username));</p></td></tr></table><p><strong>Nested Create — Post with First Comment</strong></p><table><tr><td><p>const post = postRepo.create({</p><p>  title:    'New Post',</p><p>  content:  'Content here...',</p><p>  status:   'draft',</p><p>  author:   { id: 1 },</p><p>  comments: [{ content: 'First comment!', author: { id: 2 } }],</p><p>});</p><p>await postRepo.save(post);</p></td></tr></table><p><strong>Many-to-Many — Post with Tags</strong></p><table><tr><td><p>const post = await postRepo.findOne({</p><p>  where:     { id: 1 },</p><p>  relations: { tags: true },</p><p>});</p><p>post?.tags.forEach(t =&gt; console.log(t.name));</p></td></tr></table><p><strong>7. Migrations</strong></p><p><strong>CLI Commands</strong></p><table><tr><td><p># Generate migration from entity changes</p><p>npx typeorm migration:generate src/migration/CreateBlogTables -d src/data-source.ts</p><p># Run all pending migrations</p><p>npx typeorm migration:run -d src/data-source.ts</p><p># Revert the last migration</p><p>npx typeorm migration:revert -d src/data-source.ts</p><p># Show migration status</p><p>npx typeorm migration:show -d src/data-source.ts</p></td></tr></table><p><strong>Sample Migration File</strong></p><table><tr><td><p>// src/migration/1704067200000-CreateUsers.ts</p><p>import { MigrationInterface, QueryRunner, Table } from 'typeorm';</p><p>export class CreateUsers1704067200000 implements MigrationInterface {</p><p>  async up(queryRunner: QueryRunner): Promise&lt;void&gt; {</p><p>    await queryRunner.createTable(new Table({</p><p>      name: 'users',</p><p>      columns: [</p><p>        { name: 'id',           type: 'int unsigned', isPrimary: true, isGenerated: true },</p><p>        { name: 'username',     type: 'varchar(50)',  isUnique: true,  isNullable: false },</p><p>        { name: 'email',        type: 'varchar(255)', isUnique: true,  isNullable: false },</p><p>        { name: 'passwordHash', type: 'varchar(255)',                  isNullable: false },</p><p>        { name: 'createdAt',    type: 'datetime',     default: 'CURRENT_TIMESTAMP' },</p><p>      ],</p><p>    }));</p><p>  }</p><p>  async down(queryRunner: QueryRunner): Promise&lt;void&gt; {</p><p>    await queryRunner.dropTable('users');</p><p>  }</p><p>}</p></td></tr></table><p><strong>8. Transactions</strong></p><p>TypeORM offers two transaction patterns. The QueryRunner approach (try/catch/finally) is the most explicit; the shorthand dataSource.transaction() is more concise:</p><p><strong>QueryRunner Pattern</strong></p><table><tr><td><p>const qr = AppDataSource.createQueryRunner();</p><p>await qr.connect();</p><p>await qr.startTransaction();</p><p>try {</p><p>  const post = qr.manager.create(Post, {</p><p>    title:   'Atomic Post',</p><p>    content: 'Inside a transaction.',</p><p>    status:  'draft',</p><p>    author:  { id: 1 },</p><p>  });</p><p>  await qr.manager.save(post);</p><p>  const comment = qr.manager.create(Comment, {</p><p>    content: 'First comment.',</p><p>    post:    { id: post.id },</p><p>    author:  { id: 2 },</p><p>  });</p><p>  await qr.manager.save(comment);</p><p>  await qr.commitTransaction();</p><p>} catch (err) {</p><p>  await qr.rollbackTransaction();</p><p>  throw err;</p><p>} finally {</p><p>  await qr.release();</p><p>}</p></td></tr></table><p><strong>Shorthand — dataSource.transaction()</strong></p><table><tr><td><p>await AppDataSource.transaction(async (manager) =&gt; {</p><p>  const post = manager.create(Post, {</p><p>    title: 'Tx Post', content: '...', status: 'draft', author: { id: 1 },</p><p>  });</p><p>  await manager.save(post);</p><p>  await manager.save(Comment, {</p><p>    content: 'Comment.', post: { id: post.id }, author: { id: 2 },</p><p>  });</p><p>});</p></td></tr></table><p><strong>9. Raw / Advanced Queries</strong></p><p>Top 5 authors by published post count:</p><p><strong>QueryBuilder with GROUP BY</strong></p><table><tr><td><p>const results = await AppDataSource</p><p>  .createQueryBuilder(User, 'user')</p><p>  .innerJoin('user.posts', 'post', 'post.status = :s', { s: 'published' })</p><p>  .select(['user.id', 'user.username', 'user.email'])</p><p>  .addSelect('COUNT(post.id)', 'postCount')</p><p>  .groupBy('user.id')</p><p>  .orderBy('postCount', 'DESC')</p><p>  .limit(5)</p><p>  .getRawMany&lt;{ user_id: number; user_username: string; postCount: string }&gt;();</p><p>results.forEach(r =&gt; console.log(r.user_username, r.postCount));</p></td></tr></table><p><strong>Raw SQL via QueryRunner</strong></p><table><tr><td><p>const qr   = AppDataSource.createQueryRunner();</p><p>await qr.connect();</p><p>const rows = await qr.query(</p><p>  `SELECT u.username, COUNT(p.id) AS postCount</p><p>     FROM users u</p><p>     JOIN posts p ON p.authorId = u.id AND p.status = 'published'</p><p>    GROUP BY u.id ORDER BY postCount DESC LIMIT 5`</p><p>);</p><p>await qr.release();</p></td></tr></table><p><strong>10. Quick Reference</strong></p><table><tr><td><p><strong>Operation</strong></p></td><td><p><strong>API / Method</strong></p></td></tr><tr><td><p><strong>Install</strong></p></td><td><p>npm install typeorm mysql2 reflect-metadata</p></td></tr><tr><td><p><strong>DataSource</strong></p></td><td><p>new DataSource({ type: 'mysql', entities: [...] })</p></td></tr><tr><td><p><strong>Connect</strong></p></td><td><p>AppDataSource.initialize()</p></td></tr><tr><td><p><strong>Get repository</strong></p></td><td><p>AppDataSource.getRepository(Entity)</p></td></tr><tr><td><p><strong>Build entity</strong></p></td><td><p>repo.create({ fields })</p></td></tr><tr><td><p><strong>Save</strong></p></td><td><p>await repo.save(entity)</p></td></tr><tr><td><p><strong>Find by PK</strong></p></td><td><p>repo.findOneBy({ id })</p></td></tr><tr><td><p><strong>Find all</strong></p></td><td><p>repo.find({ where, order, take, skip })</p></td></tr><tr><td><p><strong>Find + count</strong></p></td><td><p>repo.findAndCount({ where, take, skip })</p></td></tr><tr><td><p><strong>Update (bulk)</strong></p></td><td><p>repo.update(criteria, partialEntity)</p></td></tr><tr><td><p><strong>Delete</strong></p></td><td><p>repo.delete(id | criteria)</p></td></tr><tr><td><p><strong>Eager relations</strong></p></td><td><p>repo.find({ relations: { author: true } })</p></td></tr><tr><td><p><strong>QueryBuilder</strong></p></td><td><p>repo.createQueryBuilder('alias').where(...).getMany()</p></td></tr><tr><td><p><strong>Transaction (QR)</strong></p></td><td><p>qr.startTransaction() → commit / rollback → release</p></td></tr><tr><td><p><strong>Transaction (fn)</strong></p></td><td><p>AppDataSource.transaction(async manager =&gt; {...})</p></td></tr><tr><td><p><strong>Raw query</strong></p></td><td><p>qr.query(sql, params)</p></td></tr><tr><td><p><strong>Migration generate</strong></p></td><td><p>npx typeorm migration:generate -d data-source.ts</p></td></tr><tr><td><p><strong>Migration run</strong></p></td><td><p>npx typeorm migration:run -d data-source.ts</p></td></tr></table>
+  <p><strong>TypeORM</strong></p><p>MySQL Tutorial — Blog System</p><p>2026-05-21</p><p><strong>1. Introduction</strong></p><p>TypeORM (2016) is a TypeScript-first ORM that uses ES6/ES7 decorator metadata to map classes to database tables. It supports both Active Record and Data Mapper patterns and integrates tightly with TypeScript's type system, making it the go-to ORM for NestJS projects.</p><p><strong>Key Concepts</strong></p><ul><li>Entity — a class decorated with @Entity() that maps to a database table.</li><li>DataSource — the connection config object; the entry point to all DB operations (v0.3+).</li><li>Repository&lt;T&gt; — obtained via dataSource.getRepository(Entity); provides CRUD + query methods.</li><li>QueryBuilder — fluent API for building complex SQL with full TypeScript support.</li><li>Decorators — @Column, @PrimaryGeneratedColumn, @OneToMany, @ManyToMany, etc.</li></ul><p><strong>When to Use</strong></p><ul><li>TypeScript projects, especially NestJS apps, needing decorator-based DI and strong typing.</li><li>Teams who prefer writing domain classes that mirror the database schema.</li><li>Projects that need both Active Record convenience and Data Mapper testability.</li></ul><p><strong>When NOT to Use</strong></p><ul><li>JavaScript-only projects (Sequelize has much wider JS community support).</li><li>Projects where adding reflect-metadata and tsconfig decorator flags is not acceptable.</li></ul><p><strong>Library Info</strong></p><table><tr><td><p><strong>Website</strong></p></td><td><p><a href="https://typeorm.io" target="_blank" rel="noopener noreferrer">https://typeorm.io</a></p></td></tr><tr><td><p><strong>Version</strong></p></td><td><p>v0.3.x (latest)</p></td></tr><tr><td><p><strong>Language</strong></p></td><td><p>TypeScript (primary)</p></td></tr><tr><td><p><strong>Pattern</strong></p></td><td><p>Active Record + Data Mapper</p></td></tr><tr><td><p><strong>DB Support</strong></p></td><td><p>MySQL, PostgreSQL, SQLite, MariaDB, MSSQL, Oracle, MongoDB</p></td></tr><tr><td><p><strong>License</strong></p></td><td><p>MIT</p></td></tr><tr><td><p><strong>GitHub Stars</strong></p></td><td><p>~34 000</p></td></tr></table><p><strong>2. Installation &amp; Setup</strong></p><p><strong>Install Packages</strong></p><pre><code>npm install typeorm mysql2 reflect-metadata</code></pre>
+<p><strong>tsconfig.json</strong></p><p>TypeORM requires experimental decorator support. Add these compiler options:</p><pre><code>{
+  "compilerOptions": {
+    "target":                  "ES2020",
+    "module":                  "commonjs",
+    "experimentalDecorators":  true,
+    "emitDecoratorMetadata":   true,
+    "strict":                  true
+  }
+}</code></pre>
+<p><strong>Entry Point — import reflect-metadata first</strong></p><p>reflect-metadata must be the very first import in your application entry file:</p><pre><code>// index.ts
+import 'reflect-metadata';          // MUST be first
+import { AppDataSource } from './data-source';
+AppDataSource.initialize()
+  .then(() =&gt; console.log('DB connected'))
+  .catch(console.error);</code></pre>
+<p><strong>DataSource Configuration</strong></p><pre><code>// data-source.ts
+import { DataSource } from 'typeorm';
+import { User }    from './entity/User';
+import { Post }    from './entity/Post';
+import { Comment } from './entity/Comment';
+import { Tag }     from './entity/Tag';
+export const AppDataSource = new DataSource({
+  type:        'mysql',
+  host:        'localhost',
+  port:        3306,
+  username:    'root',
+  password:    'secret',
+  database:    'blog_db',
+  charset:     'utf8mb4',
+  entities:    [User, Post, Comment, Tag],
+  migrations:  ['src/migration/*.ts'],
+  synchronize: false,  // never true in production
+  logging:     false,
+});</code></pre>
+<p><strong>3. Schema Definition</strong></p><p>Each entity is a TypeScript class decorated with @Entity(). Relationships are declared directly on the entity using @OneToMany / @ManyToOne / @ManyToMany.</p><p><strong>User Entity</strong></p><pre><code>// entity/User.ts
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, OneToMany } from 'typeorm';
+import { Post }    from './Post';
+import { Comment } from './Comment';
+@Entity('users')
+export class User {
+  @PrimaryGeneratedColumn({ unsigned: true })
+  id: number;
+  @Column({ length: 50, unique: true })
+  username: string;
+  @Column({ length: 255, unique: true })
+  email: string;
+  @Column({ length: 255 })
+  passwordHash: string;
+  @CreateDateColumn()
+  createdAt: Date;
+  @OneToMany(() =&gt; Post,    post    =&gt; post.author)
+  posts: Post[];
+  @OneToMany(() =&gt; Comment, comment =&gt; comment.author)
+  comments: Comment[];
+}</code></pre>
+<p><strong>Post Entity</strong></p><pre><code>// entity/Post.ts
+import {
+  Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn,
+  ManyToOne, OneToMany, ManyToMany, JoinTable,
+} from 'typeorm';
+import { User }    from './User';
+import { Comment } from './Comment';
+import { Tag }     from './Tag';
+@Entity('posts')
+export class Post {
+  @PrimaryGeneratedColumn({ unsigned: true })
+  id: number;
+  @Column({ length: 255 })
+  title: string;
+  @Column({ type: 'text' })
+  content: string;
+  @Column({ type: 'enum', enum: ['draft', 'published'], default: 'draft' })
+  status: 'draft' | 'published';
+  @ManyToOne(() =&gt; User, user =&gt; user.posts)
+  author: User;
+  @OneToMany(() =&gt; Comment, comment =&gt; comment.post)
+  comments: Comment[];
+  // TypeORM auto-creates the post_tags junction table from @JoinTable
+  @ManyToMany(() =&gt; Tag, tag =&gt; tag.posts)
+  @JoinTable({ name: 'post_tags' })
+  tags: Tag[];
+  @CreateDateColumn() createdAt: Date;
+  @UpdateDateColumn() updatedAt: Date;
+}</code></pre>
+<p><strong>Comment Entity</strong></p><pre><code>// entity/Comment.ts
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, ManyToOne } from 'typeorm';
+import { Post } from './Post';
+import { User } from './User';
+@Entity('comments')
+export class Comment {
+  @PrimaryGeneratedColumn({ unsigned: true })
+  id: number;
+  @Column({ type: 'text' })
+  content: string;
+  @ManyToOne(() =&gt; Post, post =&gt; post.comments)
+  post: Post;
+  @ManyToOne(() =&gt; User, user =&gt; user.comments)
+  author: User;
+  @CreateDateColumn()
+  createdAt: Date;
+}</code></pre>
+<p><strong>Tag Entity</strong></p><pre><code>// entity/Tag.ts
+import { Entity, PrimaryGeneratedColumn, Column, ManyToMany } from 'typeorm';
+import { Post } from './Post';
+@Entity('tags')
+export class Tag {
+  @PrimaryGeneratedColumn({ unsigned: true })
+  id: number;
+  @Column({ length: 100, unique: true })
+  name: string;
+  @ManyToMany(() =&gt; Post, post =&gt; post.tags)
+  posts: Post[];
+}</code></pre>
+<p><strong>ER Diagram</strong></p><pre><code>  ┌──────────────────┐     ┌────────────────────────┐     ┌──────────────────┐
+  │      users       │     │         posts          │     │     comments     │
+  ├──────────────────┤     ├────────────────────────┤     ├──────────────────┤
+  │ id (PK)          │◄────│ authorId (FK)          │◄────│ postId (FK)      │
+  │ username UNIQUE  │     │ id (PK)                │     │ authorId (FK)──► │
+  │ email UNIQUE     │     │ title                  │     │ id (PK)          │
+  │ passwordHash     │     │ content                │     │ content          │
+  │ createdAt        │     │ status ENUM            │     │ createdAt        │
+  └──────────────────┘     │ createdAt / updatedAt  │     └──────────────────┘
+                           └────────────────────────┘
+                                       │
+                          N:M via post_tags junction
+                                       │
+                                       ▼
+                           ┌──────────────────┐
+                           │       tags       │
+                           ├──────────────────┤
+                           │ id (PK)          │
+                           │ name UNIQUE      │
+                           └──────────────────┘</code></pre>
+<p><em>Blog System — Entity Relationship Diagram</em></p><p><strong>4. CRUD Operations</strong></p><p>Get a typed repository via AppDataSource.getRepository(Entity):</p><pre><code>const postRepo = AppDataSource.getRepository(Post);</code></pre>
+<p><strong>Create</strong></p><pre><code>const post = postRepo.create({
+  title:   'Getting Started with TypeORM',
+  content: 'TypeORM uses TypeScript decorators...',
+  status:  'draft',
+  author:  { id: 1 },  // reference by ID — no need to load the full User
+});
+await postRepo.save(post);
+console.log(post.id);  // populated after save()</code></pre>
+<p><strong>Find by Primary Key</strong></p><pre><code>const post = await postRepo.findOneBy({ id: 42 });
+if (!post) throw new Error('Post not found');</code></pre>
+<p><strong>Find All</strong></p><pre><code>const posts = await postRepo.find({
+  where: { status: 'published' },
+  order: { createdAt: 'DESC' },
+});</code></pre>
+<p><strong>Update</strong></p><pre><code>// Update via save()
+post.title = 'Updated Title';
+await postRepo.save(post);
+// Partial update — no need to load the entity first
+await postRepo.update({ author: { id: 1 } }, { status: 'published' });</code></pre>
+<p><strong>Delete</strong></p><pre><code>await postRepo.delete(42);                    // by PK
+await postRepo.delete({ status: 'draft' });   // by criteria</code></pre>
+<p><strong>5. Querying</strong></p><p><strong>WHERE with Multiple Conditions</strong></p><pre><code>const posts = await postRepo.find({
+  where: {
+    author: { id: 5 },
+    status: 'published',
+  },
+  order: { createdAt: 'DESC' },
+});</code></pre>
+<p><strong>Pagination</strong></p><pre><code>const PAGE     = 2;
+const PER_PAGE = 10;
+const [posts, total] = await postRepo.findAndCount({
+  where: { status: 'published' },
+  order: { createdAt: 'DESC' },
+  take:  PER_PAGE,
+  skip:  (PAGE - 1) * PER_PAGE,
+});
+console.log(`Page ${PAGE} of ${Math.ceil(total / PER_PAGE)}`);</code></pre>
+<p><strong>Select Specific Fields</strong></p><pre><code>const posts = await postRepo.find({
+  select: { title: true, createdAt: true },
+  where:  { status: 'published' },
+});</code></pre>
+<p><strong>LIKE Search with QueryBuilder</strong></p><pre><code>const posts = await postRepo
+  .createQueryBuilder('post')
+  .where('post.title LIKE :kw', { kw: '%typeorm%' })
+  .orderBy('post.createdAt', 'DESC')
+  .getMany();</code></pre>
+<p><strong>6. Associations</strong></p><p><strong>Load Posts with Author (1:N)</strong></p><pre><code>const posts = await postRepo.find({
+  relations: { author: true },
+  where:     { status: 'published' },
+});
+posts.forEach(p =&gt; console.log(p.title, p.author.username));</code></pre>
+<p><strong>Nested Create — Post with First Comment</strong></p><pre><code>const post = postRepo.create({
+  title:    'New Post',
+  content:  'Content here...',
+  status:   'draft',
+  author:   { id: 1 },
+  comments: [{ content: 'First comment!', author: { id: 2 } }],
+});
+await postRepo.save(post);</code></pre>
+<p><strong>Many-to-Many — Post with Tags</strong></p><pre><code>const post = await postRepo.findOne({
+  where:     { id: 1 },
+  relations: { tags: true },
+});
+post?.tags.forEach(t =&gt; console.log(t.name));</code></pre>
+<p><strong>7. Migrations</strong></p><p><strong>CLI Commands</strong></p><pre><code># Generate migration from entity changes
+npx typeorm migration:generate src/migration/CreateBlogTables -d src/data-source.ts
+# Run all pending migrations
+npx typeorm migration:run -d src/data-source.ts
+# Revert the last migration
+npx typeorm migration:revert -d src/data-source.ts
+# Show migration status
+npx typeorm migration:show -d src/data-source.ts</code></pre>
+<p><strong>Sample Migration File</strong></p><pre><code>// src/migration/1704067200000-CreateUsers.ts
+import { MigrationInterface, QueryRunner, Table } from 'typeorm';
+export class CreateUsers1704067200000 implements MigrationInterface {
+  async up(queryRunner: QueryRunner): Promise&lt;void&gt; {
+    await queryRunner.createTable(new Table({
+      name: 'users',
+      columns: [
+        { name: 'id',           type: 'int unsigned', isPrimary: true, isGenerated: true },
+        { name: 'username',     type: 'varchar(50)',  isUnique: true,  isNullable: false },
+        { name: 'email',        type: 'varchar(255)', isUnique: true,  isNullable: false },
+        { name: 'passwordHash', type: 'varchar(255)',                  isNullable: false },
+        { name: 'createdAt',    type: 'datetime',     default: 'CURRENT_TIMESTAMP' },
+      ],
+    }));
+  }
+  async down(queryRunner: QueryRunner): Promise&lt;void&gt; {
+    await queryRunner.dropTable('users');
+  }
+}</code></pre>
+<p><strong>8. Transactions</strong></p><p>TypeORM offers two transaction patterns. The QueryRunner approach (try/catch/finally) is the most explicit; the shorthand dataSource.transaction() is more concise:</p><p><strong>QueryRunner Pattern</strong></p><pre><code>const qr = AppDataSource.createQueryRunner();
+await qr.connect();
+await qr.startTransaction();
+try {
+  const post = qr.manager.create(Post, {
+    title:   'Atomic Post',
+    content: 'Inside a transaction.',
+    status:  'draft',
+    author:  { id: 1 },
+  });
+  await qr.manager.save(post);
+  const comment = qr.manager.create(Comment, {
+    content: 'First comment.',
+    post:    { id: post.id },
+    author:  { id: 2 },
+  });
+  await qr.manager.save(comment);
+  await qr.commitTransaction();
+} catch (err) {
+  await qr.rollbackTransaction();
+  throw err;
+} finally {
+  await qr.release();
+}</code></pre>
+<p><strong>Shorthand — dataSource.transaction()</strong></p><pre><code>await AppDataSource.transaction(async (manager) =&gt; {
+  const post = manager.create(Post, {
+    title: 'Tx Post', content: '...', status: 'draft', author: { id: 1 },
+  });
+  await manager.save(post);
+  await manager.save(Comment, {
+    content: 'Comment.', post: { id: post.id }, author: { id: 2 },
+  });
+});</code></pre>
+<p><strong>9. Raw / Advanced Queries</strong></p><p>Top 5 authors by published post count:</p><p><strong>QueryBuilder with GROUP BY</strong></p><pre><code>const results = await AppDataSource
+  .createQueryBuilder(User, 'user')
+  .innerJoin('user.posts', 'post', 'post.status = :s', { s: 'published' })
+  .select(['user.id', 'user.username', 'user.email'])
+  .addSelect('COUNT(post.id)', 'postCount')
+  .groupBy('user.id')
+  .orderBy('postCount', 'DESC')
+  .limit(5)
+  .getRawMany&lt;{ user_id: number; user_username: string; postCount: string }&gt;();
+results.forEach(r =&gt; console.log(r.user_username, r.postCount));</code></pre>
+<p><strong>Raw SQL via QueryRunner</strong></p><pre><code>const qr   = AppDataSource.createQueryRunner();
+await qr.connect();
+const rows = await qr.query(
+  `SELECT u.username, COUNT(p.id) AS postCount
+     FROM users u
+     JOIN posts p ON p.authorId = u.id AND p.status = 'published'
+    GROUP BY u.id ORDER BY postCount DESC LIMIT 5`
+);
+await qr.release();</code></pre>
+<p><strong>10. Quick Reference</strong></p><table><tr><td><p><strong>Operation</strong></p></td><td><p><strong>API / Method</strong></p></td></tr><tr><td><p><strong>Install</strong></p></td><td><p>npm install typeorm mysql2 reflect-metadata</p></td></tr><tr><td><p><strong>DataSource</strong></p></td><td><p>new DataSource({ type: 'mysql', entities: [...] })</p></td></tr><tr><td><p><strong>Connect</strong></p></td><td><p>AppDataSource.initialize()</p></td></tr><tr><td><p><strong>Get repository</strong></p></td><td><p>AppDataSource.getRepository(Entity)</p></td></tr><tr><td><p><strong>Build entity</strong></p></td><td><p>repo.create({ fields })</p></td></tr><tr><td><p><strong>Save</strong></p></td><td><p>await repo.save(entity)</p></td></tr><tr><td><p><strong>Find by PK</strong></p></td><td><p>repo.findOneBy({ id })</p></td></tr><tr><td><p><strong>Find all</strong></p></td><td><p>repo.find({ where, order, take, skip })</p></td></tr><tr><td><p><strong>Find + count</strong></p></td><td><p>repo.findAndCount({ where, take, skip })</p></td></tr><tr><td><p><strong>Update (bulk)</strong></p></td><td><p>repo.update(criteria, partialEntity)</p></td></tr><tr><td><p><strong>Delete</strong></p></td><td><p>repo.delete(id | criteria)</p></td></tr><tr><td><p><strong>Eager relations</strong></p></td><td><p>repo.find({ relations: { author: true } })</p></td></tr><tr><td><p><strong>QueryBuilder</strong></p></td><td><p>repo.createQueryBuilder('alias').where(...).getMany()</p></td></tr><tr><td><p><strong>Transaction (QR)</strong></p></td><td><p>qr.startTransaction() → commit / rollback → release</p></td></tr><tr><td><p><strong>Transaction (fn)</strong></p></td><td><p>AppDataSource.transaction(async manager =&gt; {...})</p></td></tr><tr><td><p><strong>Raw query</strong></p></td><td><p>qr.query(sql, params)</p></td></tr><tr><td><p><strong>Migration generate</strong></p></td><td><p>npx typeorm migration:generate -d data-source.ts</p></td></tr><tr><td><p><strong>Migration run</strong></p></td><td><p>npx typeorm migration:run -d data-source.ts</p></td></tr></table>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
   <script>
     

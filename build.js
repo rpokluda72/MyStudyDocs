@@ -199,6 +199,49 @@ function getCodeParagraphTexts(docxPath) {
       const text = decodeHtml(parts.join('').trim());
       if (text) codeTexts.add(text);
     }
+
+    // ---- 3. Scan single-column tables where cells carry cell-level shading (w:tcPr/w:shd) ----
+    // Claude-generated docs use this pattern instead of paragraph-level shading.
+    const tblRe = /<w:tbl\b[\s\S]*?<\/w:tbl>/g;
+    let tbm;
+    while ((tbm = tblRe.exec(docXml)) !== null) {
+      const tbl = tbm[0];
+      // Collect all rows of this table
+      const allRows = [];
+      const trRe = /<w:tr\b[\s\S]*?<\/w:tr>/g;
+      let trm;
+      while ((trm = trRe.exec(tbl)) !== null) allRows.push(trm[0]);
+      if (allRows.length === 0) continue;
+      // Only treat single-column tables as code (avoids tainting data-table header texts)
+      let isSingleCol = true;
+      for (const row of allRows) {
+        const tcCount = (row.match(/<w:tc\b/g) || []).length;
+        if (tcCount !== 1) { isSingleCol = false; break; }
+      }
+      if (!isSingleCol) continue;
+      // Collect paragraph texts from shaded cells
+      const tcRe = /<w:tc\b[\s\S]*?<\/w:tc>/g;
+      let tcm;
+      while ((tcm = tcRe.exec(tbl)) !== null) {
+        const tc = tcm[0];
+        const tcPrM = tc.match(/<w:tcPr>([\s\S]*?)<\/w:tcPr>/);
+        if (!tcPrM || !/<w:shd\b/.test(tcPrM[1])) continue;
+        const paraRe2 = /<w:p[\s>]([\s\S]*?)<\/w:p>/g;
+        let pm2;
+        while ((pm2 = paraRe2.exec(tc)) !== null) {
+          const para2 = pm2[0];
+          const parts2 = [];
+          const tokRe2 = /<w:t[^>]*>([^<]*)<\/w:t>|<w:br\b/g;
+          let tm2;
+          while ((tm2 = tokRe2.exec(para2)) !== null) {
+            parts2.push(tm2[0].startsWith('<w:br') ? '\n' : tm2[1]);
+          }
+          const text2 = decodeHtml(parts2.join('').trim());
+          if (text2) codeTexts.add(text2);
+        }
+      }
+    }
+
     return codeTexts;
   } catch (e) {
     console.warn(`  [warn] could not parse docx XML for ${path.basename(docxPath)}: ${e.message}`);
@@ -214,7 +257,7 @@ function isMultiLineCodeParagraph(plain) {
   return codeCount >= Math.ceil(lines.length * 0.5);
 }
 
-function tryConvertCodeTable(tableHtml) {
+function tryConvertCodeTable(tableHtml, codeTexts = null) {
   const rows = [];
   let isSingleColumn = true;
   const rowRe = /<tr\b[^>]*>([\s\S]*?)<\/tr>/gi;
@@ -223,12 +266,22 @@ function tryConvertCodeTable(tableHtml) {
     const cells = [...rm[1].matchAll(/<t[dh]\b[^>]*>([\s\S]*?)<\/t[dh]>/gi)];
     if (cells.length !== 1) { isSingleColumn = false; break; }
     let inner = cells[0][1].trim();
-    inner = inner.replace(/^<p[^>]*>([\s\S]*?)<\/p>$/i, '$1');
+    // Flatten multiple <p> and <br> within a cell into newline-separated lines
+    inner = inner
+      .replace(/<\/p>\s*<p[^>]*>/gi, '\n')
+      .replace(/^<p[^>]*>/i, '')
+      .replace(/<\/p>$/i, '')
+      .replace(/<br\s*\/?>/gi, '\n');
     rows.push(inner);
   }
-  if (!isSingleColumn || rows.length < 2) return null;
-  const nonEmpty = rows.filter(r => stripHtml(r).trim());
-  const codeCount = nonEmpty.filter(r => isCodeLine(stripHtml(r))).length;
+  if (!isSingleColumn || rows.length < 1) return null;
+  // Analyze per-line so multi-statement cells are evaluated correctly
+  const allLines = rows.join('\n').split('\n');
+  const nonEmpty = allLines.filter(l => stripHtml(l).trim());
+  const codeCount = nonEmpty.filter(l => {
+    const plain = stripHtml(l);
+    return isCodeLine(plain) || (codeTexts && codeTexts.has(decodeHtml(plain.trim())));
+  }).length;
   if (nonEmpty.length === 0 || codeCount / nonEmpty.length < 0.4) return null;
   return '<pre><code>' + rows.join('\n') + '</code></pre>\n';
 }
@@ -290,7 +343,7 @@ function wrapCodeBlocks(html, codeTexts = null) {
 
   // Restore protected tables (converting single-column code tables to pre/code blocks)
   result = result.replace(/\x00TABLE(\d+)\x00/g, function (_, i) {
-    const converted = tryConvertCodeTable(tables[+i]);
+    const converted = tryConvertCodeTable(tables[+i], codeTexts);
     return converted !== null ? converted : tables[+i];
   });
   return result;

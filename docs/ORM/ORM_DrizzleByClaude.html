@@ -12,8 +12,254 @@
     <h1 style="margin:0 0 8px;">ORM_DrizzleByClaude</h1>
     <a href="ORM_DrizzleByClaude.docx" download style="font-size:13px;color:#555;text-decoration:none;border:1px solid #ccc;border-radius:4px;padding:3px 9px;background:#f5f5f5;" title="Download original .docx">&#8681; .docx</a>
   </div>
-  <p><strong>Drizzle ORM</strong></p><p>MySQL Tutorial — Blog System</p><p>2026-05-21</p><p><strong>1. Introduction</strong></p><p>Drizzle ORM (2022) is the newest of the four libraries. It takes a SQL-first approach — you define your schema in TypeScript using table-builder functions that closely mirror SQL DDL. Drizzle generates a fully-typed query builder with zero runtime overhead; it composes SQL strings directly rather than building an interpretation layer.</p><p><strong>Key Concepts</strong></p><ul><li>mysqlTable() — table definition function that returns a typed schema object.</li><li>relations() — separate relation helper used only by the db.query API (not SQL FKs).</li><li>drizzle(pool, { schema }) — the db instance; all queries are methods on this object.</li><li>db.select() / insert() / update() / delete() — SQL-style chainable query methods.</li><li>db.query.model.findMany() — relational query API with nested include-style loading.</li><li>drizzle-kit — CLI for schema push, migration generation, and status checks.</li></ul><p><strong>When to Use</strong></p><ul><li>Teams with SQL knowledge who want TypeScript types that stay close to SQL semantics.</li><li>Edge / serverless environments where bundle size and cold-start time matter.</li><li>New TypeScript projects wanting modern DX without a separate code-generation build step.</li></ul><p><strong>When NOT to Use</strong></p><ul><li>Projects needing the large mature ecosystem and long community history of Sequelize/TypeORM.</li><li>Teams who prefer an external schema file (like Prisma SDL) over TypeScript table definitions.</li></ul><p><strong>Library Info</strong></p><table><tr><td><p><strong>Website</strong></p></td><td><p><a href="https://orm.drizzle.team" target="_blank" rel="noopener noreferrer">https://orm.drizzle.team</a></p></td></tr><tr><td><p><strong>Version</strong></p></td><td><p>v0.30.x (latest)</p></td></tr><tr><td><p><strong>Language</strong></p></td><td><p>TypeScript (primary)</p></td></tr><tr><td><p><strong>Pattern</strong></p></td><td><p>SQL-first / Data Mapper</p></td></tr><tr><td><p><strong>DB Support</strong></p></td><td><p>MySQL, PostgreSQL, SQLite, Turso, Neon, PlanetScale</p></td></tr><tr><td><p><strong>License</strong></p></td><td><p>Apache 2.0</p></td></tr><tr><td><p><strong>GitHub Stars</strong></p></td><td><p>~23 000</p></td></tr></table><p><strong>2. Installation &amp; Setup</strong></p><p><strong>Install Packages</strong></p><table><tr><td><p># Core ORM + MySQL driver</p><p>npm install drizzle-orm mysql2</p><p># Dev-only: migration kit</p><p>npm install --save-dev drizzle-kit</p></td></tr></table><p><strong>drizzle.config.ts</strong></p><table><tr><td><p>// drizzle.config.ts</p><p>import { defineConfig } from 'drizzle-kit';</p><p>export default defineConfig({</p><p>  schema:        './src/schema.ts',</p><p>  out:           './drizzle',</p><p>  dialect:       'mysql',</p><p>  dbCredentials: {</p><p>    host:     'localhost',</p><p>    port:     3306,</p><p>    user:     'root',</p><p>    password: 'secret',</p><p>    database: 'blog_db',</p><p>  },</p><p>});</p></td></tr></table><p><strong>Database Connection</strong></p><table><tr><td><p>// db.ts</p><p>import { drizzle } from 'drizzle-orm/mysql2';</p><p>import mysql       from 'mysql2/promise';</p><p>import * as schema from './schema';</p><p>const pool = mysql.createPool({</p><p>  host:     'localhost',</p><p>  user:     'root',</p><p>  password: 'secret',</p><p>  database: 'blog_db',</p><p>  charset:  'utf8mb4',</p><p>});</p><p>export const db = drizzle(pool, { schema, mode: 'default' });</p></td></tr></table><p><strong>3. Schema Definition</strong></p><p>All table definitions live in schema.ts. The relations() helper (separate from table definitions) is consumed by the db.query relational API but does not add FK constraints.</p><p><strong>users Table</strong></p><table><tr><td><p>// schema.ts</p><p>import {</p><p>  mysqlTable, int, varchar, text, timestamp, mysqlEnum, primaryKey,</p><p>} from 'drizzle-orm/mysql-core';</p><p>import { relations } from 'drizzle-orm';</p><p>export const users = mysqlTable('users', {</p><p>  id:           int('id').unsigned().primaryKey().autoincrement(),</p><p>  username:     varchar('username',     { length: 50  }).notNull().unique(),</p><p>  email:        varchar('email',        { length: 255 }).notNull().unique(),</p><p>  passwordHash: varchar('passwordHash', { length: 255 }).notNull(),</p><p>  createdAt:    timestamp('createdAt').defaultNow().notNull(),</p><p>});</p></td></tr></table><p><strong>posts Table</strong></p><table><tr><td><p>export const posts = mysqlTable('posts', {</p><p>  id:        int('id').unsigned().primaryKey().autoincrement(),</p><p>  title:     varchar('title',   { length: 255 }).notNull(),</p><p>  content:   text('content').notNull(),</p><p>  status:    mysqlEnum('status', ['draft', 'published']).default('draft').notNull(),</p><p>  authorId:  int('authorId').unsigned().notNull(),</p><p>  createdAt: timestamp('createdAt').defaultNow().notNull(),</p><p>  updatedAt: timestamp('updatedAt').onUpdateNow().notNull(),</p><p>});</p></td></tr></table><p><strong>comments Table</strong></p><table><tr><td><p>export const comments = mysqlTable('comments', {</p><p>  id:        int('id').unsigned().primaryKey().autoincrement(),</p><p>  content:   text('content').notNull(),</p><p>  postId:    int('postId').unsigned().notNull(),</p><p>  authorId:  int('authorId').unsigned().notNull(),</p><p>  createdAt: timestamp('createdAt').defaultNow().notNull(),</p><p>});</p></td></tr></table><p><strong>tags &amp; post_tags Tables</strong></p><table><tr><td><p>export const tags = mysqlTable('tags', {</p><p>  id:   int('id').unsigned().primaryKey().autoincrement(),</p><p>  name: varchar('name', { length: 100 }).notNull().unique(),</p><p>});</p><p>export const postTags = mysqlTable('post_tags', {</p><p>  postId: int('postId').unsigned().notNull(),</p><p>  tagId:  int('tagId').unsigned().notNull(),</p><p>}, (t) =&gt; ({</p><p>  pk: primaryKey({ columns: [t.postId, t.tagId] }),</p><p>}));</p></td></tr></table><p><strong>Relations</strong></p><table><tr><td><p>// Relations are used by db.query API — not SQL FK constraints</p><p>export const usersRelations = relations(users, ({ many }) =&gt; ({</p><p>  posts:    many(posts),</p><p>  comments: many(comments),</p><p>}));</p><p>export const postsRelations = relations(posts, ({ one, many }) =&gt; ({</p><p>  author:   one(users,    { fields: [posts.authorId], references: [users.id] }),</p><p>  comments: many(comments),</p><p>  postTags: many(postTags),</p><p>}));</p><p>export const commentsRelations = relations(comments, ({ one }) =&gt; ({</p><p>  post:   one(posts, { fields: [comments.postId],   references: [posts.id] }),</p><p>  author: one(users, { fields: [comments.authorId], references: [users.id] }),</p><p>}));</p><p>export const postTagsRelations = relations(postTags, ({ one }) =&gt; ({</p><p>  post: one(posts, { fields: [postTags.postId], references: [posts.id] }),</p><p>  tag:  one(tags,  { fields: [postTags.tagId],  references: [tags.id]  }),</p><p>}));</p></td></tr></table><p><strong>ER Diagram</strong></p><table><tr><td><p>  ┌──────────────────┐     ┌────────────────────────┐     ┌──────────────────┐</p><p>  │      users       │     │         posts          │     │     comments     │</p><p>  ├──────────────────┤     ├────────────────────────┤     ├──────────────────┤</p><p>  │ id (PK)          │◄────│ authorId (FK)          │◄────│ postId (FK)      │</p><p>  │ username UNIQUE  │     │ id (PK)                │     │ authorId (FK)──► │</p><p>  │ email UNIQUE     │     │ title                  │     │ id (PK)          │</p><p>  │ passwordHash     │     │ content                │     │ content          │</p><p>  │ createdAt        │     │ status ENUM            │     │ createdAt        │</p><p>  └──────────────────┘     │ createdAt / updatedAt  │     └──────────────────┘</p><p>                           └────────────────────────┘</p><p>                                       │</p><p>                          N:M via post_tags junction</p><p>                                       │</p><p>                                       ▼</p><p>                           ┌──────────────────┐</p><p>                           │       tags       │</p><p>                           ├──────────────────┤</p><p>                           │ id (PK)          │</p><p>                           │ name UNIQUE      │</p><p>                           └──────────────────┘</p></td></tr></table><p><em>Blog System — Entity Relationship Diagram</em></p><p><strong>4. CRUD Operations</strong></p><p><strong>Create</strong></p><table><tr><td><p>import { db }    from './db';</p><p>import { posts } from './schema';</p><p>const [result] = await db.insert(posts).values({</p><p>  title:    'Getting Started with Drizzle',</p><p>  content:  'Drizzle is SQL-first...',</p><p>  status:   'draft',</p><p>  authorId: 1,</p><p>});</p><p>console.log(result.insertId);</p></td></tr></table><p><strong>Find by Primary Key</strong></p><table><tr><td><p>import { eq } from 'drizzle-orm';</p><p>const [post] = await db</p><p>  .select()</p><p>  .from(posts)</p><p>  .where(eq(posts.id, 42));</p><p>if (!post) throw new Error('Post not found');</p></td></tr></table><p><strong>Find All</strong></p><table><tr><td><p>import { eq, desc } from 'drizzle-orm';</p><p>const allPosts = await db</p><p>  .select()</p><p>  .from(posts)</p><p>  .where(eq(posts.status, 'published'))</p><p>  .orderBy(desc(posts.createdAt));</p></td></tr></table><p><strong>Update</strong></p><table><tr><td><p>await db</p><p>  .update(posts)</p><p>  .set({ title: 'Updated Title', status: 'published' })</p><p>  .where(eq(posts.id, 42));</p></td></tr></table><p><strong>Delete</strong></p><table><tr><td><p>await db</p><p>  .delete(posts)</p><p>  .where(eq(posts.id, 42));</p></td></tr></table><p><strong>5. Querying</strong></p><p><strong>WHERE with Multiple Conditions</strong></p><table><tr><td><p>import { and, eq, desc } from 'drizzle-orm';</p><p>const result = await db</p><p>  .select()</p><p>  .from(posts)</p><p>  .where(and(</p><p>    eq(posts.authorId, 5),</p><p>    eq(posts.status, 'published'),</p><p>  ))</p><p>  .orderBy(desc(posts.createdAt));</p></td></tr></table><p><strong>Pagination</strong></p><table><tr><td><p>const PAGE     = 2;</p><p>const PER_PAGE = 10;</p><p>const result = await db</p><p>  .select()</p><p>  .from(posts)</p><p>  .where(eq(posts.status, 'published'))</p><p>  .orderBy(desc(posts.createdAt))</p><p>  .limit(PER_PAGE)</p><p>  .offset((PAGE - 1) * PER_PAGE);</p></td></tr></table><p><strong>Select Specific Columns</strong></p><table><tr><td><p>const result = await db</p><p>  .select({ title: posts.title, createdAt: posts.createdAt })</p><p>  .from(posts)</p><p>  .where(eq(posts.status, 'published'));</p></td></tr></table><p><strong>LIKE Search</strong></p><table><tr><td><p>import { like } from 'drizzle-orm';</p><p>const result = await db</p><p>  .select()</p><p>  .from(posts)</p><p>  .where(like(posts.title, '%drizzle%'));</p></td></tr></table><p><strong>6. Associations</strong></p><p><strong>Load Posts with Author — db.query API</strong></p><table><tr><td><p>const postsWithAuthor = await db.query.posts.findMany({</p><p>  where: (p, { eq }) =&gt; eq(p.status, 'published'),</p><p>  with: {</p><p>    author: { columns: { username: true, email: true } },</p><p>  },</p><p>});</p><p>postsWithAuthor.forEach(p =&gt; console.log(p.title, p.author.username));</p></td></tr></table><p><strong>Nested Create — Post with First Comment</strong></p><p>Drizzle does not support nested creates in a single call. Use a transaction instead:</p><table><tr><td><p>const postId = await db.transaction(async (tx) =&gt; {</p><p>  const [postResult] = await tx.insert(posts).values({</p><p>    title: 'New Post', content: '...', status: 'draft', authorId: 1,</p><p>  });</p><p>  await tx.insert(comments).values({</p><p>    content: 'First comment!', postId: postResult.insertId, authorId: 2,</p><p>  });</p><p>  return postResult.insertId;</p><p>});</p></td></tr></table><p><strong>Many-to-Many — Post with Tags</strong></p><table><tr><td><p>const postWithTags = await db.query.posts.findFirst({</p><p>  where: (p, { eq }) =&gt; eq(p.id, 1),</p><p>  with: { postTags: { with: { tag: true } } },</p><p>});</p><p>postWithTags?.postTags.forEach(pt =&gt; console.log(pt.tag.name));</p><p>// Add a tag to a post</p><p>await db.insert(postTags).values({ postId: 1, tagId: 3 });</p></td></tr></table><p><strong>7. Migrations</strong></p><p><strong>Push (Development)</strong></p><p>drizzle-kit push introspects your schema.ts and applies changes directly — no migration files are generated. Useful for rapid development:</p><table><tr><td><p># Apply schema changes directly (dev only)</p><p>npx drizzle-kit push</p></td></tr></table><p><strong>Generate + Migrate (Production)</strong></p><table><tr><td><p># Generate SQL migration files from schema changes</p><p>npx drizzle-kit generate</p><p># Apply generated migrations</p><p>npx drizzle-kit migrate</p><p># Check migration status</p><p>npx drizzle-kit status</p></td></tr></table><p><strong>Generated Migration File (example)</strong></p><table><tr><td><p>-- drizzle/_create_users.sql</p><p>CREATE TABLE `users` (</p><p>  `id`           int unsigned NOT NULL AUTO_INCREMENT,</p><p>  `username`     varchar(50)  NOT NULL,</p><p>  `email`        varchar(255) NOT NULL,</p><p>  `passwordHash` varchar(255) NOT NULL,</p><p>  `createdAt`    timestamp    NOT NULL DEFAULT (now()),</p><p>  UNIQUE KEY `users_username_unique` (`username`),</p><p>  UNIQUE KEY `users_email_unique`    (`email`),</p><p>  PRIMARY KEY (`id`)</p><p>);</p></td></tr></table><p><strong>8. Transactions</strong></p><pre><code>db.transaction() receives a callback with a tx object that has the same API as db. Any thrown error rolls back both operations:</code></pre>
-<table><tr><td><p>const { postId, commentId } = await db.transaction(async (tx) =&gt; {</p><p>  const [postResult] = await tx.insert(posts).values({</p><p>    title:    'Atomic Post',</p><p>    content:  'Inside a Drizzle transaction.',</p><p>    status:   'draft',</p><p>    authorId: 1,</p><p>  });</p><p>  const [commentResult] = await tx.insert(comments).values({</p><p>    content:  'First comment.',</p><p>    postId:   postResult.insertId,</p><p>    authorId: 2,</p><p>  });</p><p>  return {</p><p>    postId:    postResult.insertId,</p><p>    commentId: commentResult.insertId,</p><p>  };</p><p>});</p><p>// Any thrown error rolls back the entire transaction.</p></td></tr></table><p><strong>9. Raw / Advanced Queries</strong></p><p>Top 5 authors by published post count:</p><p><strong>Using innerJoin + count() + groupBy</strong></p><table><tr><td><p>import { count, desc, eq } from 'drizzle-orm';</p><p>const results = await db</p><p>  .select({</p><p>    id:        users.id,</p><p>    username:  users.username,</p><p>    email:     users.email,</p><p>    postCount: count(posts.id),</p><p>  })</p><p>  .from(users)</p><p>  .innerJoin(posts, eq(posts.authorId, users.id))</p><p>  .where(eq(posts.status, 'published'))</p><p>  .groupBy(users.id, users.username, users.email)</p><p>  .orderBy(desc(count(posts.id)))</p><p>  .limit(5);</p><p>results.forEach(r =&gt; console.log(r.username, r.postCount));</p></td></tr></table><p><strong>Raw SQL Escape Hatch</strong></p><table><tr><td><p>import { sql } from 'drizzle-orm';</p><p>const rows = await db.execute(sql`</p><p>  SELECT u.username, COUNT(p.id) AS postCount</p><p>    FROM users  u</p><p>    JOIN posts  p ON p.authorId = u.id</p><p>   WHERE p.status = 'published'</p><p>   GROUP BY u.id</p><p>   ORDER BY postCount DESC</p><p>   LIMIT 5</p><p>`);</p></td></tr></table><p><strong>10. Quick Reference</strong></p><table><tr><td><p><strong>Operation</strong></p></td><td><p><strong>API / Method</strong></p></td></tr><tr><td><p><strong>Install</strong></p></td><td><p>npm install drizzle-orm mysql2 &amp;&amp; npm i -D drizzle-kit</p></td></tr><tr><td><p><strong>Connect</strong></p></td><td><p>drizzle(pool, { schema, mode: 'default' })</p></td></tr><tr><td><p><strong>Define table</strong></p></td><td><p>mysqlTable('name', { col: type().constraints... })</p></td></tr><tr><td><p><strong>Define relations</strong></p></td><td><p>relations(table, ({ one, many }) =&gt; ({ ... }))</p></td></tr><tr><td><p><strong>Insert</strong></p></td><td><p>db.insert(table).values({ ... })</p></td></tr><tr><td><p><strong>Select all</strong></p></td><td><p>db.select().from(table).where(...)</p></td></tr><tr><td><p><strong>Select columns</strong></p></td><td><p>db.select({ col: t.col }).from(table)</p></td></tr><tr><td><p><strong>Find one</strong></p></td><td><p>db.select().from(t).where(eq(t.id, x)).limit(1)</p></td></tr><tr><td><p><strong>Update</strong></p></td><td><p>db.update(table).set({ ... }).where(...)</p></td></tr><tr><td><p><strong>Delete</strong></p></td><td><p>db.delete(table).where(...)</p></td></tr><tr><td><p><strong>Query API</strong></p></td><td><p>db.query.table.findMany({ with: { rel: true } })</p></td></tr><tr><td><p><strong>JOIN</strong></p></td><td><p>db.select().from(t).innerJoin(t2, eq(t.fk, t2.id))</p></td></tr><tr><td><p><strong>Transaction</strong></p></td><td><p>db.transaction(async tx =&gt; { ... })</p></td></tr><tr><td><p><strong>Raw SQL</strong></p></td><td><p>db.execute(sql`SELECT ...`)</p></td></tr><tr><td><p><strong>Push (dev)</strong></p></td><td><p>npx drizzle-kit push</p></td></tr><tr><td><p><strong>Generate migr.</strong></p></td><td><p>npx drizzle-kit generate</p></td></tr><tr><td><p><strong>Apply migr.</strong></p></td><td><p>npx drizzle-kit migrate</p></td></tr><tr><td><p><strong>Operators</strong></p></td><td><p>eq, ne, lt, gt, lte, gte, like, and, or, not, inArray</p></td></tr></table>
+  <p><strong>Drizzle ORM</strong></p><p>MySQL Tutorial — Blog System</p><p>2026-05-21</p><p><strong>1. Introduction</strong></p><p>Drizzle ORM (2022) is the newest of the four libraries. It takes a SQL-first approach — you define your schema in TypeScript using table-builder functions that closely mirror SQL DDL. Drizzle generates a fully-typed query builder with zero runtime overhead; it composes SQL strings directly rather than building an interpretation layer.</p><p><strong>Key Concepts</strong></p><ul><li>mysqlTable() — table definition function that returns a typed schema object.</li><li>relations() — separate relation helper used only by the db.query API (not SQL FKs).</li><li>drizzle(pool, { schema }) — the db instance; all queries are methods on this object.</li><li>db.select() / insert() / update() / delete() — SQL-style chainable query methods.</li><li>db.query.model.findMany() — relational query API with nested include-style loading.</li><li>drizzle-kit — CLI for schema push, migration generation, and status checks.</li></ul><p><strong>When to Use</strong></p><ul><li>Teams with SQL knowledge who want TypeScript types that stay close to SQL semantics.</li><li>Edge / serverless environments where bundle size and cold-start time matter.</li><li>New TypeScript projects wanting modern DX without a separate code-generation build step.</li></ul><p><strong>When NOT to Use</strong></p><ul><li>Projects needing the large mature ecosystem and long community history of Sequelize/TypeORM.</li><li>Teams who prefer an external schema file (like Prisma SDL) over TypeScript table definitions.</li></ul><p><strong>Library Info</strong></p><table><tr><td><p><strong>Website</strong></p></td><td><p><a href="https://orm.drizzle.team" target="_blank" rel="noopener noreferrer">https://orm.drizzle.team</a></p></td></tr><tr><td><p><strong>Version</strong></p></td><td><p>v0.30.x (latest)</p></td></tr><tr><td><p><strong>Language</strong></p></td><td><p>TypeScript (primary)</p></td></tr><tr><td><p><strong>Pattern</strong></p></td><td><p>SQL-first / Data Mapper</p></td></tr><tr><td><p><strong>DB Support</strong></p></td><td><p>MySQL, PostgreSQL, SQLite, Turso, Neon, PlanetScale</p></td></tr><tr><td><p><strong>License</strong></p></td><td><p>Apache 2.0</p></td></tr><tr><td><p><strong>GitHub Stars</strong></p></td><td><p>~23 000</p></td></tr></table><p><strong>2. Installation &amp; Setup</strong></p><p><strong>Install Packages</strong></p><pre><code># Core ORM + MySQL driver
+npm install drizzle-orm mysql2
+# Dev-only: migration kit
+npm install --save-dev drizzle-kit</code></pre>
+<p><strong>drizzle.config.ts</strong></p><pre><code>// drizzle.config.ts
+import { defineConfig } from 'drizzle-kit';
+export default defineConfig({
+  schema:        './src/schema.ts',
+  out:           './drizzle',
+  dialect:       'mysql',
+  dbCredentials: {
+    host:     'localhost',
+    port:     3306,
+    user:     'root',
+    password: 'secret',
+    database: 'blog_db',
+  },
+});</code></pre>
+<p><strong>Database Connection</strong></p><pre><code>// db.ts
+import { drizzle } from 'drizzle-orm/mysql2';
+import mysql       from 'mysql2/promise';
+import * as schema from './schema';
+const pool = mysql.createPool({
+  host:     'localhost',
+  user:     'root',
+  password: 'secret',
+  database: 'blog_db',
+  charset:  'utf8mb4',
+});
+export const db = drizzle(pool, { schema, mode: 'default' });</code></pre>
+<p><strong>3. Schema Definition</strong></p><p>All table definitions live in schema.ts. The relations() helper (separate from table definitions) is consumed by the db.query relational API but does not add FK constraints.</p><p><strong>users Table</strong></p><pre><code>// schema.ts
+import {
+  mysqlTable, int, varchar, text, timestamp, mysqlEnum, primaryKey,
+} from 'drizzle-orm/mysql-core';
+import { relations } from 'drizzle-orm';
+export const users = mysqlTable('users', {
+  id:           int('id').unsigned().primaryKey().autoincrement(),
+  username:     varchar('username',     { length: 50  }).notNull().unique(),
+  email:        varchar('email',        { length: 255 }).notNull().unique(),
+  passwordHash: varchar('passwordHash', { length: 255 }).notNull(),
+  createdAt:    timestamp('createdAt').defaultNow().notNull(),
+});</code></pre>
+<p><strong>posts Table</strong></p><pre><code>export const posts = mysqlTable('posts', {
+  id:        int('id').unsigned().primaryKey().autoincrement(),
+  title:     varchar('title',   { length: 255 }).notNull(),
+  content:   text('content').notNull(),
+  status:    mysqlEnum('status', ['draft', 'published']).default('draft').notNull(),
+  authorId:  int('authorId').unsigned().notNull(),
+  createdAt: timestamp('createdAt').defaultNow().notNull(),
+  updatedAt: timestamp('updatedAt').onUpdateNow().notNull(),
+});</code></pre>
+<p><strong>comments Table</strong></p><pre><code>export const comments = mysqlTable('comments', {
+  id:        int('id').unsigned().primaryKey().autoincrement(),
+  content:   text('content').notNull(),
+  postId:    int('postId').unsigned().notNull(),
+  authorId:  int('authorId').unsigned().notNull(),
+  createdAt: timestamp('createdAt').defaultNow().notNull(),
+});</code></pre>
+<p><strong>tags &amp; post_tags Tables</strong></p><pre><code>export const tags = mysqlTable('tags', {
+  id:   int('id').unsigned().primaryKey().autoincrement(),
+  name: varchar('name', { length: 100 }).notNull().unique(),
+});
+export const postTags = mysqlTable('post_tags', {
+  postId: int('postId').unsigned().notNull(),
+  tagId:  int('tagId').unsigned().notNull(),
+}, (t) =&gt; ({
+  pk: primaryKey({ columns: [t.postId, t.tagId] }),
+}));</code></pre>
+<p><strong>Relations</strong></p><pre><code>// Relations are used by db.query API — not SQL FK constraints
+export const usersRelations = relations(users, ({ many }) =&gt; ({
+  posts:    many(posts),
+  comments: many(comments),
+}));
+export const postsRelations = relations(posts, ({ one, many }) =&gt; ({
+  author:   one(users,    { fields: [posts.authorId], references: [users.id] }),
+  comments: many(comments),
+  postTags: many(postTags),
+}));
+export const commentsRelations = relations(comments, ({ one }) =&gt; ({
+  post:   one(posts, { fields: [comments.postId],   references: [posts.id] }),
+  author: one(users, { fields: [comments.authorId], references: [users.id] }),
+}));
+export const postTagsRelations = relations(postTags, ({ one }) =&gt; ({
+  post: one(posts, { fields: [postTags.postId], references: [posts.id] }),
+  tag:  one(tags,  { fields: [postTags.tagId],  references: [tags.id]  }),
+}));</code></pre>
+<p><strong>ER Diagram</strong></p><pre><code>  ┌──────────────────┐     ┌────────────────────────┐     ┌──────────────────┐
+  │      users       │     │         posts          │     │     comments     │
+  ├──────────────────┤     ├────────────────────────┤     ├──────────────────┤
+  │ id (PK)          │◄────│ authorId (FK)          │◄────│ postId (FK)      │
+  │ username UNIQUE  │     │ id (PK)                │     │ authorId (FK)──► │
+  │ email UNIQUE     │     │ title                  │     │ id (PK)          │
+  │ passwordHash     │     │ content                │     │ content          │
+  │ createdAt        │     │ status ENUM            │     │ createdAt        │
+  └──────────────────┘     │ createdAt / updatedAt  │     └──────────────────┘
+                           └────────────────────────┘
+                                       │
+                          N:M via post_tags junction
+                                       │
+                                       ▼
+                           ┌──────────────────┐
+                           │       tags       │
+                           ├──────────────────┤
+                           │ id (PK)          │
+                           │ name UNIQUE      │
+                           └──────────────────┘</code></pre>
+<p><em>Blog System — Entity Relationship Diagram</em></p><p><strong>4. CRUD Operations</strong></p><p><strong>Create</strong></p><pre><code>import { db }    from './db';
+import { posts } from './schema';
+const [result] = await db.insert(posts).values({
+  title:    'Getting Started with Drizzle',
+  content:  'Drizzle is SQL-first...',
+  status:   'draft',
+  authorId: 1,
+});
+console.log(result.insertId);</code></pre>
+<p><strong>Find by Primary Key</strong></p><pre><code>import { eq } from 'drizzle-orm';
+const [post] = await db
+  .select()
+  .from(posts)
+  .where(eq(posts.id, 42));
+if (!post) throw new Error('Post not found');</code></pre>
+<p><strong>Find All</strong></p><pre><code>import { eq, desc } from 'drizzle-orm';
+const allPosts = await db
+  .select()
+  .from(posts)
+  .where(eq(posts.status, 'published'))
+  .orderBy(desc(posts.createdAt));</code></pre>
+<p><strong>Update</strong></p><pre><code>await db
+  .update(posts)
+  .set({ title: 'Updated Title', status: 'published' })
+  .where(eq(posts.id, 42));</code></pre>
+<p><strong>Delete</strong></p><pre><code>await db
+  .delete(posts)
+  .where(eq(posts.id, 42));</code></pre>
+<p><strong>5. Querying</strong></p><p><strong>WHERE with Multiple Conditions</strong></p><pre><code>import { and, eq, desc } from 'drizzle-orm';
+const result = await db
+  .select()
+  .from(posts)
+  .where(and(
+    eq(posts.authorId, 5),
+    eq(posts.status, 'published'),
+  ))
+  .orderBy(desc(posts.createdAt));</code></pre>
+<p><strong>Pagination</strong></p><pre><code>const PAGE     = 2;
+const PER_PAGE = 10;
+const result = await db
+  .select()
+  .from(posts)
+  .where(eq(posts.status, 'published'))
+  .orderBy(desc(posts.createdAt))
+  .limit(PER_PAGE)
+  .offset((PAGE - 1) * PER_PAGE);</code></pre>
+<p><strong>Select Specific Columns</strong></p><pre><code>const result = await db
+  .select({ title: posts.title, createdAt: posts.createdAt })
+  .from(posts)
+  .where(eq(posts.status, 'published'));</code></pre>
+<p><strong>LIKE Search</strong></p><pre><code>import { like } from 'drizzle-orm';
+const result = await db
+  .select()
+  .from(posts)
+  .where(like(posts.title, '%drizzle%'));</code></pre>
+<p><strong>6. Associations</strong></p><p><strong>Load Posts with Author — db.query API</strong></p><pre><code>const postsWithAuthor = await db.query.posts.findMany({
+  where: (p, { eq }) =&gt; eq(p.status, 'published'),
+  with: {
+    author: { columns: { username: true, email: true } },
+  },
+});
+postsWithAuthor.forEach(p =&gt; console.log(p.title, p.author.username));</code></pre>
+<p><strong>Nested Create — Post with First Comment</strong></p><p>Drizzle does not support nested creates in a single call. Use a transaction instead:</p><pre><code>const postId = await db.transaction(async (tx) =&gt; {
+  const [postResult] = await tx.insert(posts).values({
+    title: 'New Post', content: '...', status: 'draft', authorId: 1,
+  });
+  await tx.insert(comments).values({
+    content: 'First comment!', postId: postResult.insertId, authorId: 2,
+  });
+  return postResult.insertId;
+});</code></pre>
+<p><strong>Many-to-Many — Post with Tags</strong></p><pre><code>const postWithTags = await db.query.posts.findFirst({
+  where: (p, { eq }) =&gt; eq(p.id, 1),
+  with: { postTags: { with: { tag: true } } },
+});
+postWithTags?.postTags.forEach(pt =&gt; console.log(pt.tag.name));
+// Add a tag to a post
+await db.insert(postTags).values({ postId: 1, tagId: 3 });</code></pre>
+<p><strong>7. Migrations</strong></p><p><strong>Push (Development)</strong></p><p>drizzle-kit push introspects your schema.ts and applies changes directly — no migration files are generated. Useful for rapid development:</p><pre><code># Apply schema changes directly (dev only)
+npx drizzle-kit push</code></pre>
+<p><strong>Generate + Migrate (Production)</strong></p><pre><code># Generate SQL migration files from schema changes
+npx drizzle-kit generate
+# Apply generated migrations
+npx drizzle-kit migrate
+# Check migration status
+npx drizzle-kit status</code></pre>
+<p><strong>Generated Migration File (example)</strong></p><pre><code>-- drizzle/_create_users.sql
+CREATE TABLE `users` (
+  `id`           int unsigned NOT NULL AUTO_INCREMENT,
+  `username`     varchar(50)  NOT NULL,
+  `email`        varchar(255) NOT NULL,
+  `passwordHash` varchar(255) NOT NULL,
+  `createdAt`    timestamp    NOT NULL DEFAULT (now()),
+  UNIQUE KEY `users_username_unique` (`username`),
+  UNIQUE KEY `users_email_unique`    (`email`),
+  PRIMARY KEY (`id`)
+);</code></pre>
+<p><strong>8. Transactions</strong></p><pre><code>db.transaction() receives a callback with a tx object that has the same API as db. Any thrown error rolls back both operations:</code></pre>
+<pre><code>const { postId, commentId } = await db.transaction(async (tx) =&gt; {
+  const [postResult] = await tx.insert(posts).values({
+    title:    'Atomic Post',
+    content:  'Inside a Drizzle transaction.',
+    status:   'draft',
+    authorId: 1,
+  });
+  const [commentResult] = await tx.insert(comments).values({
+    content:  'First comment.',
+    postId:   postResult.insertId,
+    authorId: 2,
+  });
+  return {
+    postId:    postResult.insertId,
+    commentId: commentResult.insertId,
+  };
+});
+// Any thrown error rolls back the entire transaction.</code></pre>
+<p><strong>9. Raw / Advanced Queries</strong></p><p>Top 5 authors by published post count:</p><p><strong>Using innerJoin + count() + groupBy</strong></p><pre><code>import { count, desc, eq } from 'drizzle-orm';
+const results = await db
+  .select({
+    id:        users.id,
+    username:  users.username,
+    email:     users.email,
+    postCount: count(posts.id),
+  })
+  .from(users)
+  .innerJoin(posts, eq(posts.authorId, users.id))
+  .where(eq(posts.status, 'published'))
+  .groupBy(users.id, users.username, users.email)
+  .orderBy(desc(count(posts.id)))
+  .limit(5);
+results.forEach(r =&gt; console.log(r.username, r.postCount));</code></pre>
+<p><strong>Raw SQL Escape Hatch</strong></p><pre><code>import { sql } from 'drizzle-orm';
+const rows = await db.execute(sql`
+  SELECT u.username, COUNT(p.id) AS postCount
+    FROM users  u
+    JOIN posts  p ON p.authorId = u.id
+   WHERE p.status = 'published'
+   GROUP BY u.id
+   ORDER BY postCount DESC
+   LIMIT 5
+`);</code></pre>
+<p><strong>10. Quick Reference</strong></p><table><tr><td><p><strong>Operation</strong></p></td><td><p><strong>API / Method</strong></p></td></tr><tr><td><p><strong>Install</strong></p></td><td><p>npm install drizzle-orm mysql2 &amp;&amp; npm i -D drizzle-kit</p></td></tr><tr><td><p><strong>Connect</strong></p></td><td><p>drizzle(pool, { schema, mode: 'default' })</p></td></tr><tr><td><p><strong>Define table</strong></p></td><td><p>mysqlTable('name', { col: type().constraints... })</p></td></tr><tr><td><p><strong>Define relations</strong></p></td><td><p>relations(table, ({ one, many }) =&gt; ({ ... }))</p></td></tr><tr><td><p><strong>Insert</strong></p></td><td><p>db.insert(table).values({ ... })</p></td></tr><tr><td><p><strong>Select all</strong></p></td><td><p>db.select().from(table).where(...)</p></td></tr><tr><td><p><strong>Select columns</strong></p></td><td><p>db.select({ col: t.col }).from(table)</p></td></tr><tr><td><p><strong>Find one</strong></p></td><td><p>db.select().from(t).where(eq(t.id, x)).limit(1)</p></td></tr><tr><td><p><strong>Update</strong></p></td><td><p>db.update(table).set({ ... }).where(...)</p></td></tr><tr><td><p><strong>Delete</strong></p></td><td><p>db.delete(table).where(...)</p></td></tr><tr><td><p><strong>Query API</strong></p></td><td><p>db.query.table.findMany({ with: { rel: true } })</p></td></tr><tr><td><p><strong>JOIN</strong></p></td><td><p>db.select().from(t).innerJoin(t2, eq(t.fk, t2.id))</p></td></tr><tr><td><p><strong>Transaction</strong></p></td><td><p>db.transaction(async tx =&gt; { ... })</p></td></tr><tr><td><p><strong>Raw SQL</strong></p></td><td><p>db.execute(sql`SELECT ...`)</p></td></tr><tr><td><p><strong>Push (dev)</strong></p></td><td><p>npx drizzle-kit push</p></td></tr><tr><td><p><strong>Generate migr.</strong></p></td><td><p>npx drizzle-kit generate</p></td></tr><tr><td><p><strong>Apply migr.</strong></p></td><td><p>npx drizzle-kit migrate</p></td></tr><tr><td><p><strong>Operators</strong></p></td><td><p>eq, ne, lt, gt, lte, gte, like, and, or, not, inArray</p></td></tr></table>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
   <script>
     
