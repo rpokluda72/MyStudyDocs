@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DotNetByClaude</title>
+  <link rel="stylesheet" href="../assets/content.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+</head>
+<body>
+  <div style="display:flex;align-items:baseline;gap:12px;margin-bottom:4px;">
+    <h1 style="margin:0 0 8px;">DotNetByClaude</h1>
+    <a href="DotNetByClaude.docx" download style="font-size:13px;color:#555;text-decoration:none;border:1px solid #ccc;border-radius:4px;padding:3px 9px;background:#f5f5f5;" title="Download original .docx">&#8681; .docx</a>
+  </div>
+  <p><strong>.NET</strong></p><p><strong>Studijní průvodce pro začátečníky</strong></p><p>Bezplatná, multiplatformní, open source vývojová platforma</p><p><em>Zdroj: learn.microsoft.com/cs-cz/dotnet</em></p><h1>1. Co je .NET?</h1><pre><code>.NET je bezplatná, multiplatformní a open source vývojářská platforma vytvořená společností Microsoft. Umožňuje vyvíjet aplikace v jazycích C#, F# a Visual Basic pro Windows, Linux i macOS.</code></pre>
+<pre><code>Zkratka: .NET je nástupce .NET Core (od verze 5) a moderní náhrada za starší .NET Framework (pouze Windows). Dnes se říká jednoduše „.NET".</code></pre>
+<h2>1.1 Klíčové vlastnosti .NET</h2><table><tr><td><p><strong>Vlastnost</strong></p></td><td><p><strong>Popis</strong></p></td></tr><tr><td><p>Multiplatformní</p></td><td><p>Funguje na Windows, Linux a macOS – jeden kód, více platforem</p></td></tr><tr><td><p>Open source</p></td><td><p>Zdrojový kód je na GitHubu, licence MIT – zdarma pro komerční použití</p></td></tr><tr><td><p>Výkonný</p></td><td><p>Jeden z nejrychlejších backendových frameworků dle TechEmpower benchmarků</p></td></tr><tr><td><p>Moderní jazyky</p></td><td><p>C# je moderní, typově bezpečný, objektově orientovaný jazyk s LINQ, async/await</p></td></tr><tr><td><p>Bohatá knihovna</p></td><td><p>Base Class Library (BCL) nabízí tisíce tříd – soubory, sítě, kryptografie, JSON...</p></td></tr><tr><td><p>Správa paměti</p></td><td><p>Automatická správa paměti pomocí Garbage Collectoru (GC)</p></td></tr><tr><td><p>Typová bezpečnost</p></td><td><p>Chyby jsou odhaleny při kompilaci, ne za běhu – bezpečnější kód</p></td></tr><tr><td><p>Ekosystém NuGet</p></td><td><p>Přes 400 000 balíčků (knihoven) na nuget.org</p></td></tr></table><h2>1.2 Co lze v .NET vytvořit?</h2><table><tr><td><p><strong>Oblast</strong></p></td><td><p><strong>Framework / nástroj</strong></p></td><td><p><strong>Příklady</strong></p></td></tr><tr><td><p>Webové API / backend</p></td><td><p>ASP.NET Core</p></td><td><p>REST API, mikroslužby, gRPC</p></td></tr><tr><td><p>Webové stránky (server)</p></td><td><p>ASP.NET Core MVC / Razor Pages</p></td><td><p>E-shopy, portály, CMS</p></td></tr><tr><td><p>Webové stránky (browser)</p></td><td><p>Blazor (WebAssembly)</p></td><td><p>SPA aplikace v C# bez JS</p></td></tr><tr><td><p>Mobilní aplikace</p></td><td><p>MAUI (.NET Multi-platform App UI)</p></td><td><p>iOS, Android – jeden projekt</p></td></tr><tr><td><p>Desktopové aplikace</p></td><td><p>WPF, WinForms, MAUI</p></td><td><p>Windows aplikace</p></td></tr><tr><td><p>Konzolové nástroje</p></td><td><p>Console App / Worker Service</p></td><td><p>CLI utility, background job</p></td></tr><tr><td><p>Hry</p></td><td><p>Unity (C#), MonoGame</p></td><td><p>2D/3D hry pro všechny platformy</p></td></tr><tr><td><p>IoT / Embedded</p></td><td><p>.NET IoT</p></td><td><p>Raspberry Pi, senzory</p></td></tr><tr><td><p>AI / ML</p></td><td><p>ML.NET, Semantic Kernel</p></td><td><p>Machine learning, LLM integrace</p></td></tr></table><h1>2. Architektura .NET</h1><h2>2.1 Komponenty platformy</h2><table><tr><td><p>  ┌───────────────────────────────────────────────────────────────┐</p></td></tr><tr><td><p>  │                    .NET PLATFORMA                             │</p></td></tr><tr><td><p>  │                                                               │</p></td></tr><tr><td><p>  │  ┌─────────┐  ┌─────────┐  ┌─────────┐   ← Jazyky          │</p></td></tr><tr><td><p>  │  │   C#    │  │   F#    │  │Visual B.│                      │</p></td></tr><tr><td><p>  │  └────┬────┘  └────┬────┘  └────┬────┘                      │</p></td></tr><tr><td><p>  │       └─────────────┴─────────────┘                          │</p></td></tr><tr><td><p>  │                       │ kompilace do IL                       │</p></td></tr><tr><td><p>  │              ┌────────▼─────────┐                            │</p></td></tr><tr><td><p>  │              │  .NET Kompilátory │   (Roslyn pro C#/VB)      │</p></td></tr><tr><td><p>  │              └────────┬─────────┘                            │</p></td></tr><tr><td><p>  │                       │                                       │</p></td></tr><tr><td><p>  │              ┌────────▼─────────┐                            │</p></td></tr><tr><td><p>  │              │  IL kód (.dll)    │   (Intermediate Language)  │</p></td></tr><tr><td><p>  │              └────────┬─────────┘                            │</p></td></tr><tr><td><p>  │                       │ JIT nebo AOT kompilace                │</p></td></tr><tr><td><p>  │       ┌───────────────┼───────────────┐                      │</p></td></tr><tr><td><p>  │       ▼               ▼               ▼                      │</p></td></tr><tr><td><p>  │  ┌─────────┐  ┌─────────────┐  ┌──────────┐                 │</p></td></tr><tr><td><p>  │  │  CLR    │  │  BCL / FCL  │  │  App SDK │                 │</p></td></tr><tr><td><p>  │  │(Runtime)│  │ (Knihovny)  │  │ASP.NET,  │                 │</p></td></tr><tr><td><p>  │  │  GC     │  │ System.*    │  │MAUI, WPF │                 │</p></td></tr><tr><td><p>  │  │  JIT    │  │ Collections │  │          │                 │</p></td></tr><tr><td><p>  │  └────┬────┘  └─────────────┘  └──────────┘                 │</p></td></tr><tr><td><p>  │       │                                                       │</p></td></tr><tr><td><p>  │  ┌────▼─────────────────────────────────┐                    │</p></td></tr><tr><td><p>  │  │  Operační systém (Windows/Linux/macOS)│                    │</p></td></tr><tr><td><p>  │  └──────────────────────────────────────┘                    │</p></td></tr><tr><td><p>  └───────────────────────────────────────────────────────────────┘</p></td></tr></table><h2>2.2 Klíčové komponenty</h2><table><tr><td><p><strong>Komponenta</strong></p></td><td><p><strong>Zkratka</strong></p></td><td><p><strong>Popis</strong></p></td></tr><tr><td><p>Common Language Runtime</p></td><td><p>CLR</p></td><td><p>Běhové prostředí – spouští IL kód, řídí paměť, vlákna, bezpečnost</p></td></tr><tr><td><p>Base Class Library</p></td><td><p>BCL</p></td><td><p>Základní knihovny: System.Collections, System.IO, System.Net...</p></td></tr><tr><td><p>Just-In-Time Compiler</p></td><td><p>JIT</p></td><td><p>Překládá IL kód na nativní strojový kód za běhu (1. spuštění)</p></td></tr><tr><td><p>Ahead-of-Time Compiler</p></td><td><p>AOT</p></td><td><p>Překládá IL kód na nativní kód při kompilaci (rychlejší start)</p></td></tr><tr><td><p>Garbage Collector</p></td><td><p>GC</p></td><td><p>Automaticky uvolňuje paměť nepotřebných objektů</p></td></tr><tr><td><p>.NET SDK</p></td><td><p>SDK</p></td><td><p>Sada nástrojů: kompilátor, dotnet CLI, šablony, MSBuild</p></td></tr><tr><td><p>NuGet</p></td><td></td><td><p>Správce balíčků pro .NET – distribuce a sdílení knihoven</p></td></tr></table><h2>2.3 Jak .NET kompiluje a spouští kód</h2><table><tr><td><p>  ┌──────────┐    Kompilátor    ┌──────────┐    JIT/AOT    ┌──────────────┐</p></td></tr><tr><td><p>  │ Program.cs│   (Roslyn)      │  app.dll │   kompilace   │ Nativní kód  │</p></td></tr><tr><td><p>  │  (C# kód) │ ──────────────► │  (IL kód)│ ────────────► │  (pro CPU)   │</p></td></tr><tr><td><p>  └──────────┘                  └──────────┘               └──────────────┘</p></td></tr><tr><td><p>                                                                    │</p></td></tr><tr><td><p>                                                            ┌───────▼──────┐</p></td></tr><tr><td><p>                                                            │ Spuštění pod  │</p></td></tr><tr><td><p>                                                            │ správou CLR   │</p></td></tr><tr><td><p>                                                            │ (GC, vlákna)  │</p></td></tr><tr><td><p>                                                            └──────────────┘</p></td></tr></table><p>IL kód (Intermediate Language) je mezivrstva – platformě nezávislý bytekód podobný Java bytecodu. CLR ho za běhu přeloží do nativních instrukcí cílového CPU.</p><h1>3. Historie a verze .NET</h1><h2>3.1 Časová osa</h2><table><tr><td><p>  2002  ──►  .NET Framework 1.0  (pouze Windows, C# 1.0)</p></td></tr><tr><td><p>  2005  ──►  .NET Framework 2.0  (Generics)</p></td></tr><tr><td><p>  2010  ──►  .NET Framework 4.0  (async/await základ)</p></td></tr><tr><td><p>  2016  ──►  .NET Core 1.0       (multiplatformní! Linux, macOS)</p></td></tr><tr><td><p>  2017  ──►  .NET Core 2.0       (výrazně rozšířena BCL)</p></td></tr><tr><td><p>  2019  ──►  .NET Core 3.x       (WPF, WinForms na Core)</p></td></tr><tr><td><p>  2020  ──►  .NET 5              (unifikace: Core + Framework → jedno .NET)</p></td></tr><tr><td><p>  2021  ──►  .NET 6 (LTS)        (MAUI preview, hot reload, minimal API)</p></td></tr><tr><td><p>  2022  ──►  .NET 7              (výkon, native AOT preview)</p></td></tr><tr><td><p>  2023  ──►  .NET 8 (LTS)        (native AOT, Blazor hybrid, AI integrace)</p></td></tr><tr><td><p>  2024  ──►  .NET 9              (výkon, AI/ML, HybridCache)</p></td></tr><tr><td><p>  2025  ──►  .NET 10 (LTS)       (nejnovější LTS verze)</p></td></tr></table><h2>3.2 .NET vs .NET Framework vs .NET Core</h2><table><tr><td></td><td><p><strong>Moderní .NET (5+)</strong></p></td><td><p><strong>Starší .NET Framework</strong></p></td><td><p><strong>Mono</strong></p></td></tr><tr><td><p>Platformy</p></td><td><p>Windows, Linux, macOS</p></td><td><p>Pouze Windows</p></td><td><p>Multiplatformní</p></td></tr><tr><td><p>Open source</p></td><td><p>Ano (MIT)</p></td><td><p>Ne</p></td><td><p>Ano</p></td></tr><tr><td><p>Výkon</p></td><td><p>Velmi vysoký</p></td><td><p>Nižší</p></td><td><p>Střední</p></td></tr><tr><td><p>Stav</p></td><td><p>Aktivně vyvíjen</p></td><td><p>Pouze opravy chyb</p></td><td><p>Aktivně vyvíjen</p></td></tr><tr><td><p>Doporučení</p></td><td><p>✓ Pro nové projekty</p></td><td><p>✗ Legacy systémy</p></td><td><p>Unity hry</p></td></tr></table><h2>3.3 Verze a podpora (LTS vs STS)</h2><table><tr><td><p><strong>Verze</strong></p></td><td><p><strong>Typ</strong></p></td><td><p><strong>Podpora do</strong></p></td><td><p><strong>Poznámka</strong></p></td></tr><tr><td><p>.NET 8</p></td><td><p>LTS</p></td><td><p>Listopad 2026</p></td><td><p>Aktuální LTS – doporučeno pro produkci</p></td></tr><tr><td><p>.NET 9</p></td><td><p>STS</p></td><td><p>Květen 2026</p></td><td><p>Aktuální standardní verze</p></td></tr><tr><td><p>.NET 10</p></td><td><p>LTS</p></td><td><p>Listopad 2028</p></td><td><p>Nejnovější LTS (vydáno 2025)</p></td></tr></table><p>LTS = Long-Term Support (3 roky), STS = Standard-Term Support (18 měsíců).</p><h1>4. Instalace a první kroky</h1><h2>4.1 Instalace .NET SDK</h2><p>Stáhněte .NET SDK z: <a href="https://dotnet.microsoft.com/download" target="_blank" rel="noopener noreferrer">https://dotnet.microsoft.com/download</a></p><p>Instalátor přidá příkaz dotnet do systémové PATH. SDK zahrnuje:</p><p>• .NET Runtime (pro spuštění aplikací)</p><p>• dotnet CLI (příkazový řádek)</p><p>• Kompilátory a šablony projektů</p><h2>4.2 Ověření instalace</h2><pre><code><strong>Terminál</strong>
+$ dotnet --version
+10.0.204
+ 
+$ dotnet --info
+.NET SDK:
+ Version:           10.0.204
+ OS Name:           Windows
+ OS Architecture:   x64
+ Host:
+   Version:         10.0.0
+   Architecture:    x64</code></pre>
+<h2>4.3 IDE a editory</h2><table><tr><td><p><strong>Nástroj</strong></p></td><td><p><strong>Platforma</strong></p></td><td><p><strong>Popis</strong></p></td><td><p><strong>Cena</strong></p></td></tr><tr><td><p>Visual Studio 2022</p></td><td><p>Windows</p></td><td><p>Nejbohatší IDE pro .NET, IntelliSense, debugger, profiler</p></td><td><p>Community zdarma</p></td></tr><tr><td><p>Visual Studio Code</p></td><td><p>Win/Lin/Mac</p></td><td><p>Lehký editor + C# Dev Kit rozšíření</p></td><td><p>Zdarma</p></td></tr><tr><td><p>JetBrains Rider</p></td><td><p>Win/Lin/Mac</p></td><td><p>Výkonné IDE pro .NET, alternativa k VS</p></td><td><p>Placené (trial zdarma)</p></td></tr></table><h1>5. .NET CLI – příkazový řádek</h1><p>Rozhraní příkazového řádku .NET (CLI) je sada nástrojů pro vývoj, sestavování, testování a publikování aplikací .NET. Struktura příkazu:</p><table><tr><td><p>  dotnet   &lt;příkaz&gt;   [argumenty]   [možnosti]</p></td></tr><tr><td><p>    │           │           │              │</p></td></tr><tr><td><p>    │      new/build/    projekt       --output</p></td></tr><tr><td><p>  ovladač   run/test     nebo         --config</p></td></tr><tr><td><p>            publish      soubory      --runtime</p></td></tr></table><h2>5.1 Základní příkazy</h2><table><tr><td><p><strong>Příkaz</strong></p></td><td><p><strong>Popis</strong></p></td></tr><tr><td><p>dotnet new &lt;šablona&gt;</p></td><td><p>Vytvoří nový projekt nebo soubor ze šablony</p></td></tr><tr><td><p>dotnet build</p></td><td><p>Sestaví projekt a jeho závislosti</p></td></tr><tr><td><p>dotnet run</p></td><td><p>Sestaví a spustí projekt (pro vývoj)</p></td></tr><tr><td><p>dotnet test</p></td><td><p>Spustí testy v projektu</p></td></tr><tr><td><p>dotnet publish</p></td><td><p>Připraví aplikaci pro nasazení (distribuce)</p></td></tr><tr><td><p>dotnet clean</p></td><td><p>Smaže výstupy předchozího sestavení</p></td></tr><tr><td><p>dotnet restore</p></td><td><p>Obnoví závislosti (NuGet balíčky)</p></td></tr><tr><td><p>dotnet watch</p></td><td><p>Sleduje změny a automaticky znovu spustí aplikaci</p></td></tr><tr><td><p>dotnet --version</p></td><td><p>Zobrazí verzi nainstalovaného SDK</p></td></tr><tr><td><p>dotnet --info</p></td><td><p>Zobrazí podrobné informace o SDK a prostředí</p></td></tr></table><h2>5.2 Příkazy pro správu balíčků NuGet</h2><table><tr><td><p><strong>Příkaz</strong></p></td><td><p><strong>Popis</strong></p></td></tr><tr><td><p>dotnet package add &lt;balíček&gt;</p></td><td><p>Přidá NuGet balíček do projektu</p></td></tr><tr><td><p>dotnet package remove &lt;balíček&gt;</p></td><td><p>Odebere NuGet balíček z projektu</p></td></tr><tr><td><p>dotnet package list</p></td><td><p>Zobrazí seznam nainstalovaných balíčků</p></td></tr><tr><td><p>dotnet nuget push</p></td><td><p>Nahraje balíček na NuGet server</p></td></tr></table><h2>5.3 Šablony projektů (dotnet new)</h2><table><tr><td><p><strong>Terminál – dotnet new</strong></p></td></tr><tr><td><p># Zobraz všechny dostupné šablony</p></td></tr><tr><td><p>$ dotnet new list</p></td></tr><tr><td><p> </p></td></tr><tr><td><p># Vytvořit nové projekty</p></td></tr><tr><td><p>$ dotnet new console -n MojeAplikace      # konzolová aplikace</p></td></tr><tr><td><p>$ dotnet new webapi -n MojeAPI            # Web API (ASP.NET Core)</p></td></tr><tr><td><p>$ dotnet new mvc -n MojeWebApp            # MVC webová aplikace</p></td></tr><tr><td><p>$ dotnet new blazorwasm -n MojeBlazor     # Blazor WebAssembly</p></td></tr><tr><td><p>$ dotnet new classlib -n MojeKnihovna     # knihovna tříd</p></td></tr><tr><td><p>$ dotnet new xunit -n MojeAplikace.Tests  # xUnit testovací projekt</p></td></tr><tr><td><p>$ dotnet new worker -n MujService         # Worker Service (background)</p></td></tr></table><h2>5.4 Typický pracovní postup</h2><pre><code><strong>Terminál – typický workflow</strong>
+# 1. Vytvoření projektu
+$ dotnet new webapi -n MojeAPI
+$ cd MojeAPI
+ 
+# 2. Přidání balíčku
+$ dotnet package add Newtonsoft.Json
+ 
+# 3. Sestavení
+$ dotnet build
+ 
+# 4. Spuštění (vývojový mód)
+$ dotnet run
+ 
+# 5. Testy
+$ dotnet test
+ 
+# 6. Publikování pro produkci
+$ dotnet publish -c Release</code></pre>
+<h1>6. Struktura .NET projektu</h1><h2>6.1 Adresářová struktura</h2><table><tr><td><p>  MojeAplikace/                  ← kořenový adresář projektu</p></td></tr><tr><td><p>  ├── MojeAplikace.csproj        ← soubor projektu (XML)</p></td></tr><tr><td><p>  ├── Program.cs                 ← vstupní bod aplikace</p></td></tr><tr><td><p>  ├── appsettings.json           ← konfigurace (ASP.NET Core)</p></td></tr><tr><td><p>  ├── appsettings.Development.json</p></td></tr><tr><td><p>  ├── Controllers/               ← složka pro controllery (MVC/API)</p></td></tr><tr><td><p>  │   └── WeatherController.cs</p></td></tr><tr><td><p>  ├── Models/                    ← datové modely</p></td></tr><tr><td><p>  │   └── WeatherForecast.cs</p></td></tr><tr><td><p>  ├── Services/                  ← business logika (DI)</p></td></tr><tr><td><p>  │   └── WeatherService.cs</p></td></tr><tr><td><p>  ├── bin/                       ← výstup sestavení (.dll, .exe)</p></td></tr><tr><td><p>  └── obj/                       ← dočasné soubory kompilátoru</p></td></tr></table><h2>6.2 Soubor projektu (.csproj)</h2><p>Soubor .csproj je XML soubor, který definuje konfiguraci projektu – cílový framework, závislosti, nastavení sestavení.</p><pre><code><strong>Příklad – MojeAplikace.csproj</strong>
+&lt;Project Sdk="Microsoft.NET.Sdk.Web"&gt;
+ 
+  &lt;PropertyGroup&gt;
+    &lt;!-- Cílový framework – aktuálně .NET 10 --&gt;
+    &lt;TargetFramework&gt;net10.0&lt;/TargetFramework&gt;
+    &lt;!-- Verze C# --&gt;
+    &lt;LangVersion&gt;latest&lt;/LangVersion&gt;
+    &lt;!-- Povolení nullable reference types --&gt;
+    &lt;Nullable&gt;enable&lt;/Nullable&gt;
+    &lt;!-- Warningy jako chyby --&gt;
+    &lt;TreatWarningsAsErrors&gt;false&lt;/TreatWarningsAsErrors&gt;
+  &lt;/PropertyGroup&gt;
+ 
+  &lt;!-- NuGet závislosti --&gt;
+  &lt;ItemGroup&gt;
+    &lt;PackageReference Include="Newtonsoft.Json" Version="13.0.3" /&gt;
+    &lt;PackageReference Include="Serilog" Version="4.0.0" /&gt;
+  &lt;/ItemGroup&gt;
+ 
+&lt;/Project&gt;</code></pre>
+<h2>6.3 Program.cs – vstupní bod aplikace</h2><pre><code><strong>Příklad – Program.cs</strong>
+// Moderní .NET (top-level statements, od .NET 6)
+// Žádná třída, žádná Main() metoda – kód přímo na vrchní úrovni
+ 
+Console.WriteLine("Ahoj, .NET!");
+ 
+// Klasická verze (starší styl):
+// namespace MojeAplikace
+// {
+//     class Program
+//     {
+//         static void Main(string[] args)
+//         {
+//             Console.WriteLine("Ahoj, .NET!");
+//         }
+//     }
+// }</code></pre>
+<h2>6.4 Solution (.sln) – řešení s více projekty</h2><pre><code>  MojeReseni.sln                  ← soubor řešení (solution)
+  ├── src/
+  │   ├── MojeAPI/                ← hlavní API projekt
+  │   │   └── MojeAPI.csproj
+  │   ├── MojeAPI.Core/           ← business logika (class library)
+  │   │   └── MojeAPI.Core.csproj
+  │   └── MojeAPI.Data/           ← přístup k datům (EF Core)
+  │       └── MojeAPI.Data.csproj
+  └── tests/
+      └── MojeAPI.Tests/          ← testovací projekt
+          └── MojeAPI.Tests.csproj
+<strong>Terminál</strong>
+# Vytvoření solution a přidání projektů
+$ dotnet new sln -n MojeReseni
+$ dotnet new webapi -n MojeAPI -o src/MojeAPI
+$ dotnet new classlib -n MojeAPI.Core -o src/MojeAPI.Core
+$ dotnet sln add src/MojeAPI/MojeAPI.csproj
+$ dotnet sln add src/MojeAPI.Core/MojeAPI.Core.csproj</code></pre>
+<h1>7. Správa paměti a Garbage Collector</h1><h2>7.1 Jak funguje správa paměti v .NET</h2><pre><code>.NET automaticky spravuje paměť pomocí Garbage Collectoru (GC). Vývojář nemusí manuálně uvolňovat paměť jako v C++.</code></pre>
+<table><tr><td><p>  Stack (zásobník)                  Heap (halda) – spravuje GC</p></td></tr><tr><td><p>  ┌──────────────────┐             ┌─────────────────────────────┐</p></td></tr><tr><td><p>  │ lokální proměnné │             │  Gen 0 (mladé objekty)       │</p></td></tr><tr><td><p>  │ hodnotové typy   │             │  ┌──┐ ┌──┐ ┌──┐ ┌──┐       │</p></td></tr><tr><td><p>  │ reference adresy │──────────►  │  │  │ │  │ │  │ │  │       │</p></td></tr><tr><td><p>  │                  │             │  └──┘ └──┘ └──┘ └──┘       │</p></td></tr><tr><td><p>  │ rámec metody 3   │             │  Gen 1 (střední objekty)     │</p></td></tr><tr><td><p>  │ rámec metody 2   │             │  Gen 2 (staré, trvalé obj.)  │</p></td></tr><tr><td><p>  │ rámec metody 1   │             │  LOH (velké objekty &gt;85 KB)  │</p></td></tr><tr><td><p>  └──────────────────┘             └─────────────────────────────┘</p></td></tr><tr><td><p>  Automaticky uvolněn               GC uvolní při Collection</p></td></tr><tr><td><p>  po skončení bloku</p></td></tr></table><h2>7.2 Generace GC</h2><table><tr><td><p><strong>Generace</strong></p></td><td><p><strong>Popis</strong></p></td><td><p><strong>Čistí se</strong></p></td></tr><tr><td><p>Generace 0 (Gen 0)</p></td><td><p>Nové, krátkodobé objekty (lokální proměnné ve smyčkách)</p></td><td><p>Nejčastěji</p></td></tr><tr><td><p>Generace 1 (Gen 1)</p></td><td><p>Přeživší z Gen 0, střednědobé objekty</p></td><td><p>Méně často</p></td></tr><tr><td><p>Generace 2 (Gen 2)</p></td><td><p>Dlouhodobé objekty (singletony, cache, statická data)</p></td><td><p>Nejméně (Full GC)</p></td></tr><tr><td><p>LOH – Large Object Heap</p></td><td><p>Objekty &gt; 85 kB (velká pole, streamy)</p></td><td><p>S Gen 2</p></td></tr></table><h2>7.3 IDisposable a using</h2><p>GC spravuje paměť, ale ne jiné zdroje (soubory, síťová připojení, databáze). Pro tyto zdroje slouží rozhraní IDisposable a příkaz using:</p><pre><code><strong>Příklad – IDisposable a using</strong>
+// using – zajistí automatické uvolnění zdroje (Dispose)
+using (FileStream fs = new FileStream("data.txt", FileMode.Open))
+{
+    // práce se souborem
+} // Dispose() se zavolá automaticky i při výjimce
+ 
+// Modernější zápis (using declaration)
+using var fs = new FileStream("data.txt", FileMode.Open);
+// Dispose se zavolá na konci bloku
+ 
+// IDisposable implementace vlastní třídy
+class MojeTrida : IDisposable
+{
+    private bool _disposed = false;
+ 
+    public void Dispose()
+    {
+        if (!_disposed)
+        {
+            // uvolnění zdrojů
+            _disposed = true;
+        }
+    }
+}</code></pre>
+<pre><code>Pravidlo: Vždy použijte using pro objekty implementující IDisposable (FileStream, HttpClient, DbConnection, SqlCommand, ...). Zabraňuje únikům zdrojů (resource leaks).</code></pre>
+<h1>8. NuGet – správce balíčků</h1><p>NuGet je správce balíčků pro .NET – podobně jako npm pro Node.js nebo Maven pro Javu. Umožňuje sdílení a opakované používání kódu formou balíčků.</p><table><tr><td><p>  Vývojář A          nuget.org           Vývojář B</p></td></tr><tr><td><p>  ┌──────────┐      ┌─────────────┐      ┌──────────────┐</p></td></tr><tr><td><p>  │ Knihovna │──►  │  NuGet      │──►   │ Moje aplikace│</p></td></tr><tr><td><p>  │ (balíček)│      │  Galerie    │      │              │</p></td></tr><tr><td><p>  │ v1.2.3   │◄──  │  (400 000+) │◄──   │ dotnet add   │</p></td></tr><tr><td><p>  └──────────┘      └─────────────┘      │ package XYZ  │</p></td></tr><tr><td><p>  dotnet nuget push                       └──────────────┘</p></td></tr></table><h2>8.1 Práce s NuGet balíčky</h2><pre><code><strong>Terminál – NuGet příkazy</strong>
+# Přidání balíčku
+$ dotnet package add Newtonsoft.Json
+$ dotnet package add Serilog --version 4.0.0
+ 
+# Odebrání balíčku
+$ dotnet package remove Newtonsoft.Json
+ 
+# Zobrazení nainstalovaných balíčků
+$ dotnet package list
+ 
+# Aktualizace balíčků
+$ dotnet package update Serilog
+ 
+# Hledání balíčků
+$ dotnet package search "logging"</code></pre>
+<h2>8.2 Populární NuGet balíčky</h2><table><tr><td><p><strong>Balíček</strong></p></td><td><p><strong>Popis</strong></p></td><td><p><strong>Použití</strong></p></td></tr><tr><td><p>Newtonsoft.Json</p></td><td><p>JSON serializace/deserializace (starší)</p></td><td><p>JsonConvert.SerializeObject(obj)</p></td></tr><tr><td><p>System.Text.Json</p></td><td><p>JSON zabudovaný v .NET (doporučeno)</p></td><td><p>JsonSerializer.Serialize(obj)</p></td></tr><tr><td><p>Serilog</p></td><td><p>Strukturované logování</p></td><td><p>Log.Information("Zpráva {Key}", val)</p></td></tr><tr><td><p>AutoMapper</p></td><td><p>Mapování mezi objekty (DTO ↔ Model)</p></td><td><p>_mapper.Map&lt;DestType&gt;(source)</p></td></tr><tr><td><p>Dapper</p></td><td><p>Lehký ORM pro SQL dotazy</p></td><td><p>connection.Query&lt;T&gt;(sql, params)</p></td></tr><tr><td><p>EntityFrameworkCore</p></td><td><p>Plnohodnotný ORM – LINQ nad databází</p></td><td><p>dbContext.Users.ToList()</p></td></tr><tr><td><p>MediatR</p></td><td><p>Mediátor vzor – CQRS Commands/Queries</p></td><td><p>await _mediator.Send(command)</p></td></tr><tr><td><p>FluentValidation</p></td><td><p>Validace vstupů fluent syntaxí</p></td><td><p>RuleFor(x =&gt; x.Name).NotEmpty()</p></td></tr><tr><td><p>Polly</p></td><td><p>Retry, circuit breaker, timeout politiky</p></td><td><p>Policy.Handle&lt;Exception&gt;().Retry(3)</p></td></tr><tr><td><p>xUnit</p></td><td><p>Unit testing framework</p></td><td><p>[Fact] public void Test() {}</p></td></tr><tr><td><p>Moq</p></td><td><p>Mockování závislostí pro testy</p></td><td><p>new Mock&lt;IService&gt;()</p></td></tr></table><h1>9. ASP.NET Core – webový framework</h1><p>ASP.NET Core je moderní, výkonný webový framework pro .NET. Slouží pro tvorbu REST API, webových stránek (MVC), real-time aplikací (SignalR) a mikroslužeb.</p><h2>9.1 Minimal API – nejjednodušší REST API</h2><pre><code><strong>Příklad – Minimal API</strong>
+// Program.cs – ASP.NET Core Minimal API
+var builder = WebApplication.CreateBuilder(args);
+ 
+// Registrace služeb (Dependency Injection)
+builder.Services.AddSingleton&lt;IWeatherService, WeatherService&gt;();
+ 
+var app = builder.Build();
+ 
+// Definice endpointů
+app.MapGet("/", () =&gt; "Ahoj z .NET!");
+ 
+app.MapGet("/pocasi", (IWeatherService service) =&gt;
+{
+    var data = service.GetForecast();
+    return Results.Ok(data);
+});
+ 
+app.MapPost("/pocasi", (WeatherData data) =&gt;
+{
+    // zpracování POST requestu
+    return Results.Created($"/pocasi/{data.Id}", data);
+});
+ 
+app.Run();</code></pre>
+<pre><code><strong>Terminál – spuštění API</strong>
+$ dotnet new webapi -n MojeAPI
+$ cd MojeAPI
+$ dotnet run
+# Aplikace běží na <a href="https://localhost:7000" target="_blank" rel="noopener noreferrer">https://localhost:7000</a>
+# Swagger UI: <a href="https://localhost:7000/swagger" target="_blank" rel="noopener noreferrer">https://localhost:7000/swagger</a></code></pre>
+<h2>9.2 MVC Controller API</h2><pre><code><strong>Příklad – Controller</strong>
+// Controllers/PocasiController.cs
+using Microsoft.AspNetCore.Mvc;
+ 
+[ApiController]
+[Route("api/[controller]")]
+public class PocasiController : ControllerBase
+{
+    private readonly IWeatherService _service;
+    private readonly ILogger&lt;PocasiController&gt; _logger;
+ 
+    public PocasiController(IWeatherService service,
+                             ILogger&lt;PocasiController&gt; logger)
+    {
+        _service = service;
+        _logger = logger;
+    }
+ 
+    // GET api/pocasi
+    [HttpGet]
+    public ActionResult&lt;IEnumerable&lt;WeatherForecast&gt;&gt; Get()
+    {
+        _logger.LogInformation("Načítám předpověď počasí");
+        return Ok(_service.GetForecast());
+    }
+ 
+    // GET api/pocasi/5
+    [HttpGet("{id}")]
+    public ActionResult&lt;WeatherForecast&gt; GetById(int id)
+    {
+        var item = _service.GetById(id);
+        return item is null ? NotFound() : Ok(item);
+    }
+ 
+    // POST api/pocasi
+    [HttpPost]
+    public ActionResult&lt;WeatherForecast&gt; Create(WeatherForecast forecast)
+    {
+        _service.Add(forecast);
+        return CreatedAtAction(nameof(GetById), new { id = forecast.Id }, forecast);
+    }
+}</code></pre>
+<h2>9.3 Middleware pipeline</h2><table><tr><td><p>  HTTP Request</p></td></tr><tr><td><p>       │</p></td></tr><tr><td><p>       ▼</p></td></tr><tr><td><p>  ┌──────────────────────────────────────────┐</p></td></tr><tr><td><p>  │  Middleware Pipeline (UseXxx metody)     │</p></td></tr><tr><td><p>  │                                          │</p></td></tr><tr><td><p>  │  UseExceptionHandler  ←── zachytí chyby  │</p></td></tr><tr><td><p>  │         │                                │</p></td></tr><tr><td><p>  │  UseHttpsRedirection  ←── HTTP → HTTPS   │</p></td></tr><tr><td><p>  │         │                                │</p></td></tr><tr><td><p>  │  UseStaticFiles       ←── statické soub. │</p></td></tr><tr><td><p>  │         │                                │</p></td></tr><tr><td><p>  │  UseRouting           ←── určí endpoint  │</p></td></tr><tr><td><p>  │         │                                │</p></td></tr><tr><td><p>  │  UseAuthentication    ←── kdo jsi?        │</p></td></tr><tr><td><p>  │         │                                │</p></td></tr><tr><td><p>  │  UseAuthorization     ←── smíš to?        │</p></td></tr><tr><td><p>  │         │                                │</p></td></tr><tr><td><p>  │  MapControllers       ←── controller      │</p></td></tr><tr><td><p>  └──────────────────────────────────────────┘</p></td></tr><tr><td><p>       │</p></td></tr><tr><td><p>       ▼</p></td></tr><tr><td><p>  HTTP Response</p></td></tr></table><h1>10. Dependency Injection (DI)</h1><p>Dependency Injection je návrhový vzor, při kterém třídy nedovolují samy sobě vytvářet své závislosti, ale dostávají je zvenčí. .NET má zabudovaný DI kontejner.</p><h2>10.1 Proč DI?</h2><table><tr><td><p>  BEZ DI (špatně):                   S DI (správně):</p></td></tr><tr><td><p>  ┌───────────────────────┐           ┌───────────────────────┐</p></td></tr><tr><td><p>  │  class OrderService   │           │  class OrderService   │</p></td></tr><tr><td><p>  │  {                    │           │  {                    │</p></td></tr><tr><td><p>  │    var db = new       │           │    IDatabase _db;     │</p></td></tr><tr><td><p>  │      Database();      │           │                       │</p></td></tr><tr><td><p>  │    // pevná závislost │           │    OrderService(       │</p></td></tr><tr><td><p>  │    // nelze testovat  │           │      IDatabase db)    │</p></td></tr><tr><td><p>  │  }                    │           │    { _db = db; }      │</p></td></tr><tr><td><p>  └───────────────────────┘           │    // testovatelné!   │</p></td></tr><tr><td><p>  Problém: změna databáze =           │  }                    │</p></td></tr><tr><td><p>  změna třídy OrderService            └───────────────────────┘</p></td></tr></table><h2>10.2 Životní cykly služeb (Service Lifetimes)</h2><table><tr><td><p><strong>Životní cyklus</strong></p></td><td><p><strong>Metoda registrace</strong></p></td><td><p><strong>Chování</strong></p></td><td><p><strong>Vhodné pro</strong></p></td></tr><tr><td><p>Singleton</p></td><td><p>AddSingleton&lt;I,T&gt;()</p></td><td><p>Jedna instance pro celý životní cyklus aplikace</p></td><td><p>Cache, konfigurace, logování</p></td></tr><tr><td><p>Scoped</p></td><td><p>AddScoped&lt;I,T&gt;()</p></td><td><p>Nová instance pro každý HTTP request (jednu "session")</p></td><td><p>DbContext, Unit of Work</p></td></tr><tr><td><p>Transient</p></td><td><p>AddTransient&lt;I,T&gt;()</p></td><td><p>Nová instance při každém vyžádání ze service provideru</p></td><td><p>Lehké, bezstavové služby</p></td></tr></table><pre><code><strong>Příklad – registrace DI</strong>
+// Program.cs – registrace služeb
+var builder = WebApplication.CreateBuilder(args);
+IServiceCollection services = builder.Services;
+ 
+// Singleton – jedna instance pro celou aplikaci
+services.AddSingleton&lt;IKonfiguraceService, KonfiguraceService&gt;();
+ 
+// Scoped – nová instance na každý HTTP request
+services.AddScoped&lt;IObjednavkaService, ObjednavkaService&gt;();
+services.AddDbContext&lt;MojeDbContext&gt;(options =&gt;
+    options.UseSqlServer(connString)); // DbContext je vždy Scoped
+ 
+// Transient – nová instance na každé vyžádání
+services.AddTransient&lt;IEmailService, EmailService&gt;();
+ 
+// Rozhraní – bez interface, registrace konkrétní třídy
+services.AddSingleton&lt;LogovaniService&gt;();
+ 
+var app = builder.Build();
+ 
+// Controller nebo Minimal API automaticky dostane injektované závislosti
+app.MapGet("/objednavky", (IObjednavkaService svc) =&gt;
+    svc.GetAll());</code></pre>
+<pre><code>  DI Kontejner (.NET IoC Container)
+  ┌──────────────────────────────────────────────────┐
+  │ Registrace (Program.cs):                         │
+  │  AddSingleton&lt;ICache, MemoryCache&gt;()             │
+  │  AddScoped&lt;IUserRepo, SqlUserRepo&gt;()             │
+  │  AddTransient&lt;IEmail, SmtpEmailSender&gt;()         │
+  └──────────────────────────────────────────────────┘
+                         │ vyžádání
+                         ▼
+  ┌──────────────────────────────────────────────────┐
+  │ class UserController(IUserRepo repo,             │
+  │                      IEmail email,               │
+  │                      ICache cache)               │
+  │ {                                                │
+  │     // .NET automaticky injektuje závislosti      │
+  │ }                                                │
+  └──────────────────────────────────────────────────┘</code></pre>
+<h1>11. Testování v .NET</h1><h2>11.1 Typy testů</h2><table><tr><td><p><strong>Typ testu</strong></p></td><td><p><strong>Popis</strong></p></td><td><p><strong>Rychlost</strong></p></td><td><p><strong>Kdy selhání</strong></p></td></tr><tr><td><p>Unit test</p></td><td><p>Testuje jednu metodu/třídu izolovaně (bez DB, sítě)</p></td><td><p>Velmi rychlé</p></td><td><p>Okamžitě</p></td></tr><tr><td><p>Integration test</p></td><td><p>Testuje spolupráci více komponent (s DB, API)</p></td><td><p>Střední</p></td><td><p>Sestavení/CD</p></td></tr><tr><td><p>E2E test</p></td><td><p>Testuje celý systém z pohledu uživatele (browser)</p></td><td><p>Pomalé</p></td><td><p>Před release</p></td></tr></table><h2>11.2 Testovací frameworky</h2><table><tr><td><p><strong>Framework</strong></p></td><td><p><strong>Popis</strong></p></td><td><p><strong>Atribut pro test</strong></p></td></tr><tr><td><p>xUnit</p></td><td><p>Nejpopulárnější, moderní, open source</p></td><td><p>[Fact] / [Theory]</p></td></tr><tr><td><p>NUnit</p></td><td><p>Zralý framework, bohatý na funkce</p></td><td><p>[Test] / [TestCase]</p></td></tr><tr><td><p>MSTest</p></td><td><p>Microsoft native framework</p></td><td><p>[TestMethod]</p></td></tr></table><h2>11.3 Unit test s xUnit</h2><pre><code><strong>Terminál</strong>
+# Vytvoření testovacího projektu
+$ dotnet new xunit -n MojeAplikace.Tests
+$ cd MojeAplikace.Tests
+$ dotnet package add Moq            # pro mockování
+$ dotnet package add FluentAssertions # přehledné asserty</code></pre>
+<pre><code><strong>Příklad – xUnit unit testy</strong>
+// MojeAplikace.Tests/KalkulackaTests.cs
+using Xunit;
+ 
+public class Kalkulacka
+{
+    public int Secti(int a, int b) =&gt; a + b;
+    public int Vydel(int a, int b)
+    {
+        if (b == 0) throw new DivideByZeroException();
+        return a / b;
+    }
+}
+ 
+public class KalkulackaTests
+{
+    private readonly Kalkulacka _kalkulacka = new Kalkulacka();
+ 
+    [Fact]  // jednoduchý test bez parametrů
+    public void Secti_DveKladnaCisla_VratisokretSoucet()
+    {
+        // Arrange (připrav)
+        int a = 3, b = 4;
+ 
+        // Act (proveď)
+        int vysledek = _kalkulacka.Secti(a, b);
+ 
+        // Assert (ověř)
+        Assert.Equal(7, vysledek);
+    }
+ 
+    [Theory]  // parametrizovaný test
+    [InlineData(10, 2, 5)]
+    [InlineData(9, 3, 3)]
+    [InlineData(0, 5, 0)]
+    public void Vydel_PlatneVstupy_VratiSpravnyVysledek(
+        int a, int b, int ocekavany)
+    {
+        int vysledek = _kalkulacka.Vydel(a, b);
+        Assert.Equal(ocekavany, vysledek);
+    }
+ 
+    [Fact]
+    public void Vydel_NuloutVmenovateli_HodivyVyjimku()
+    {
+        Assert.Throws&lt;DivideByZeroException&gt;(
+            () =&gt; _kalkulacka.Vydel(5, 0));
+    }
+}</code></pre>
+<pre><code><strong>Terminál – spuštění testů</strong>
+# Spuštění testů
+$ dotnet test
+ 
+# Detailní výstup
+$ dotnet test --verbosity normal
+ 
+# Výstup:
+# Passed!  - Failed: 0, Passed: 3, Skipped: 0, Total: 3</code></pre>
+<h2>11.4 Mockování závislostí s Moq</h2><pre><code><strong>Příklad – Moq mockování</strong>
+using Moq;
+using Xunit;
+ 
+public interface IEmailService
+{
+    bool OdesliEmail(string komu, string zprava);
+}
+ 
+public class NotifikacniService
+{
+    private readonly IEmailService _email;
+    public NotifikacniService(IEmailService email) =&gt; _email = email;
+ 
+    public bool NotifikujUzivatele(string email)
+        =&gt; _email.OdesliEmail(email, "Vítejte!");
+}
+ 
+public class NotifikacniServiceTests
+{
+    [Fact]
+    public void Notifikuj_UspesnyEmail_VratiTrue()
+    {
+        // Arrange – vytvoříme mock (falešnou implementaci)
+        var mockEmail = new Mock&lt;IEmailService&gt;();
+        mockEmail.Setup(s =&gt; s.OdesliEmail(
+            It.IsAny&lt;string&gt;(), It.IsAny&lt;string&gt;()))
+            .Returns(true);
+ 
+        var service = new NotifikacniService(mockEmail.Object);
+ 
+        // Act
+        bool vysledek = service.NotifikujUzivatele("test@test.cz");
+ 
+        // Assert
+        Assert.True(vysledek);
+        mockEmail.Verify(s =&gt;
+            s.OdesliEmail("test@test.cz", It.IsAny&lt;string&gt;()),
+            Times.Once);
+    }
+}</code></pre>
+<h1>12. Konfigurace a logování</h1><h2>12.1 appsettings.json</h2><pre><code><strong>Příklad – appsettings.json</strong>
+{
+  "ConnectionStrings": {
+    "Default": "Server=localhost;Database=MojeDB;Trusted_Connection=True;"
+  },
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning"
+    }
+  },
+  "JwtSettings": {
+    "SecretKey": "mujTajnyKlicProJWT",
+    "ExpirationHours": 24
+  },
+  "AllowedHosts": "*"
+}</code></pre>
+<h2>12.2 Čtení konfigurace v kódu</h2><pre><code><strong>Příklad – čtení konfigurace</strong>
+// Program.cs – přístup ke konfiguraci
+var builder = WebApplication.CreateBuilder(args);
+ 
+// Čtení hodnoty z appsettings
+string connStr = builder.Configuration
+    .GetConnectionString("Default");
+ 
+// Čtení sekce do třídy (Options pattern – doporučeno)
+builder.Services.Configure&lt;JwtSettings&gt;(
+    builder.Configuration.GetSection("JwtSettings"));
+ 
+// V controlleru nebo službě:
+public class AuthService
+{
+    private readonly JwtSettings _jwtSettings;
+ 
+    public AuthService(IOptions&lt;JwtSettings&gt; options)
+    {
+        _jwtSettings = options.Value;
+    }
+}
+ 
+public class JwtSettings
+{
+    public string SecretKey { get; set; }
+    public int ExpirationHours { get; set; }
+}</code></pre>
+<h2>12.3 Logování</h2><pre><code><strong>Příklad – logování</strong>
+// ILogger je zabudován v .NET DI
+public class ObjednavkaController : ControllerBase
+{
+    private readonly ILogger&lt;ObjednavkaController&gt; _logger;
+ 
+    public ObjednavkaController(ILogger&lt;ObjednavkaController&gt; logger)
+    {
+        _logger = logger;
+    }
+ 
+    [HttpGet]
+    public IActionResult Get()
+    {
+        _logger.LogDebug("Debug zpráva – pouze pro vývoj");
+        _logger.LogInformation("Načítám objednávky pro uživatele {UserId}", 42);
+        _logger.LogWarning("Varování: databáze je pomalá");
+        _logger.LogError("CHYBA při načítání: {Message}", "Connection timeout");
+ 
+        return Ok();
+    }
+}
+ 
+// Pokročilé logování – Serilog (NuGet)
+// Program.cs:
+// Log.Logger = new LoggerConfiguration()
+//     .WriteTo.Console()
+//     .WriteTo.File("log.txt", rollingInterval: RollingInterval.Day)
+//     .CreateLogger();</code></pre>
+<h1>13. Publikování a nasazení</h1><h2>13.1 Režimy publikování</h2><table><tr><td><p><strong>Režim</strong></p></td><td><p><strong>Výhody</strong></p></td><td><p><strong>Nevýhody</strong></p></td><td><p><strong>Příkaz</strong></p></td></tr><tr><td><p>Framework-dependent (FDD)</p></td><td><p>Malá velikost, používá systémový runtime</p></td><td><p>Vyžaduje .NET Runtime v OS</p></td><td><p>dotnet publish -c Release</p></td></tr><tr><td><p>Self-contained (SCD)</p></td><td><p>Nezávisí na OS, vše v balíčku</p></td><td><p>Větší velikost (50-100 MB+)</p></td><td><p>dotnet publish -c Release -r win-x64 --self-contained true</p></td></tr><tr><td><p>Single-file</p></td><td><p>Jeden spustitelný soubor</p></td><td><p>Větší, pomalejší start</p></td><td><p>dotnet publish -r win-x64 -p:PublishSingleFile=true</p></td></tr><tr><td><p>Native AOT</p></td><td><p>Nejrychlejší start, nejmenší</p></td><td><p>Omezená kompatibilita</p></td><td><p>dotnet publish -r win-x64 -p:PublishAot=true</p></td></tr></table><h2>13.2 Runtime Identifikátory (RID)</h2><table><tr><td><p><strong>Platforma</strong></p></td><td><p><strong>RID</strong></p></td></tr><tr><td><p>Windows 64-bit</p></td><td><p>win-x64</p></td></tr><tr><td><p>Windows 32-bit</p></td><td><p>win-x86</p></td></tr><tr><td><p>Windows ARM64</p></td><td><p>win-arm64</p></td></tr><tr><td><p>Linux 64-bit</p></td><td><p>linux-x64</p></td></tr><tr><td><p>Linux ARM64</p></td><td><p>linux-arm64</p></td></tr><tr><td><p>macOS Intel</p></td><td><p>osx-x64</p></td></tr><tr><td><p>macOS Apple Silicon</p></td><td><p>osx-arm64</p></td></tr></table><h2>13.3 Praktické příklady publikování</h2><pre><code><strong>Terminál – dotnet publish</strong>
+# Framework-dependent (výchozí)
+$ dotnet publish -c Release
+# Výstup: bin/Release/net10.0/publish/
+ 
+# Self-contained pro Windows 64-bit
+$ dotnet publish -c Release -r win-x64 --self-contained true
+ 
+# Self-contained jako jeden soubor
+$ dotnet publish -c Release -r win-x64 -p:PublishSingleFile=true
+ 
+# Pro Linux 64-bit (nasazení na server)
+$ dotnet publish -c Release -r linux-x64 --self-contained true -o ./publish
+ 
+# Docker kontejner
+$ dotnet publish -c Release -t:PublishContainer</code></pre>
+<h2>13.4 Docker a .NET</h2><pre><code><strong>Příklad – Dockerfile (multi-stage build)</strong>
+# Dockerfile pro ASP.NET Core aplikaci
+FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS base
+WORKDIR /app
+EXPOSE 80
+EXPOSE 443
+ 
+# Build stage
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+WORKDIR /src
+COPY ["MojeAPI.csproj", "."]
+RUN dotnet restore "MojeAPI.csproj"
+COPY . .
+RUN dotnet build "MojeAPI.csproj" -c Release -o /app/build
+ 
+# Publish stage
+FROM build AS publish
+RUN dotnet publish "MojeAPI.csproj" -c Release -o /app/publish
+ 
+# Final stage
+FROM base AS final
+WORKDIR /app
+COPY --from=publish /app/publish .
+ENTRYPOINT ["dotnet", "MojeAPI.dll"]
+<strong>Terminál – Docker</strong>
+# Sestavení Docker image
+$ docker build -t moje-api:latest .
+ 
+# Spuštění kontejneru
+$ docker run -p 8080:80 moje-api:latest
+ 
+# Přístup: <a href="http://localhost:8080" target="_blank" rel="noopener noreferrer">http://localhost:8080</a></code></pre>
+<h1>14. Typy .NET aplikací – přehled</h1><h2>14.1 Konzolová aplikace</h2><pre><code><strong>Příklad – Konzolová aplikace</strong>
+// Program.cs
+using System;
+using System.Threading.Tasks;
+ 
+// Top-level statements (C# 9+)
+Console.WriteLine("Konzolová aplikace .NET");
+ 
+// Čtení vstupů
+Console.Write("Zadej jméno: ");
+string jmeno = Console.ReadLine() ?? "Anonym";
+Console.WriteLine($"Ahoj, {jmeno}!");
+ 
+// Asynchronní vstupní bod
+await SpustAsynchronni();
+ 
+async Task SpustAsynchronni()
+{
+    await Task.Delay(100);
+    Console.WriteLine("Hotovo!");
+}</code></pre>
+<h2>14.2 Worker Service (background job)</h2><pre><code><strong>Příklad – Worker Service</strong>
+// Worker.cs – periodicky se spouštějící background job
+public class MujWorker : BackgroundService
+{
+    private readonly ILogger&lt;MujWorker&gt; _logger;
+ 
+    public MujWorker(ILogger&lt;MujWorker&gt; logger)
+    {
+        _logger = logger;
+    }
+ 
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    {
+        while (!stoppingToken.IsCancellationRequested)
+        {
+            _logger.LogInformation("Worker běží: {time}", DateTime.Now);
+ 
+            // Zpracování dat, odesílání emailů, atd.
+            await ZpracujDataAsync();
+ 
+            await Task.Delay(TimeSpan.FromMinutes(5), stoppingToken);
+        }
+    }
+ 
+    private async Task ZpracujDataAsync() { /* ... */ }
+}
+ 
+// Program.cs
+var builder = Host.CreateApplicationBuilder(args);
+builder.Services.AddHostedService&lt;MujWorker&gt;();
+var host = builder.Build();
+host.Run();</code></pre>
+<h2>14.3 Přehled frameworků a kdy je použít</h2><table><tr><td><p><strong>Framework</strong></p></td><td><p><strong>Kdy použít</strong></p></td></tr><tr><td><p>ASP.NET Core Minimal API</p></td><td><p>Jednoduché REST API, mikroslužby, prototypy</p></td></tr><tr><td><p>ASP.NET Core MVC</p></td><td><p>Webové aplikace se serverovým renderingem, administrace</p></td></tr><tr><td><p>ASP.NET Core Web API (Controller)</p></td><td><p>Větší REST API, enterprise projekty</p></td></tr><tr><td><p>Blazor Server</p></td><td><p>SPA s C# a server-side rendering, real-time</p></td></tr><tr><td><p>Blazor WebAssembly</p></td><td><p>SPA v prohlížeči v C# bez JavaScriptu</p></td></tr><tr><td><p>.NET MAUI</p></td><td><p>Cross-platform mobilní a desktopové aplikace</p></td></tr><tr><td><p>WPF</p></td><td><p>Bohaté desktopové aplikace pro Windows</p></td></tr><tr><td><p>Worker Service</p></td><td><p>Background jobs, Windows Services, cronjobs</p></td></tr><tr><td><p>SignalR</p></td><td><p>Real-time komunikace (chat, notifikace, live data)</p></td></tr></table><h1>15. Rychlý přehled – Cheatsheet</h1><h2>Klíčové dotnet CLI příkazy</h2><table><tr><td><p>  ┌────────────────────────────────────────────────────────────┐</p></td></tr><tr><td><p>  │                  DOTNET CLI CHEATSHEET                    │</p></td></tr><tr><td><p>  │                                                            │</p></td></tr><tr><td><p>  │  PROJEKT                                                   │</p></td></tr><tr><td><p>  │    dotnet new console      Konzolová aplikace              │</p></td></tr><tr><td><p>  │    dotnet new webapi       REST API (ASP.NET Core)         │</p></td></tr><tr><td><p>  │    dotnet new xunit        Testovací projekt               │</p></td></tr><tr><td><p>  │    dotnet new sln          Solution soubor                 │</p></td></tr><tr><td><p>  │                                                            │</p></td></tr><tr><td><p>  │  SESTAVENÍ A SPUŠTĚNÍ                                      │</p></td></tr><tr><td><p>  │    dotnet build            Sestaví projekt                 │</p></td></tr><tr><td><p>  │    dotnet run              Spustí aplikaci (dev)           │</p></td></tr><tr><td><p>  │    dotnet watch            Hot-reload při změně kódu       │</p></td></tr><tr><td><p>  │    dotnet test             Spustí testy                    │</p></td></tr><tr><td><p>  │    dotnet clean            Smaže výstupní soubory          │</p></td></tr><tr><td><p>  │                                                            │</p></td></tr><tr><td><p>  │  BALÍČKY                                                   │</p></td></tr><tr><td><p>  │    dotnet package add X    Přidá NuGet balíček             │</p></td></tr><tr><td><p>  │    dotnet package remove X Odebere NuGet balíček           │</p></td></tr><tr><td><p>  │    dotnet restore          Obnoví závislosti               │</p></td></tr><tr><td><p>  │                                                            │</p></td></tr><tr><td><p>  │  PUBLIKOVÁNÍ                                               │</p></td></tr><tr><td><p>  │    dotnet publish -c Release         Framework-dependent   │</p></td></tr><tr><td><p>  │    dotnet publish -r win-x64 --self-contained  Self-cont.  │</p></td></tr><tr><td><p>  │    dotnet publish -p:PublishSingleFile=true     Jeden soub.│</p></td></tr><tr><td><p>  └────────────────────────────────────────────────────────────┘</p></td></tr></table><h2>Přehled komponent a frameworků</h2><table><tr><td><p><strong>Co</strong></p></td><td><p><strong>Technologie</strong></p></td><td><p><strong>NuGet balíčky</strong></p></td></tr><tr><td><p>Webové API</p></td><td><p>ASP.NET Core</p></td><td><p>(zabudováno v SDK)</p></td></tr><tr><td><p>Databáze (ORM)</p></td><td><p>Entity Framework Core</p></td><td><p>Microsoft.EntityFrameworkCore.SqlServer</p></td></tr><tr><td><p>Logování</p></td><td><p>Serilog / NLog / built-in</p></td><td><p>Serilog, Serilog.Sinks.Console</p></td></tr><tr><td><p>Testování</p></td><td><p>xUnit + Moq</p></td><td><p>xunit, Moq, FluentAssertions</p></td></tr><tr><td><p>JSON</p></td><td><p>System.Text.Json (built-in)</p></td><td><p>(zabudováno v .NET 6+)</p></td></tr><tr><td><p>Autentizace</p></td><td><p>ASP.NET Core Identity</p></td><td><p>Microsoft.AspNetCore.Identity.EntityFrameworkCore</p></td></tr><tr><td><p>JWT tokeny</p></td><td><p>JWT Bearer</p></td><td><p>Microsoft.AspNetCore.Authentication.JwtBearer</p></td></tr><tr><td><p>Cache</p></td><td><p>IMemoryCache / Redis</p></td><td><p>Microsoft.Extensions.Caching.StackExchangeRedis</p></td></tr><tr><td><p>Email</p></td><td><p>MailKit / SendGrid</p></td><td><p>MailKit, SendGrid</p></td></tr></table><h2>.NET verze TFM (Target Framework Moniker)</h2><table><tr><td><p><strong>TFM v .csproj</strong></p></td><td><p><strong>Verze .NET</strong></p></td><td><p><strong>LTS?</strong></p></td></tr><tr><td><p>net8.0</p></td><td><p>.NET 8</p></td><td><p>Ano (do 11/2026)</p></td></tr><tr><td><p>net9.0</p></td><td><p>.NET 9</p></td><td><p>Ne (STS, do 5/2026)</p></td></tr><tr><td><p>net10.0</p></td><td><p>.NET 10</p></td><td><p>Ano (do 11/2028)</p></td></tr><tr><td><p>netstandard2.0</p></td><td><p>.NET Standard 2.0</p></td><td><p>Knihovny kompatibilní s .NET Framework i .NET Core</p></td></tr></table>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>
+    
+    document.querySelectorAll('pre code').forEach(function(el){ hljs.highlightElement(el); });
+  </script>
+  <script>(function () {
+    var marks = [];
+    var idx = -1;
+
+    function clearMarks() {
+        marks.forEach(function (m) {
+            var p = m.parentNode;
+            if (p) { p.replaceChild(document.createTextNode(m.textContent), m); p.normalize(); }
+        });
+        marks = [];
+        idx = -1;
+    }
+
+    function markText(query) {
+        var results = [];
+        var lower = query.toLowerCase();
+        var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null);
+        var nodes = [];
+        var n;
+        while ((n = walker.nextNode())) {
+            if (n.nodeValue.toLowerCase().includes(lower)) nodes.push(n);
+        }
+        nodes.forEach(function (textNode) {
+            var text  = textNode.nodeValue;
+            var ltext = text.toLowerCase();
+            var par   = textNode.parentNode;
+            if (!par) return;
+            var frag = document.createDocumentFragment();
+            var last = 0, i;
+            while ((i = ltext.indexOf(lower, last)) !== -1) {
+                if (i > last) frag.appendChild(document.createTextNode(text.slice(last, i)));
+                var m = document.createElement('mark');
+                m.className = 'dsm';
+                m.style.cssText = 'background:#ffe066;color:inherit;border-radius:2px;';
+                m.textContent = text.slice(i, i + query.length);
+                frag.appendChild(m);
+                results.push(m);
+                last = i + query.length;
+            }
+            if (last < text.length) frag.appendChild(document.createTextNode(text.slice(last)));
+            par.replaceChild(frag, textNode);
+        });
+        return results;
+    }
+
+    function highlight() {
+        marks.forEach(function (m, i) {
+            m.style.background = i === idx ? '#ff9900' : '#ffe066';
+            m.style.outline    = i === idx ? '2px solid #e65c00' : 'none';
+        });
+        if (marks[idx]) marks[idx].scrollIntoView({ block: 'center' });
+    }
+
+    function reply(src) {
+        src.postMessage({ type: 'searchResult', count: marks.length, current: idx }, '*');
+    }
+
+    window.addEventListener('message', function (e) {
+        var d = e.data;
+        if (!d || !d.type) return;
+        if (d.type === 'search') {
+            clearMarks();
+            if (d.query) {
+                marks = markText(d.query);
+                if (marks.length) idx = 0;
+                highlight();
+            }
+            reply(e.source);
+        } else if (d.type === 'searchNav') {
+            if (!marks.length) return;
+            idx = d.dir === 'next'
+                ? (idx + 1) % marks.length
+                : (idx - 1 + marks.length) % marks.length;
+            highlight();
+            reply(e.source);
+        } else if (d.type === 'searchClear') {
+            clearMarks();
+        }
+    });
+})();</script>
+</body>
+</html>

@@ -1,0 +1,1122 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>C-sharpByClaude</title>
+  <link rel="stylesheet" href="../assets/content.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+</head>
+<body>
+  <div style="display:flex;align-items:baseline;gap:12px;margin-bottom:4px;">
+    <h1 style="margin:0 0 8px;">C-sharpByClaude</h1>
+    <a href="C_sharpByClaude.docx" download style="font-size:13px;color:#555;text-decoration:none;border:1px solid #ccc;border-radius:4px;padding:3px 9px;background:#f5f5f5;" title="Download original .docx">&#8681; .docx</a>
+  </div>
+  <p><strong>C#</strong></p><p><strong>Studijní průvodce</strong></p><p>Objektově orientovaný jazyk platformy .NET</p><p><em>Zdroje: learn.microsoft.com · w3schools.com</em></p><h1>1. Co je C#?</h1><p>C# (čteme „C-Sharp") je moderní, objektově orientovaný programovací jazyk vytvořený společností Microsoft. Spouští se na platformě .NET a poprvé byl vydán v roce 2002. Aktuální verze je C# 13 (2024).</p><h2>1.1 Kde se C# používá?</h2><table><tr><td><p><strong>Oblast</strong></p></td><td><p><strong>Příklady použití</strong></p></td></tr><tr><td><p>Webové aplikace</p></td><td><p>ASP.NET Core, Blazor, REST API</p></td></tr><tr><td><p>Desktopové aplikace</p></td><td><p>WPF, WinForms, .NET MAUI</p></td></tr><tr><td><p>Mobilní aplikace</p></td><td><p>.NET MAUI (iOS, Android)</p></td></tr><tr><td><p>Vývoj her</p></td><td><p>Unity, MonoGame, CRYENGINE</p></td></tr><tr><td><p>Cloudové služby</p></td><td><p>Azure Functions, mikroslužby</p></td></tr><tr><td><p>IoT a embedded</p></td><td><p>.NET IoT, Raspberry Pi</p></td></tr></table><h2>1.2 Proč se učit C#?</h2><p>• Jeden z nejpopulárnějších jazyků světa (top 5 dle TIOBE/GitHub)</p><p>• Silná typová bezpečnost – chyby se odhalí při kompilaci</p><p>• Bohatý ekosystém .NET – tisíce knihoven a frameworků</p><p>• Výborná integrace s IDE (Visual Studio, VS Code, Rider)</p><p>• Plně cross-platform: Windows, Linux, macOS</p><h2>1.3 .NET ekosystém</h2><table><tr><td><p>  ┌─────────────────────────────────────────────────────────┐</p></td></tr><tr><td><p>  │                  .NET EKOSYSTÉM                         │</p></td></tr><tr><td><p>  │                                                         │</p></td></tr><tr><td><p>  │   ┌──────────┐  ┌──────────┐  ┌──────────────────┐    │</p></td></tr><tr><td><p>  │   │   C#     │  │   F#     │  │   Visual Basic   │    │</p></td></tr><tr><td><p>  │   │ (hlavní) │  │(funkční) │  │    (legacy)      │    │</p></td></tr><tr><td><p>  │   └────┬─────┘  └────┬─────┘  └────────┬─────────┘    │</p></td></tr><tr><td><p>  │        └─────────────┴─────────────────┘              │</p></td></tr><tr><td><p>  │                       │                                │</p></td></tr><tr><td><p>  │              ┌────────▼────────┐                       │</p></td></tr><tr><td><p>  │              │  .NET Runtime   │                       │</p></td></tr><tr><td><p>  │              │  (CLR + BCL)    │                       │</p></td></tr><tr><td><p>  │              └────────┬────────┘                       │</p></td></tr><tr><td><p>  │        ┌──────────────┼──────────────┐                 │</p></td></tr><tr><td><p>  │        ▼              ▼              ▼                 │</p></td></tr><tr><td><p>  │  ┌──────────┐  ┌──────────┐  ┌──────────────┐        │</p></td></tr><tr><td><p>  │  │ASP.NET   │  │ .NET     │  │   .NET MAUI   │        │</p></td></tr><tr><td><p>  │  │  Core    │  │ Desktop  │  │  (mobile+UI)  │        │</p></td></tr><tr><td><p>  │  │  (Web)   │  │(WPF/WF)  │  │               │        │</p></td></tr><tr><td><p>  │  └──────────┘  └──────────┘  └───────────────┘        │</p></td></tr><tr><td><p>  └─────────────────────────────────────────────────────────┘</p></td></tr></table><h2>1.4 Verze C#</h2><table><tr><td><p><strong>Verze</strong></p></td><td><p><strong>Rok</strong></p></td><td><p><strong>Klíčové novinky</strong></p></td></tr><tr><td><p>C# 1.0</p></td><td><p>2002</p></td><td><p>Základní OOP jazyk, .NET 1.0</p></td></tr><tr><td><p>C# 2.0</p></td><td><p>2005</p></td><td><p>Generics, nullable types, iterátory (yield)</p></td></tr><tr><td><p>C# 3.0</p></td><td><p>2007</p></td><td><p>LINQ, lambda výrazy, var, extension methods</p></td></tr><tr><td><p>C# 4.0</p></td><td><p>2010</p></td><td><p>Dynamické typování (dynamic), named/optional parametry</p></td></tr><tr><td><p>C# 5.0</p></td><td><p>2012</p></td><td><p>async/await, caller info atributy</p></td></tr><tr><td><p>C# 6.0</p></td><td><p>2015</p></td><td><p>String interpolation ($""), null-conditional (?.)</p></td></tr><tr><td><p>C# 7.x</p></td><td><p>2017</p></td><td><p>Tuples, pattern matching, local functions</p></td></tr><tr><td><p>C# 8.0</p></td><td><p>2019</p></td><td><p>Nullable reference types, switch expressions, records</p></td></tr><tr><td><p>C# 9.0</p></td><td><p>2020</p></td><td><p>Records, init-only setters, top-level statements</p></td></tr><tr><td><p>C# 10.0</p></td><td><p>2021</p></td><td><p>Global using, file-scoped namespace, record structs</p></td></tr><tr><td><p>C# 11.0</p></td><td><p>2022</p></td><td><p>Raw string literals, generic math, list patterns</p></td></tr><tr><td><p>C# 12.0</p></td><td><p>2023</p></td><td><p>Primary constructors, collection expressions, inline arrays</p></td></tr><tr><td><p>C# 13.0</p></td><td><p>2024</p></td><td><p>params collections, ref struct interfaces, nové escapy</p></td></tr></table><h1>2. Základní syntaxe</h1><h2>2.1 Hello World – první program</h2><pre><code><strong>Příklad</strong>
+using System;
+ 
+namespace MujProgram
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            Console.WriteLine("Hello, World!");
+        }
+    }
+}</code></pre>
+<p><strong>Modern C# (top-level statements, od C# 9):</strong></p><pre><code><strong>Příklad</strong>
+// Zjednodušená syntaxe – bez třídy a Main metody
+Console.WriteLine("Hello, World!");</code></pre>
+<h2>2.2 Struktura programu</h2><table><tr><td><p><strong>Element</strong></p></td><td><p><strong>Popis</strong></p></td><td><p><strong>Příklad</strong></p></td></tr><tr><td><p>namespace</p></td><td><p>Logická organizace kódu</p></td><td><p>namespace MujApp.Models</p></td></tr><tr><td><p>class</p></td><td><p>Šablona pro objekty</p></td><td><p>class Osoba { ... }</p></td></tr><tr><td><p>Main()</p></td><td><p>Vstupní bod programu</p></td><td><p>static void Main(string[] args)</p></td></tr><tr><td><p>using</p></td><td><p>Import jmenného prostoru</p></td><td><p>using System.Collections.Generic;</p></td></tr><tr><td><p>Console.WriteLine()</p></td><td><p>Výpis na konzoli</p></td><td><p>Console.WriteLine("text");</p></td></tr></table><h2>2.3 Komentáře</h2><pre><code><strong>Příklad</strong>
+// Jednořádkový komentář
+ 
+/* Víceřádkový
+   komentář */
+ 
+/// &lt;summary&gt;
+/// XML dokumentační komentář (pro IntelliSense)
+/// &lt;/summary&gt;
+public void Metoda() { }</code></pre>
+<h2>2.4 Konvence pojmenování</h2><table><tr><td><p><strong>Styl</strong></p></td><td><p><strong>Použití</strong></p></td><td><p><strong>Příklad</strong></p></td></tr><tr><td><p>PascalCase</p></td><td><p>Třídy, metody, vlastnosti, namespace</p></td><td><p>NazevTridy, MojeMetoda, Jmeno</p></td></tr><tr><td><p>camelCase</p></td><td><p>Lokální proměnné, parametry</p></td><td><p>mujString, pocetPrvku</p></td></tr><tr><td><p>_camelCase</p></td><td><p>Privátní pole třídy</p></td><td><p>_jmeno, _vek</p></td></tr><tr><td><p>UPPER_CASE</p></td><td><p>Konstanty (méně časté)</p></td><td><p>MAX_POCET</p></td></tr><tr><td><p>IPascalCase</p></td><td><p>Rozhraní (Interface)</p></td><td><p>ISerializable, IDisposable</p></td></tr></table><h1>3. Datové typy a proměnné</h1><h2>3.1 Hodnotové typy (Value Types)</h2><p>Hodnotové typy jsou uloženy přímo na zásobníku (stack). Každá proměnná má svou vlastní kopii dat.</p><table><tr><td><p><strong>Typ</strong></p></td><td><p><strong>Velikost</strong></p></td><td><p><strong>Rozsah / Popis</strong></p></td><td><p><strong>Přípona</strong></p></td></tr><tr><td><p>int</p></td><td><p>4 byte</p></td><td><p>-2 147 483 648 až 2 147 483 647</p></td><td><p>(žádná)</p></td></tr><tr><td><p>long</p></td><td><p>8 byte</p></td><td><p>-9 223 372 036 854 775 808 až 9 223 372 036 854 775 807</p></td><td><p>L nebo l</p></td></tr><tr><td><p>short</p></td><td><p>2 byte</p></td><td><p>-32 768 až 32 767</p></td><td><p>(žádná)</p></td></tr><tr><td><p>byte</p></td><td><p>1 byte</p></td><td><p>0 až 255</p></td><td><p>(žádná)</p></td></tr><tr><td><p>float</p></td><td><p>4 byte</p></td><td><p>±1.5×10⁻⁴⁵ až ±3.4×10³⁸ (7 číslic)</p></td><td><p>f nebo F</p></td></tr><tr><td><p>double</p></td><td><p>8 byte</p></td><td><p>±5.0×10⁻³²⁴ až ±1.7×10³⁰⁸ (15-17 číslic)</p></td><td><p>d nebo D</p></td></tr><tr><td><p>decimal</p></td><td><p>16 byte</p></td><td><p>±1×10⁻²⁸ až ±7.9×10²⁸ (28-29 číslic, přesné)</p></td><td><p>m nebo M</p></td></tr><tr><td><p>bool</p></td><td><p>1 byte</p></td><td><p>true / false</p></td><td><p>(žádná)</p></td></tr><tr><td><p>char</p></td><td><p>2 byte</p></td><td><p>Jeden Unicode znak (U+0000 až U+FFFF)</p></td><td><p>apostrofy: 'A'</p></td></tr></table><h2>3.2 Referenční typy (Reference Types)</h2><p>Referenční typy jsou uloženy na haldě (heap). Proměnná obsahuje pouze odkaz (adresu) na objekt.</p><table><tr><td><p><strong>Typ</strong></p></td><td><p><strong>Popis</strong></p></td></tr><tr><td><p>string</p></td><td><p>Neměnná (immutable) sekvence Unicode znaků</p></td></tr><tr><td><p>object</p></td><td><p>Základní typ, ze kterého dědí všechny typy v .NET</p></td></tr><tr><td><p>dynamic</p></td><td><p>Typ je určen za běhu programu, ne při kompilaci</p></td></tr><tr><td><p>class</p></td><td><p>Uživatelsky definovaná třída</p></td></tr><tr><td><p>interface</p></td><td><p>Definice smlouvy (bez implementace)</p></td></tr><tr><td><p>array (T[])</p></td><td><p>Pole pevné délky se stejným typem prvků</p></td></tr><tr><td><p>delegate</p></td><td><p>Odkaz na metodu (typ pro callback/lambda)</p></td></tr></table><h2>3.3 Deklarace proměnných</h2><pre><code><strong>Příklad</strong>
+// Explicitní typ
+int vek = 25;
+double teplota = 36.6;
+string jmeno = "Anna";
+bool jePrihlasen = true;
+char pismeno = 'A';
+ 
+// Implicitní typ (var) – typ odvozen kompilátorem
+var pocet = 42;           // int
+var zprava = "Ahoj";      // string
+var pi = 3.14159;         // double
+ 
+// Konstanty – nelze změnit po přiřazení
+const int MAX_POCET = 100;
+const string VERZE = "1.0";
+ 
+// Nullable typy – mohou nabývat hodnotu null
+int? moznaHodnota = null;
+string? moznaString = null;</code></pre>
+<h2>3.4 Přetypování (Type Casting)</h2><pre><code><strong>Příklad</strong>
+// Implicitní přetypování (bezpečné – menší → větší)
+int a = 100;
+long b = a;          // int → long (automaticky)
+float f = b;         // long → float (automaticky)
+ 
+// Explicitní přetypování (může dojít ke ztrátě dat)
+double d = 9.78;
+int i = (int)d;      // 9 (desetinná část se ztratí)
+ 
+// Přetypování pomocí Convert
+string s = "123";
+int cislo = Convert.ToInt32(s);
+double dbl = Convert.ToDouble("3.14");
+ 
+// TryParse – bezpečné parsování (bez výjimky)
+bool uspech = int.TryParse("456", out int vysledek);
+Console.WriteLine(uspech);    // True
+Console.WriteLine(vysledek);  // 456</code></pre>
+<h2>3.5 Řetězce (string)</h2><pre><code><strong>Příklad</strong>
+string jmeno = "Anna";
+string prijmeni = "Novák";
+ 
+// Zřetězení
+string cely = jmeno + " " + prijmeni;
+ 
+// Interpolace (doporučeno)
+string pozdrav = $"Ahoj, {jmeno}! Máš {25} let.";
+ 
+// Metody řetězce
+Console.WriteLine(jmeno.Length);          // 4
+Console.WriteLine(jmeno.ToUpper());       // ANNA
+Console.WriteLine(jmeno.ToLower());       // anna
+Console.WriteLine("  ahoj  ".Trim());     // "ahoj"
+Console.WriteLine(cely.Contains("Anna")); // True
+Console.WriteLine(cely.Replace("Anna", "Eva")); // Eva Novák
+Console.WriteLine(cely.Split(' '));       // ["Anna", "Novák"]
+Console.WriteLine(cely.Substring(0, 4)); // Anna
+ 
+// Víceřádkový (verbatim) řetězec
+string cesta = @"C:Users omanDocuments";
+ 
+// Raw string literal (C# 11)
+string json = """
+    {
+        "jmeno": "Anna"
+    }
+    """;</code></pre>
+<h1>4. Operátory</h1><h2>4.1 Aritmetické operátory</h2><pre><code><strong>Příklad</strong>
+int a = 10, b = 3;
+ 
+Console.WriteLine(a + b);   // 13  – sčítání
+Console.WriteLine(a - b);   // 7   – odčítání
+Console.WriteLine(a * b);   // 30  – násobení
+Console.WriteLine(a / b);   // 3   – celočíselné dělení
+Console.WriteLine(a % b);   // 1   – zbytek po dělení (modulo)
+Console.WriteLine(a++ );    // 10  – post-inkrement (vrátí, pak zvýší)
+Console.WriteLine(++b );    // 4   – pre-inkrement (zvýší, pak vrátí)
+ 
+// Math funkce
+Console.WriteLine(Math.Pow(2, 10));    // 1024 – mocnina
+Console.WriteLine(Math.Sqrt(16));      // 4    – odmocnina
+Console.WriteLine(Math.Abs(-5));       // 5    – absolutní hodnota
+Console.WriteLine(Math.Max(3, 7));     // 7
+Console.WriteLine(Math.Round(3.567, 2)); // 3.57</code></pre>
+<h2>4.2 Porovnávací operátory</h2><pre><code><strong>Příklad</strong>
+int x = 5, y = 10;
+ 
+Console.WriteLine(x == y);  // False – rovná se
+Console.WriteLine(x != y);  // True  – nerovná se
+Console.WriteLine(x &gt; y);   // False – větší než
+Console.WriteLine(x &lt; y);   // True  – menší než
+Console.WriteLine(x &gt;= 5);  // True  – větší nebo rovno
+Console.WriteLine(x &lt;= 4);  // False – menší nebo rovno</code></pre>
+<h2>4.3 Logické operátory</h2><pre><code><strong>Příklad</strong>
+bool a = true, b = false;
+ 
+Console.WriteLine(a &amp;&amp; b);   // False – logické AND
+Console.WriteLine(a || b);   // True  – logické OR
+Console.WriteLine(!a);       // False – logické NOT
+ 
+// Null-coalescing operátor (??)
+string? jmeno = null;
+string vysledek = jmeno ?? "Neznámý";   // "Neznámý"
+ 
+// Null-conditional operátor (?.)
+string? text = null;
+int? delka = text?.Length;  // null (nevyhazuje výjimku)
+ 
+// Ternární operátor
+int vek = 20;
+string stav = vek &gt;= 18 ? "Dospělý" : "Nezletilý";</code></pre>
+<h1>5. Řízení toku</h1><h2>5.1 Podmínky – if / else</h2><pre><code><strong>Příklad</strong>
+int vek = 20;
+ 
+if (vek &lt; 13)
+{
+    Console.WriteLine("Dítě");
+}
+else if (vek &lt; 18)
+{
+    Console.WriteLine("Teenager");
+}
+else
+{
+    Console.WriteLine("Dospělý");
+}
+ 
+// Zkrácená verze (ternární)
+string popis = vek &gt;= 18 ? "Dospělý" : "Nezletilý";</code></pre>
+<h2>5.2 Switch</h2><pre><code><strong>Příklad</strong>
+// Tradiční switch
+int den = 3;
+switch (den)
+{
+    case 1: Console.WriteLine("Pondělí"); break;
+    case 2: Console.WriteLine("Úterý"); break;
+    case 3: Console.WriteLine("Středa"); break;
+    default: Console.WriteLine("Jiný den"); break;
+}
+ 
+// Switch expression (C# 8+)
+string nazevDne = den switch
+{
+    1 =&gt; "Pondělí",
+    2 =&gt; "Úterý",
+    3 =&gt; "Středa",
+    4 =&gt; "Čtvrtek",
+    5 =&gt; "Pátek",
+    _ =&gt; "Víkend"
+};
+Console.WriteLine(nazevDne);  // Středa</code></pre>
+<h2>5.3 Smyčky</h2><pre><code><strong>Příklad</strong>
+// while – opakuje, dokud je podmínka true
+int i = 0;
+while (i &lt; 5)
+{
+    Console.Write(i + " ");
+    i++;
+}
+// Výstup: 0 1 2 3 4
+ 
+// do-while – vždy proběhne aspoň jednou
+int j = 0;
+do
+{
+    Console.Write(j + " ");
+    j++;
+} while (j &lt; 5);
+ 
+// for – klasická počítaná smyčka
+for (int k = 0; k &lt; 5; k++)
+{
+    Console.Write(k + " ");
+}
+ 
+// foreach – procházení kolekcí
+string[] zvirata = { "Pes", "Kočka", "Slon" };
+foreach (string zvire in zvirata)
+{
+    Console.WriteLine(zvire);
+}
+ 
+// break a continue
+for (int n = 0; n &lt; 10; n++)
+{
+    if (n == 3) continue;  // přeskočí 3
+    if (n == 7) break;     // ukončí smyčku
+    Console.Write(n + " ");
+}
+// Výstup: 0 1 2 4 5 6</code></pre>
+<h1>6. Metody</h1><h2>6.1 Základní syntaxe metody</h2><pre><code><strong>Příklad</strong>
+// modifikátor navratovýTyp NazevMetody(parametry)
+static int Secti(int a, int b)
+{
+    return a + b;
+}
+ 
+// void – metoda nic nevrací
+static void Pozdrav(string jmeno)
+{
+    Console.WriteLine($"Ahoj, {jmeno}!");
+}
+ 
+// Volání metod
+int vysledek = Secti(3, 4);    // 7
+Pozdrav("Anna");                // Ahoj, Anna!</code></pre>
+<h2>6.2 Parametry a jejich varianty</h2><pre><code><strong>Příklad</strong>
+// Výchozí hodnota parametru
+static void Vypis(string zprava, int opakovat = 1)
+{
+    for (int i = 0; i &lt; opakovat; i++)
+        Console.WriteLine(zprava);
+}
+ 
+Vypis("Ahoj");         // Ahoj (1×)
+Vypis("Test", 3);      // Test (3×)
+ 
+// Pojmenované argumenty
+Vypis(opakovat: 2, zprava: "OK");
+ 
+// ref – předání odkazem (může změnit hodnotu)
+static void Zdvoj(ref int cislo)
+{
+    cislo *= 2;
+}
+int x = 5;
+Zdvoj(ref x);
+Console.WriteLine(x);   // 10
+ 
+// out – výstupní parametr (musí být přiřazen)
+static bool TryDivide(int a, int b, out double vysledek)
+{
+    if (b == 0) { vysledek = 0; return false; }
+    vysledek = (double)a / b;
+    return true;
+}
+ 
+// params – proměnný počet parametrů
+static int Soucet(params int[] cisla)
+{
+    int s = 0;
+    foreach (int c in cisla) s += c;
+    return s;
+}
+Console.WriteLine(Soucet(1, 2, 3, 4, 5));  // 15</code></pre>
+<h2>6.3 Přetížení metod (Method Overloading)</h2><pre><code><strong>Příklad</strong>
+// Stejný název, různé parametry
+static int Secti(int a, int b) =&gt; a + b;
+static double Secti(double a, double b) =&gt; a + b;
+static string Secti(string a, string b) =&gt; a + b;
+ 
+Console.WriteLine(Secti(1, 2));         // 3
+Console.WriteLine(Secti(1.5, 2.5));     // 4.0
+Console.WriteLine(Secti("A", "B"));     // AB</code></pre>
+<h2>6.4 Lambda výrazy a expression-body</h2><pre><code><strong>Příklad</strong>
+// Expression-body method (=&gt;) – zkrácený zápis
+static int Zdvoj(int x) =&gt; x * 2;
+static bool JeSude(int n) =&gt; n % 2 == 0;
+ 
+// Lambda výrazy (anonymní funkce)
+Func&lt;int, int&gt; kvadrat = x =&gt; x * x;
+Func&lt;int, int, int&gt; scitani = (a, b) =&gt; a + b;
+Action&lt;string&gt; vypis = zprava =&gt; Console.WriteLine(zprava);
+ 
+Console.WriteLine(kvadrat(5));        // 25
+Console.WriteLine(scitani(3, 4));     // 7
+vypis("Lambda!");                     // Lambda!
+ 
+// Predikát
+Predicate&lt;int&gt; jeKladne = n =&gt; n &gt; 0;
+Console.WriteLine(jeKladne(5));       // True
+Console.WriteLine(jeKladne(-3));      // False</code></pre>
+<h1>7. OOP – Třídy a objekty</h1><h2>7.1 Co je OOP?</h2><p>Objektově orientované programování (OOP) je paradigma, kde program je strukturován jako kolekce objektů. Každý objekt má vlastní stav (data) a chování (metody).</p><table><tr><td><p><strong>Pilíř OOP</strong></p></td><td><p><strong>Česky</strong></p></td><td><p><strong>Popis</strong></p></td></tr><tr><td><p>Encapsulation</p></td><td><p>Zapouzdření</p></td><td><p>Skrytí vnitřního stavu, přístup přes veřejné rozhraní</p></td></tr><tr><td><p>Inheritance</p></td><td><p>Dědičnost</p></td><td><p>Třída může zdědit vlastnosti a metody od jiné třídy</p></td></tr><tr><td><p>Polymorphism</p></td><td><p>Polymorfismus</p></td><td><p>Stejná metoda se chová různě dle typu objektu</p></td></tr><tr><td><p>Abstraction</p></td><td><p>Abstrakce</p></td><td><p>Skrytí implementačních detailů, práce s konceptem</p></td></tr></table><h2>7.2 Třída a objekt</h2><pre><code><strong>Příklad</strong>
+// Definice třídy
+class Auto
+{
+    // Pole (field) – privátní
+    private string _model;
+    private int _rok;
+    private double _rychlost;
+ 
+    // Konstruktor
+    public Auto(string model, int rok)
+    {
+        _model = model;
+        _rok = rok;
+        _rychlost = 0;
+    }
+ 
+    // Vlastnost (Property)
+    public string Model
+    {
+        get { return _model; }
+        set { _model = value; }
+    }
+ 
+    // Auto-implemented property
+    public int Rok { get; set; }
+ 
+    // Metoda
+    public void Zrychleni(double o)
+    {
+        _rychlost += o;
+        Console.WriteLine($"{_model} jede {_rychlost} km/h");
+    }
+ 
+    // Override ToString
+    public override string ToString() =&gt; $"{_model} ({_rok})";
+}
+ 
+// Vytvoření objektu (instance)
+Auto mojeAuto = new Auto("Škoda Octavia", 2022);
+mojeAuto.Zrychleni(50);      // Škoda Octavia jede 50 km/h
+mojeAuto.Zrychleni(30);      // Škoda Octavia jede 80 km/h
+Console.WriteLine(mojeAuto); // Škoda Octavia (2022)</code></pre>
+<h2>7.3 Přístupové modifikátory</h2><table><tr><td><p><strong>Modifikátor</strong></p></td><td><p><strong>Přístupnost</strong></p></td></tr><tr><td><p>public</p></td><td><p>Odkudkoli (i z jiných assembly)</p></td></tr><tr><td><p>private</p></td><td><p>Pouze z té samé třídy (výchozí pro pole)</p></td></tr><tr><td><p>protected</p></td><td><p>Z té samé třídy nebo z odvozené třídy</p></td></tr><tr><td><p>internal</p></td><td><p>Odkudkoli v rámci stejné assembly (projektu)</p></td></tr><tr><td><p>protected internal</p></td><td><p>Z assembly nebo z odvozené třídy</p></td></tr><tr><td><p>private protected</p></td><td><p>Z té samé třídy nebo odvozené třídy v téže assembly</p></td></tr></table><h2>7.4 Statické členy</h2><pre><code><strong>Příklad</strong>
+class Pocitadlo
+{
+    private static int _celkem = 0;  // sdíleno všemi instancemi
+ 
+    public Pocitadlo()
+    {
+        _celkem++;
+    }
+ 
+    public static int ZiskatCelkem() =&gt; _celkem;
+}
+ 
+var a = new Pocitadlo();
+var b = new Pocitadlo();
+var c = new Pocitadlo();
+Console.WriteLine(Pocitadlo.ZiskatCelkem());  // 3</code></pre>
+<h2>7.5 Record typy (C# 9+)</h2><pre><code><strong>Příklad</strong>
+// Record – neměnný datový typ, auto-generuje Equals, GetHashCode, ToString
+record Osoba(string Jmeno, int Vek);
+ 
+var p1 = new Osoba("Anna", 30);
+var p2 = new Osoba("Anna", 30);
+Console.WriteLine(p1 == p2);        // True (hodnotová rovnost)
+Console.WriteLine(p1);              // Osoba { Jmeno = Anna, Vek = 30 }
+ 
+// With-expression – vytvoří kopii se změněnými hodnotami
+var p3 = p1 with { Vek = 31 };
+Console.WriteLine(p3);              // Osoba { Jmeno = Anna, Vek = 31 }</code></pre>
+<h1>8. Dědičnost (Inheritance)</h1><p>Dědičnost umožňuje třídě (potomek) převzít vlastnosti a metody jiné třídy (rodič). Šetří kód a umožňuje jeho znovupoužití.</p><table><tr><td><p>  ┌────────────────────────────┐</p></td></tr><tr><td><p>  │    Třída: Vozidlo          │  ← Základní třída (Base class)</p></td></tr><tr><td><p>  │  + znacka: string          │</p></td></tr><tr><td><p>  │  + MaxRychlost: int        │</p></td></tr><tr><td><p>  │  + Zatroubit()             │</p></td></tr><tr><td><p>  └─────────────┬──────────────┘</p></td></tr><tr><td><p>                │   dědí (:)</p></td></tr><tr><td><p>       ┌────────┴────────┐</p></td></tr><tr><td><p>       ▼                 ▼</p></td></tr><tr><td><p>  ┌──────────┐     ┌──────────┐</p></td></tr><tr><td><p>  │  Auto    │     │  Motor-  │  ← Odvozené třídy</p></td></tr><tr><td><p>  │+ model   │     │  ka      │    (Derived classes)</p></td></tr><tr><td><p>  │+ Jizda() │     │+ Naklonit│</p></td></tr><tr><td><p>  └──────────┘     └──────────┘</p></td></tr></table><pre><code><strong>Příklad</strong>
+// Základní třída (Base class / Parent)
+class Vozidlo
+{
+    public string Znacka = "Ford";
+ 
+    public void Zatroubit()
+    {
+        Console.WriteLine("Tůt, tůt!");
+    }
+}
+ 
+// Odvozená třída (Derived class / Child)
+class Auto : Vozidlo
+{
+    public string Model = "Mustang";
+}
+ 
+// Použití
+Auto mojeAuto = new Auto();
+mojeAuto.Zatroubit();   // Zděděno z Vozidlo → Tůt, tůt!
+Console.WriteLine(mojeAuto.Znacka + " " + mojeAuto.Model);
+// Ford Mustang</code></pre>
+<h2>8.1 Volání konstruktoru rodiče – base</h2><pre><code><strong>Příklad</strong>
+class Zivocich
+{
+    public string Jmeno;
+ 
+    public Zivocich(string jmeno)
+    {
+        Jmeno = jmeno;
+        Console.WriteLine($"Živočich '{jmeno}' vytvořen.");
+    }
+}
+ 
+class Pes : Zivocich
+{
+    public string Rasa;
+ 
+    public Pes(string jmeno, string rasa) : base(jmeno)  // volání base konstruktoru
+    {
+        Rasa = rasa;
+        Console.WriteLine($"Pes rasy {rasa} vytvořen.");
+    }
+}
+ 
+var rex = new Pes("Rex", "Labrador");
+// Výstup:
+// Živočich 'Rex' vytvořen.
+// Pes rasy Labrador vytvořen.</code></pre>
+<h2>8.2 Zapečetění třídy (sealed)</h2><pre><code><strong>Příklad</strong>
+// sealed – zabrání dalšímu dědění
+sealed class NemohuDedit
+{
+    public void Metoda() =&gt; Console.WriteLine("Funguje");
+}
+ 
+// CHYBA – sealed třídu nelze dědit
+// class Pokus : NemohuDedit { }  // Compile error!</code></pre>
+<h1>9. Polymorfismus a abstrakce</h1><h2>9.1 Polymorfismus – virtual a override</h2><p>Polymorfismus znamená „mnoho forem". Odvozené třídy mohou přepsat chování základní třídy pomocí klíčových slov virtual a override.</p><pre><code><strong>Příklad</strong>
+class Zivocich
+{
+    public virtual void ZvukZvirete()  // virtual = může být přepsáno
+    {
+        Console.WriteLine("Zvíře vydává zvuk");
+    }
+}
+ 
+class Prasatko : Zivocich
+{
+    public override void ZvukZvirete()  // override = přepisuje rodičovské
+    {
+        Console.WriteLine("Prase říká: Oink oink");
+    }
+}
+ 
+class Pes : Zivocich
+{
+    public override void ZvukZvirete()
+    {
+        Console.WriteLine("Pes říká: Haf haf");
+    }
+}
+ 
+// Polymorfní volání – stejný kód, různé chování
+Zivocich[] zvirata = { new Zivocich(), new Prasatko(), new Pes() };
+foreach (Zivocich z in zvirata)
+{
+    z.ZvukZvirete();
+}
+// Zvíře vydává zvuk
+// Prase říká: Oink oink
+// Pes říká: Haf haf</code></pre>
+<h2>9.2 Abstraktní třídy (abstract)</h2><p>Abstraktní třída nemůže být přímo instanciována. Slouží jako šablona pro odvozené třídy.</p><pre><code><strong>Příklad</strong>
+abstract class Tvar
+{
+    // Abstraktní metoda – nemá tělo, potomci ji MUSÍ implementovat
+    public abstract double Obsah();
+ 
+    // Normální metoda – může mít implementaci
+    public void Popis()
+    {
+        Console.WriteLine($"Jsem tvar s obsahem {Obsah():F2}");
+    }
+}
+ 
+class Kruh : Tvar
+{
+    private double _polomer;
+    public Kruh(double polomer) =&gt; _polomer = polomer;
+ 
+    public override double Obsah() =&gt; Math.PI * _polomer * _polomer;
+}
+ 
+class Obdelnik : Tvar
+{
+    private double _sirka, _vyska;
+    public Obdelnik(double sirka, double vyska)
+    {
+        _sirka = sirka; _vyska = vyska;
+    }
+    public override double Obsah() =&gt; _sirka * _vyska;
+}
+ 
+// Tvar t = new Tvar();  // CHYBA! Abstraktní třídu nelze instanciovat
+ 
+Tvar k = new Kruh(5);
+Tvar o = new Obdelnik(4, 6);
+k.Popis();   // Jsem tvar s obsahem 78.54
+o.Popis();   // Jsem tvar s obsahem 24.00</code></pre>
+<h2>9.3 Rozhraní (Interface)</h2><p>Rozhraní definuje smlouvu – co třída musí umět. Třída může implementovat více rozhraní (C# nemá vícenásobnou dědičnost tříd).</p><pre><code><strong>Příklad</strong>
+// Rozhraní – název začíná "I"
+interface IZvire
+{
+    void ZvukZvirete();  // abstraktní metoda (bez těla)
+    string Jmeno { get; }  // vlastnost
+}
+ 
+interface IPlazeni
+{
+    void Plaz();
+}
+ 
+// Implementace více rozhraní
+class Had : IZvire, IPlazeni
+{
+    public string Jmeno =&gt; "Had";
+ 
+    public void ZvukZvirete()
+    {
+        Console.WriteLine("Had syčí: Sssss");
+    }
+ 
+    public void Plaz()
+    {
+        Console.WriteLine("Had se plazí po zemi");
+    }
+}
+ 
+Had h = new Had();
+h.ZvukZvirete();  // Had syčí: Sssss
+h.Plaz();         // Had se plazí po zemi
+ 
+// Polymorfismus přes rozhraní
+IZvire zvire = new Had();
+zvire.ZvukZvirete();</code></pre>
+<h2>9.4 Abstract vs Interface – srovnání</h2><table><tr><td></td><td><p><strong>Abstraktní třída</strong></p></td><td><p><strong>Rozhraní</strong></p></td></tr><tr><td><p>Dědičnost</p></td><td><p>Max. 1 (single inheritance)</p></td><td><p>Neomezeně (multiple)</p></td></tr><tr><td><p>Implementace</p></td><td><p>Může mít metody s tělem</p></td><td><p>Jen defaultní metody (C# 8+)</p></td></tr><tr><td><p>Pole</p></td><td><p>Ano</p></td><td><p>Ne</p></td></tr><tr><td><p>Konstruktor</p></td><td><p>Ano</p></td><td><p>Ne</p></td></tr><tr><td><p>Modifikátory přístupu</p></td><td><p>Ano</p></td><td><p>Všechno public (implicitně)</p></td></tr><tr><td><p>Použití</p></td><td><p>Sdílená logika pro příbuzné třídy</p></td><td><p>Smlouva pro nesouvisející třídy</p></td></tr></table><h1>10. Generické typy (Generics)</h1><p>Generické typy umožňují psát kód, který pracuje s libovolným typem a přitom zachovává plnou typovou bezpečnost. Místo konkrétního typu se použije typový parametr T.</p><h2>10.1 Generická třída</h2><pre><code><strong>Příklad</strong>
+// Generická třída – T je typový parametr
+class Zasobnik&lt;T&gt;
+{
+    private List&lt;T&gt; _prvky = new List&lt;T&gt;();
+ 
+    public void Vloz(T prvek) =&gt; _prvky.Add(prvek);
+    public T Vyjmi()
+    {
+        T posledni = _prvky[_prvky.Count - 1];
+        _prvky.RemoveAt(_prvky.Count - 1);
+        return posledni;
+    }
+    public int Pocet =&gt; _prvky.Count;
+}
+ 
+// Použití s různými typy
+var intZasobnik = new Zasobnik&lt;int&gt;();
+intZasobnik.Vloz(1);
+intZasobnik.Vloz(2);
+Console.WriteLine(intZasobnik.Vyjmi());  // 2
+ 
+var strZasobnik = new Zasobnik&lt;string&gt;();
+strZasobnik.Vloz("Ahoj");
+strZasobnik.Vloz("Svět");
+Console.WriteLine(strZasobnik.Vyjmi()); // Svět</code></pre>
+<h2>10.2 Generická metoda</h2><pre><code><strong>Příklad</strong>
+// Generická metoda – typový parametr T je součástí metody
+static T[] Opak&lt;T&gt;(T[] pole)
+{
+    Array.Reverse(pole);
+    return pole;
+}
+ 
+// Kompilátor odvozuje T z argumentu
+int[] cisla = { 1, 2, 3, 4, 5 };
+int[] opacne = Opak(cisla);  // T = int (odvozeno automaticky)
+Console.WriteLine(string.Join(", ", opacne));  // 5, 4, 3, 2, 1
+ 
+static void Vypis&lt;T&gt;(T hodnota) =&gt;
+    Console.WriteLine($"Hodnota: {hodnota} (typ: {typeof(T).Name})");
+ 
+Vypis(42);        // Hodnota: 42 (typ: Int32)
+Vypis("ahoj");    // Hodnota: ahoj (typ: String)</code></pre>
+<h2>10.3 Omezení typů (Constraints)</h2><pre><code><strong>Příklad</strong>
+// where T : IComparable&lt;T&gt; – T musí podporovat porovnávání
+static T Maximum&lt;T&gt;(T a, T b) where T : IComparable&lt;T&gt;
+    =&gt; a.CompareTo(b) &gt;= 0 ? a : b;
+ 
+Console.WriteLine(Maximum(3, 7));            // 7
+Console.WriteLine(Maximum("apple", "banana")); // banana
+ 
+// Kombinace omezení
+static T Vytvor&lt;T&gt;() where T : class, new()  // class + bezparametrický konstruktor
+    =&gt; new T();</code></pre>
+<table><tr><td><p><strong>Omezení</strong></p></td><td><p><strong>Popis</strong></p></td></tr><tr><td><p>where T : class</p></td><td><p>T musí být referenční typ</p></td></tr><tr><td><p>where T : struct</p></td><td><p>T musí být hodnotový typ (non-nullable)</p></td></tr><tr><td><p>where T : new()</p></td><td><p>T musí mít veřejný bezparametrický konstruktor</p></td></tr><tr><td><p>where T : BaseClass</p></td><td><p>T musí dědit od BaseClass</p></td></tr><tr><td><p>where T : IInterface</p></td><td><p>T musí implementovat rozhraní IInterface</p></td></tr><tr><td><p>where T : notnull</p></td><td><p>T nemůže být nullable typ</p></td></tr></table><h1>11. Kolekce</h1><p>Generické kolekce z System.Collections.Generic jsou typově bezpečné a výkonné. Vždy upřednostňujte generické kolekce před negenerickými.</p><h2>11.1 List&lt;T&gt; – dynamické pole</h2><pre><code><strong>Příklad</strong>
+List&lt;string&gt; ovoce = new List&lt;string&gt;();
+ 
+// Přidávání
+ovoce.Add("Jablko");
+ovoce.Add("Banán");
+ovoce.AddRange(new[] { "Třešeň", "Hruška" });
+ 
+// Přístup
+Console.WriteLine(ovoce[0]);           // Jablko
+Console.WriteLine(ovoce.Count);        // 4
+ 
+// Hledání
+Console.WriteLine(ovoce.Contains("Banán")); // True
+Console.WriteLine(ovoce.IndexOf("Hruška")); // 3
+ 
+// Mazání
+ovoce.Remove("Banán");   // Smaže první výskyt
+ovoce.RemoveAt(0);       // Smaže na indexu 0
+ 
+// Řazení
+ovoce.Sort();
+Console.WriteLine(string.Join(", ", ovoce));  // Hruška, Třešeň</code></pre>
+<h2>11.2 Dictionary&lt;TKey, TValue&gt; – slovník</h2><pre><code><strong>Příklad</strong>
+Dictionary&lt;string, int&gt; vek = new Dictionary&lt;string, int&gt;();
+ 
+// Přidávání
+vek["Anna"] = 30;
+vek["Petr"] = 25;
+vek.Add("Eva", 35);
+ 
+// Přístup
+Console.WriteLine(vek["Anna"]);    // 30
+ 
+// Bezpečný přístup (TryGetValue)
+if (vek.TryGetValue("Jan", out int januv))
+    Console.WriteLine(januv);
+else
+    Console.WriteLine("Jan nenalezen");
+ 
+// Procházení
+foreach (var (jmeno, vekOsoby) in vek)
+{
+    Console.WriteLine($"{jmeno}: {vekOsoby} let");
+}
+ 
+// Klíče a hodnoty
+var klice = vek.Keys;      // ICollection&lt;string&gt;
+var hodnoty = vek.Values;  // ICollection&lt;int&gt;
+Console.WriteLine(vek.ContainsKey("Eva"));  // True</code></pre>
+<h2>11.3 Ostatní kolekce</h2><pre><code><strong>Příklad</strong>
+// HashSet&lt;T&gt; – množina bez duplikátů
+HashSet&lt;int&gt; mnozina = new HashSet&lt;int&gt; { 1, 2, 3, 2, 1 };
+Console.WriteLine(mnozina.Count);  // 3 (duplikáty ignorovány)
+ 
+// Queue&lt;T&gt; – fronta (FIFO – first in, first out)
+Queue&lt;string&gt; fronta = new Queue&lt;string&gt;();
+fronta.Enqueue("První");
+fronta.Enqueue("Druhý");
+Console.WriteLine(fronta.Dequeue());  // První
+Console.WriteLine(fronta.Peek());     // Druhý (bez odebrání)
+ 
+// Stack&lt;T&gt; – zásobník (LIFO – last in, first out)
+Stack&lt;string&gt; zasobnik = new Stack&lt;string&gt;();
+zasobnik.Push("Dno");
+zasobnik.Push("Střed");
+zasobnik.Push("Vrch");
+Console.WriteLine(zasobnik.Pop());   // Vrch
+Console.WriteLine(zasobnik.Peek());  // Střed</code></pre>
+<table><tr><td><p><strong>Kolekce</strong></p></td><td><p><strong>Popis</strong></p></td><td><p><strong>Operace</strong></p></td></tr><tr><td><p>List&lt;T&gt;</p></td><td><p>Dynamické pole</p></td><td><p>Add, Remove, Sort, IndexOf</p></td></tr><tr><td><p>Dictionary&lt;K,V&gt;</p></td><td><p>Mapa klíč→hodnota</p></td><td><p>Add, Remove, TryGetValue, ContainsKey</p></td></tr><tr><td><p>HashSet&lt;T&gt;</p></td><td><p>Množina (bez duplikátů)</p></td><td><p>Add, Remove, Contains, SetOps</p></td></tr><tr><td><p>Queue&lt;T&gt;</p></td><td><p>Fronta (FIFO)</p></td><td><p>Enqueue, Dequeue, Peek</p></td></tr><tr><td><p>Stack&lt;T&gt;</p></td><td><p>Zásobník (LIFO)</p></td><td><p>Push, Pop, Peek</p></td></tr><tr><td><p>SortedDictionary&lt;K,V&gt;</p></td><td><p>Seřazený slovník</p></td><td><p>Stejné jako Dictionary</p></td></tr><tr><td><p>LinkedList&lt;T&gt;</p></td><td><p>Obousměrně zřetězený seznam</p></td><td><p>AddFirst, AddLast, Remove</p></td></tr></table><h1>12. Výjimky (Exceptions)</h1><p>Výjimky jsou mechanismus pro signalizaci a zpracování chybových stavů za běhu programu.</p><table><tr><td><p>  Exception (základní třída)</p></td></tr><tr><td><p>  ├── SystemException</p></td></tr><tr><td><p>  │   ├── NullReferenceException   – přístup k null referenci</p></td></tr><tr><td><p>  │   ├── IndexOutOfRangeException – index mimo pole</p></td></tr><tr><td><p>  │   ├── InvalidCastException     – neplatné přetypování</p></td></tr><tr><td><p>  │   ├── OverflowException        – přetečení číselného rozsahu</p></td></tr><tr><td><p>  │   ├── DivideByZeroException    – dělení nulou</p></td></tr><tr><td><p>  │   └── ArgumentException</p></td></tr><tr><td><p>  │       └── ArgumentNullException</p></td></tr><tr><td><p>  └── ApplicationException</p></td></tr><tr><td><p>      └── (vlastní aplikační výjimky)</p></td></tr></table><h2>12.1 try / catch / finally</h2><pre><code><strong>Příklad</strong>
+try
+{
+    int[] pole = { 1, 2, 3 };
+    Console.WriteLine(pole[10]);  // IndexOutOfRangeException!
+}
+catch (IndexOutOfRangeException ex)
+{
+    Console.WriteLine($"Chyba indexu: {ex.Message}");
+}
+catch (Exception ex)  // zachytí jakoukoliv výjimku
+{
+    Console.WriteLine($"Obecná chyba: {ex.Message}");
+}
+finally
+{
+    // Provede se vždy (i při výjimce)
+    Console.WriteLine("Cleanup proveden.");
+}</code></pre>
+<h2>12.2 Vyvolání výjimky (throw)</h2><pre><code><strong>Příklad</strong>
+static void ZkontrolujVek(int vek)
+{
+    if (vek &lt; 0)
+        throw new ArgumentException("Věk nemůže být záporný!", nameof(vek));
+    if (vek &lt; 18)
+        throw new InvalidOperationException("Musíte být plnoletí.");
+ 
+    Console.WriteLine("Přístup povolen.");
+}
+ 
+try
+{
+    ZkontrolujVek(-5);
+}
+catch (ArgumentException ex)
+{
+    Console.WriteLine($"Neplatný argument: {ex.Message}");
+}</code></pre>
+<h2>12.3 Vlastní výjimka</h2><pre><code><strong>Příklad</strong>
+// Vlastní výjimka – dědí od Exception (nebo ApplicationException)
+class NedostatekProstrednkuException : Exception
+{
+    public decimal Zustatek { get; }
+    public decimal Castka { get; }
+ 
+    public NedostatekProstrednkuException(decimal zustatek, decimal castka)
+        : base($"Nedostatek prostředků. Zůstatek: {zustatek}, Požadavek: {castka}")
+    {
+        Zustatek = zustatek;
+        Castka = castka;
+    }
+}
+ 
+// Použití
+try
+{
+    decimal zustatek = 100m;
+    decimal vybrat = 500m;
+    if (vybrat &gt; zustatek)
+        throw new NedostatekProstrednkuException(zustatek, vybrat);
+}
+catch (NedostatekProstrednkuException ex)
+{
+    Console.WriteLine(ex.Message);  // Nedostatek prostředků...
+    Console.WriteLine($"Zbývá: {ex.Zustatek} Kč");
+}</code></pre>
+<h1>13. LINQ – Language Integrated Query</h1><p>LINQ (Language Integrated Query) je sada technologií pro dotazování nad datovými zdroji přímo v jazyce C#. Dotazy jsou typově bezpečné a plně integrovány do jazyka.</p><pre><code>LINQ umožňuje jednotný způsob dotazování nad poli, kolekcemi, XML, databází (EF Core) a dalšími zdroji dat pomocí stejné syntaxe.</code></pre>
+<h2>13.1 Dotazová syntaxe (Query Syntax)</h2><pre><code><strong>Příklad</strong>
+int[] skore = { 97, 45, 81, 60, 75, 92 };
+ 
+// Dotaz: vyber skóre &gt; 70, seřaď sestupně
+IEnumerable&lt;int&gt; dotaz =
+    from s in skore
+    where s &gt; 70
+    orderby s descending
+    select s;
+ 
+foreach (var s in dotaz)
+    Console.Write(s + " ");
+// Výstup: 97 92 81 75</code></pre>
+<h2>13.2 Metodová syntaxe (Method Syntax – Lambda)</h2><pre><code><strong>Příklad</strong>
+int[] skore = { 97, 45, 81, 60, 75, 92 };
+ 
+// Ekvivalent dotazové syntaxe výše
+var vysledek = skore
+    .Where(s =&gt; s &gt; 70)
+    .OrderByDescending(s =&gt; s)
+    .ToList();
+ 
+Console.WriteLine(string.Join(", ", vysledek));
+// 97, 92, 81, 75
+ 
+// Různé LINQ metody
+var cisla = new List&lt;int&gt; { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+ 
+Console.WriteLine(cisla.Count(n =&gt; n % 2 == 0));    // 5 – počet sudých
+Console.WriteLine(cisla.Sum());                      // 55 – součet
+Console.WriteLine(cisla.Average());                  // 5.5 – průměr
+Console.WriteLine(cisla.Min());                      // 1
+Console.WriteLine(cisla.Max());                      // 10
+Console.WriteLine(cisla.First(n =&gt; n &gt; 5));          // 6
+Console.WriteLine(cisla.FirstOrDefault(n =&gt; n &gt; 20)); // 0 (default int)</code></pre>
+<h2>13.3 LINQ nad objekty</h2><pre><code><strong>Příklad</strong>
+class Student
+{
+    public string Jmeno { get; set; }
+    public int Vek { get; set; }
+    public string Obor { get; set; }
+    public double Prumer { get; set; }
+}
+ 
+var studenti = new List&lt;Student&gt;
+{
+    new Student { Jmeno = "Anna", Vek = 20, Obor = "IT", Prumer = 1.5 },
+    new Student { Jmeno = "Petr", Vek = 22, Obor = "Math", Prumer = 2.0 },
+    new Student { Jmeno = "Eva",  Vek = 21, Obor = "IT",   Prumer = 1.2 },
+    new Student { Jmeno = "Jan",  Vek = 19, Obor = "Math", Prumer = 3.1 },
+};
+ 
+// Select (projekce) – vybrat jen jméno
+var jmena = studenti.Select(s =&gt; s.Jmeno);
+ 
+// Where + OrderBy
+var vyborni = studenti
+    .Where(s =&gt; s.Prumer &lt; 2.0)
+    .OrderBy(s =&gt; s.Prumer);
+ 
+// GroupBy – seskupení dle oboru
+var dleOboru = studenti.GroupBy(s =&gt; s.Obor);
+foreach (var skupina in dleOboru)
+{
+    Console.WriteLine($"Obor: {skupina.Key}");
+    foreach (var s in skupina)
+        Console.WriteLine($"  {s.Jmeno} ({s.Prumer})");
+}
+ 
+// Průměrný věk per obor
+var prumVek = studenti
+    .GroupBy(s =&gt; s.Obor)
+    .Select(g =&gt; new { Obor = g.Key, PrumVek = g.Average(s =&gt; s.Vek) });</code></pre>
+<h2>13.4 Přehled LINQ operátorů</h2><table><tr><td><p><strong>Kategorie</strong></p></td><td><p><strong>Operátor</strong></p></td><td><p><strong>Popis</strong></p></td></tr><tr><td><p>Filtrování</p></td><td><p>Where</p></td><td><p>Vyfiltruje prvky dle podmínky</p></td></tr><tr><td><p>Projekce</p></td><td><p>Select</p></td><td><p>Transformuje každý prvek na jiný typ/hodnotu</p></td></tr><tr><td><p>Projekce</p></td><td><p>SelectMany</p></td><td><p>Zploštění vnořených kolekcí</p></td></tr><tr><td><p>Řazení</p></td><td><p>OrderBy / OrderByDescending</p></td><td><p>Seřadí prvky vzestupně/sestupně</p></td></tr><tr><td><p>Řazení</p></td><td><p>ThenBy / ThenByDescending</p></td><td><p>Sekundární řazení</p></td></tr><tr><td><p>Seskupení</p></td><td><p>GroupBy</p></td><td><p>Seskupí prvky dle klíče</p></td></tr><tr><td><p>Spojení</p></td><td><p>Join / GroupJoin</p></td><td><p>Spojí dvě kolekce dle klíče (jako SQL JOIN)</p></td></tr><tr><td><p>Agregace</p></td><td><p>Count, Sum, Min, Max, Average</p></td><td><p>Vypočítá agregovanou hodnotu</p></td></tr><tr><td><p>Kvantifikátory</p></td><td><p>Any, All, Contains</p></td><td><p>Vrátí bool – splnění podmínky</p></td></tr><tr><td><p>Výběr</p></td><td><p>First, FirstOrDefault</p></td><td><p>Vrátí první prvek (nebo default)</p></td></tr><tr><td><p>Výběr</p></td><td><p>Single, SingleOrDefault</p></td><td><p>Vrátí přesně 1 prvek</p></td></tr><tr><td><p>Výběr</p></td><td><p>Skip, Take</p></td><td><p>Přeskočí/vezme N prvků (stránkování)</p></td></tr><tr><td><p>Množinové</p></td><td><p>Distinct, Union, Intersect, Except</p></td><td><p>Množinové operace</p></td></tr><tr><td><p>Konverze</p></td><td><p>ToList, ToArray, ToDictionary</p></td><td><p>Materializuje dotaz do kolekce</p></td></tr></table><h1>14. Asynchronní programování (async/await)</h1><p>Asynchronní programování umožňuje provádět dlouhotrvající operace (I/O, síť, databáze) bez blokování hlavního vlákna. Klíčová slova async a await zjednodušují práci s úlohami.</p><h2>14.1 Synchronní vs asynchronní</h2><pre><code>  SYNCHRONNÍ (blokující):
+  ──────────────────────────────────────────────────►
+  │ Task 1: DB query (500ms) │ Task 2: API call (300ms) │ Task 3 │
+  Celkem: ~800ms
+ 
+  ASYNCHRONNÍ (neblokující):
+  ──────────────────────────────────────────────────►
+  │ Task 1: DB query  ─────────────────────────► │
+  │ Task 2: API call  ────────────────►           │
+  │ Task 3 (spuštěn ihned)  ──────────►           │
+  Celkem: ~500ms (nejdelší task)</code></pre>
+<h2>14.2 async / await – základy</h2><pre><code><strong>Příklad</strong>
+using System.Threading.Tasks;
+ 
+// async metoda vrací Task nebo Task&lt;T&gt;
+static async Task&lt;string&gt; StahniDataAsync(string url)
+{
+    using var client = new System.Net.Http.HttpClient();
+    string obsah = await client.GetStringAsync(url);  // neblokuje vlákno
+    return obsah;
+}
+ 
+// Volání async metody
+static async Task Main(string[] args)
+{
+    Console.WriteLine("Stahuji...");
+    string data = await StahniDataAsync("<a href="https://api.example.com/data" target="_blank" rel="noopener noreferrer">https://api.example.com/data</a>");
+    Console.WriteLine($"Staženo: {data.Length} znaků");
+ 
+    // await Task.Delay – neblokující čekání
+    await Task.Delay(1000);  // čeká 1 sekundu bez blokování vlákna
+    Console.WriteLine("Hotovo!");
+}</code></pre>
+<h2>14.3 Paralelní úlohy – Task.WhenAll a Task.WhenAny</h2><pre><code><strong>Příklad</strong>
+static async Task&lt;int&gt; ZiskejDataAsync(int id)
+{
+    await Task.Delay(id * 100);  // simulace různé doby zpracování
+    return id * id;
+}
+ 
+static async Task Main()
+{
+    // Spustí všechny úlohy paralelně, čeká na dokončení VŠECH
+    Task&lt;int&gt;[] ukoly = {
+        ZiskejDataAsync(1),
+        ZiskejDataAsync(2),
+        ZiskejDataAsync(3),
+    };
+    int[] vysledky = await Task.WhenAll(ukoly);
+    Console.WriteLine(string.Join(", ", vysledky));  // 1, 4, 9
+ 
+    // Čeká na PRVNÍ dokončenou úlohu
+    Task&lt;int&gt; prvni = await Task.WhenAny(
+        ZiskejDataAsync(3),
+        ZiskejDataAsync(1),
+        ZiskejDataAsync(2)
+    );
+    Console.WriteLine($"Nejrychlejší výsledek: {await prvni}");  // 1
+}</code></pre>
+<h2>14.4 CancellationToken – zrušení úlohy</h2><pre><code><strong>Příklad</strong>
+static async Task DlouhaOperaceAsync(CancellationToken token)
+{
+    for (int i = 0; i &lt; 10; i++)
+    {
+        token.ThrowIfCancellationRequested();  // vyhodí výjimku při zrušení
+        await Task.Delay(500, token);
+        Console.WriteLine($"Krok {i + 1}");
+    }
+}
+ 
+static async Task Main()
+{
+    var cts = new CancellationTokenSource();
+    cts.CancelAfter(2000);  // automaticky zruší po 2 sekundách
+ 
+    try
+    {
+        await DlouhaOperaceAsync(cts.Token);
+    }
+    catch (OperationCanceledException)
+    {
+        Console.WriteLine("Operace byla zrušena!");
+    }
+}</code></pre>
+<h2>14.5 Async/Await vs ContinueWith</h2><table><tr><td></td><td><p><strong>async/await</strong></p></td><td><p><strong>ContinueWith</strong></p></td></tr><tr><td><p>Čitelnost</p></td><td><p>Sekvenční, přirozený kód</p></td><td><p>Zanořené callbacky</p></td></tr><tr><td><p>Zpracování chyb</p></td><td><p>Standardní try/catch</p></td><td><p>Složité – chybné tasky</p></td></tr><tr><td><p>Ladění</p></td><td><p>Plný stack trace</p></td><td><p>Obtížnější ladění</p></td></tr><tr><td><p>Výkon</p></td><td><p>Optimalizovaný kompilátorem</p></td><td><p>Manuální řetězení</p></td></tr><tr><td><p>Doporučení</p></td><td><p>✓ Preferovat</p></td><td><p>✗ Vyhnout se (legacy)</p></td></tr></table><h1>15. Pattern Matching a moderní C#</h1><h2>15.1 Pattern Matching</h2><p>Pattern matching (C# 7+) umožňuje elegantní testování hodnoty a zároveň extrakci dat.</p><pre><code><strong>Příklad</strong>
+object obj = "Ahoj světe";
+ 
+// is – test typu s přiřazením
+if (obj is string text)
+{
+    Console.WriteLine($"String délky {text.Length}");
+}
+ 
+// switch expression s pattern matching (C# 8+)
+static string PopisTypu(object o) =&gt; o switch
+{
+    int n when n &gt; 0   =&gt; $"Kladné číslo: {n}",
+    int n when n &lt; 0   =&gt; $"Záporné číslo: {n}",
+    int                =&gt; "Nula",
+    string s           =&gt; $"Řetězec: '{s}'",
+    null               =&gt; "null hodnota",
+    _                  =&gt; "Neznámý typ"
+};
+ 
+Console.WriteLine(PopisTypu(42));      // Kladné číslo: 42
+Console.WriteLine(PopisTypu(-5));      // Záporné číslo: -5
+Console.WriteLine(PopisTypu("Hi"));   // Řetězec: 'Hi'
+Console.WriteLine(PopisTypu(null));    // null hodnota</code></pre>
+<h2>15.2 Enum</h2><pre><code><strong>Příklad</strong>
+// Výčtový typ
+enum Smer
+{
+    Sever,    // 0
+    Jih,      // 1
+    Vychod,   // 2
+    Zapad     // 3
+}
+ 
+enum Stav
+{
+    Aktivni = 1,
+    Neaktivni = 2,
+    Archivovany = 4,
+    Vsechny = Aktivni | Neaktivni | Archivovany
+}
+ 
+Smer mojeSmerna = Smer.Sever;
+Console.WriteLine(mojeSmerna);          // Sever
+Console.WriteLine((int)mojeSmerna);     // 0
+ 
+// Přetypování int → enum
+Smer z = (Smer)2;
+Console.WriteLine(z);  // Vychod
+ 
+// Enum v switch
+switch (mojeSmerna)
+{
+    case Smer.Sever: Console.WriteLine("Jedeme na sever!"); break;
+    case Smer.Jih:   Console.WriteLine("Jedeme na jih!"); break;
+    default:          Console.WriteLine("Jiný směr"); break;
+}</code></pre>
+<h2>15.3 Extension Methods</h2><pre><code><strong>Příklad</strong>
+// Rozšiřující metody – přidávají metody k existujícím typům
+static class StringExtensions
+{
+    // this = rozšiřuje typ string
+    public static bool JePalindroa(this string s)
+    {
+        string rev = new string(s.ToLower().Reverse().ToArray());
+        return s.ToLower() == rev;
+    }
+ 
+    public static string Zkrat(this string s, int maxDelka)
+    {
+        return s.Length &lt;= maxDelka ? s : s.Substring(0, maxDelka) + "...";
+    }
+}
+ 
+// Použití jako by byly metodami string
+Console.WriteLine("radar".JePalindroa());        // True
+Console.WriteLine("hello".JePalindroa());        // False
+Console.WriteLine("Dlouhý text".Zkrat(6));       // Dlouhý...</code></pre>
+<h2>15.4 Nullable Reference Types (C# 8+)</h2><pre><code><strong>Příklad</strong>
+#nullable enable
+ 
+string nemuzeByNull = "Ahoj";       // non-nullable – nikdy null
+string? muzeByNull = null;           // nullable – může být null
+ 
+// Kompilátor varuje při možném null dereference
+// Console.WriteLine(muzeByNull.Length);  // Warning!
+ 
+// Bezpečné zacházení
+Console.WriteLine(muzeByNull?.Length ?? 0);  // 0
+ 
+// Null-forgiving operator (!) – říkám kompilátoru "vím, že to není null"
+string urciteNeniNull = muzeByNull!;  // potlačí warning</code></pre>
+<h1>16. Práce se soubory (File I/O)</h1><h2>16.1 Základní operace se soubory</h2><pre><code><strong>Příklad</strong>
+using System.IO;
+ 
+// Zápis do souboru
+File.WriteAllText("soubor.txt", "Ahoj světe!");
+File.AppendAllText("soubor.txt", "
+Další řádek.");
+ 
+// Čtení ze souboru
+string obsah = File.ReadAllText("soubor.txt");
+string[] radky = File.ReadAllLines("soubor.txt");
+ 
+// Kontrola existence
+bool existuje = File.Exists("soubor.txt");
+Console.WriteLine(existuje);  // True
+ 
+// Kopírování, přesunutí, smazání
+File.Copy("soubor.txt", "kopie.txt");
+File.Move("kopie.txt", "novy.txt");
+File.Delete("novy.txt");</code></pre>
+<h2>16.2 StreamReader a StreamWriter</h2><pre><code><strong>Příklad</strong>
+using System.IO;
+ 
+// Zápis přes StreamWriter
+using (StreamWriter sw = new StreamWriter("data.txt"))
+{
+    sw.WriteLine("Řádek 1");
+    sw.WriteLine("Řádek 2");
+}  // using zajistí automatické uzavření (Dispose)
+ 
+// Čtení přes StreamReader
+using (StreamReader sr = new StreamReader("data.txt"))
+{
+    string? radek;
+    while ((radek = sr.ReadLine()) != null)
+    {
+        Console.WriteLine(radek);
+    }
+}
+ 
+// Asynchronní I/O (doporučeno)
+await File.WriteAllTextAsync("async.txt", "Asynchronní zápis");
+string data = await File.ReadAllTextAsync("async.txt");</code></pre>
+<h1>17. Rychlý přehled – Cheatsheet</h1><h2>Klíčová slova C#</h2><table><tr><td><p>  ┌──────────────────────────────────────────────────────────────────┐</p></td></tr><tr><td><p>  │                    KLÍČOVÁ SLOVA C#                             │</p></td></tr><tr><td><p>  │                                                                  │</p></td></tr><tr><td><p>  │  Typy:        int  long  double  float  decimal  bool  char     │</p></td></tr><tr><td><p>  │               string  object  var  dynamic  null                 │</p></td></tr><tr><td><p>  │                                                                  │</p></td></tr><tr><td><p>  │  OOP:         class  interface  abstract  sealed  struct  record  │</p></td></tr><tr><td><p>  │               enum  delegate  event  namespace  using            │</p></td></tr><tr><td><p>  │                                                                  │</p></td></tr><tr><td><p>  │  Přístup:     public  private  protected  internal  readonly     │</p></td></tr><tr><td><p>  │               static  const  virtual  override  new  base  this │</p></td></tr><tr><td><p>  │                                                                  │</p></td></tr><tr><td><p>  │  Tok:         if  else  switch  case  default  for  foreach      │</p></td></tr><tr><td><p>  │               while  do  break  continue  return  yield          │</p></td></tr><tr><td><p>  │                                                                  │</p></td></tr><tr><td><p>  │  Výjimky:     try  catch  finally  throw  when                  │</p></td></tr><tr><td><p>  │                                                                  │</p></td></tr><tr><td><p>  │  Async:       async  await  Task                                 │</p></td></tr><tr><td><p>  │                                                                  │</p></td></tr><tr><td><p>  │  Ostatní:     is  as  typeof  sizeof  checked  unsafe  lock     │</p></td></tr><tr><td><p>  │               params  ref  out  in  get  set  init  with        │</p></td></tr><tr><td><p>  └──────────────────────────────────────────────────────────────────┘</p></td></tr></table><h2>Srovnání C# vs Java</h2><table><tr><td><p><strong>Vlastnost</strong></p></td><td><p><strong>C#</strong></p></td><td><p><strong>Java</strong></p></td></tr><tr><td><p>Properties</p></td><td><p>public int Vek { get; set; }</p></td><td><p>getVek() / setVek()</p></td></tr><tr><td><p>Delegates/Lambdas</p></td><td><p>Func&lt;int, bool&gt; f = x =&gt; x &gt; 0</p></td><td><p>Function&lt;Integer, Boolean&gt;</p></td></tr><tr><td><p>LINQ</p></td><td><p>from x in list where x &gt; 0 select x</p></td><td><p>stream().filter(x -&gt; x &gt; 0)</p></td></tr><tr><td><p>Async</p></td><td><p>async Task&lt;T&gt; Metoda()</p></td><td><p>CompletableFuture&lt;T&gt;</p></td></tr><tr><td><p>Nullable</p></td><td><p>int? nebo string?</p></td><td><p>Optional&lt;T&gt;</p></td></tr><tr><td><p>Records</p></td><td><p>record Osoba(string J, int V)</p></td><td><p>record Osoba(String j, int v)</p></td></tr><tr><td><p>Pattern match</p></td><td><p>obj switch { int n =&gt; ... }</p></td><td><p>switch (obj) { case Integer n -&gt; }</p></td></tr><tr><td><p>Extension methods</p></td><td><p>this string s</p></td><td><p>Nelze (workaround utility třídy)</p></td></tr></table>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>
+    
+    document.querySelectorAll('pre code').forEach(function(el){ hljs.highlightElement(el); });
+  </script>
+  <script>(function () {
+    var marks = [];
+    var idx = -1;
+
+    function clearMarks() {
+        marks.forEach(function (m) {
+            var p = m.parentNode;
+            if (p) { p.replaceChild(document.createTextNode(m.textContent), m); p.normalize(); }
+        });
+        marks = [];
+        idx = -1;
+    }
+
+    function markText(query) {
+        var results = [];
+        var lower = query.toLowerCase();
+        var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null);
+        var nodes = [];
+        var n;
+        while ((n = walker.nextNode())) {
+            if (n.nodeValue.toLowerCase().includes(lower)) nodes.push(n);
+        }
+        nodes.forEach(function (textNode) {
+            var text  = textNode.nodeValue;
+            var ltext = text.toLowerCase();
+            var par   = textNode.parentNode;
+            if (!par) return;
+            var frag = document.createDocumentFragment();
+            var last = 0, i;
+            while ((i = ltext.indexOf(lower, last)) !== -1) {
+                if (i > last) frag.appendChild(document.createTextNode(text.slice(last, i)));
+                var m = document.createElement('mark');
+                m.className = 'dsm';
+                m.style.cssText = 'background:#ffe066;color:inherit;border-radius:2px;';
+                m.textContent = text.slice(i, i + query.length);
+                frag.appendChild(m);
+                results.push(m);
+                last = i + query.length;
+            }
+            if (last < text.length) frag.appendChild(document.createTextNode(text.slice(last)));
+            par.replaceChild(frag, textNode);
+        });
+        return results;
+    }
+
+    function highlight() {
+        marks.forEach(function (m, i) {
+            m.style.background = i === idx ? '#ff9900' : '#ffe066';
+            m.style.outline    = i === idx ? '2px solid #e65c00' : 'none';
+        });
+        if (marks[idx]) marks[idx].scrollIntoView({ block: 'center' });
+    }
+
+    function reply(src) {
+        src.postMessage({ type: 'searchResult', count: marks.length, current: idx }, '*');
+    }
+
+    window.addEventListener('message', function (e) {
+        var d = e.data;
+        if (!d || !d.type) return;
+        if (d.type === 'search') {
+            clearMarks();
+            if (d.query) {
+                marks = markText(d.query);
+                if (marks.length) idx = 0;
+                highlight();
+            }
+            reply(e.source);
+        } else if (d.type === 'searchNav') {
+            if (!marks.length) return;
+            idx = d.dir === 'next'
+                ? (idx + 1) % marks.length
+                : (idx - 1 + marks.length) % marks.length;
+            highlight();
+            reply(e.source);
+        } else if (d.type === 'searchClear') {
+            clearMarks();
+        }
+    });
+})();</script>
+</body>
+</html>
