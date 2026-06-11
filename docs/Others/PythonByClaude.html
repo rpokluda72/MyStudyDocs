@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PythonByClaude</title>
+  <link rel="stylesheet" href="../assets/content.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+</head>
+<body>
+  <div style="display:flex;align-items:baseline;gap:12px;margin-bottom:4px;">
+    <h1 style="margin:0 0 8px;">PythonByClaude</h1>
+    <a href="PythonByClaude.docx" download style="font-size:13px;color:#555;text-decoration:none;border:1px solid #ccc;border-radius:4px;padding:3px 9px;background:#f5f5f5;" title="Download original .docx">&#8681; .docx</a>
+  </div>
+  <p><strong>Python</strong></p><p>Průvodce pro začátečníky</p><p>🐍  python.org  •  w3schools.com/python  •  docs.python.org</p><p>Vytvořeno: červen 2026</p><h1><strong>Obsah</strong></h1><h1><strong>1. Úvod do Pythonu</strong></h1><p>Python je vysokoúrovňový, interpretovaný programovací jazyk, který v roce 1991 vytvořil Guido van Rossum. Dnes patří k nejpopulárnějším jazykům na světě a je oblíbený pro svou čitelnou syntaxi, bohaté standardní knihovny a obrovskou komunitu.</p><h2><strong>Proč Python?</strong></h2><ul><li>Jednoduchá a čitelná syntaxe — kód vypadá téměř jako anglický text</li><li>Velká standardní knihovna — „batteries included"</li><li>Multiplatformní — Windows, macOS, Linux</li><li>Obrovská komunita a tisíce open-source balíčků</li><li>Skvělý pro začátečníky i profesionály</li></ul><h2><strong>Kde se Python používá?</strong></h2><table><thead><tr><th><p><strong>Oblast</strong></p></th><th><p><strong>Příklady nástrojů / frameworků</strong></p></th></tr></thead><tbody><tr><td><p>Web development</p></td><td><p>Django, Flask, FastAPI</p></td></tr><tr><td><p>Data science &amp; analýza</p></td><td><p>Pandas, NumPy, Matplotlib</p></td></tr><tr><td><p>Strojové učení a AI</p></td><td><p>TensorFlow, PyTorch, scikit-learn</p></td></tr><tr><td><p>Automatizace / skripty</p></td><td><p>Selenium, Requests, paramiko</p></td></tr><tr><td><p>DevOps &amp; cloud</p></td><td><p>Ansible, AWS Boto3, Azure SDK</p></td></tr><tr><td><p>Vývoj her</p></td><td><p>Pygame</p></td></tr><tr><td><p>Embedded &amp; IoT</p></td><td><p>MicroPython, CircuitPython</p></td></tr></tbody></table><h2><strong>Ekosystém Pythonu — přehled</strong></h2><table><tr><td><p>┌─────────────────────────────────────────────────────────────────┐</p></td></tr><tr><td><p>│                       PYTHON EKOSYSTÉM                          │</p></td></tr><tr><td><p>├─────────────────────────────────────────────────────────────────┤</p></td></tr><tr><td><p>│                                                                  │</p></td></tr><tr><td><p>│   ┌──────────────┐   ┌──────────────┐   ┌──────────────────┐   │</p></td></tr><tr><td><p>│   │  Standardní  │   │  Komunitní   │   │  Vaše vlastní    │   │</p></td></tr><tr><td><p>│   │  knihovna    │   │  balíčky     │   │  moduly (.py)    │   │</p></td></tr><tr><td><p>│   │  (os, sys,   │   │  (pip, PyPI) │   │                  │   │</p></td></tr><tr><td><p>│   │  math, json) │   │  numpy, ...  │   │                  │   │</p></td></tr><tr><td><p>│   └──────┬───────┘   └──────┬───────┘   └───────┬──────────┘   │</p></td></tr><tr><td><p>│          └─────────────────┼─────────────────────┘             │</p></td></tr><tr><td><p>│                            ▼                                    │</p></td></tr><tr><td><p>│                   ┌────────────────┐                            │</p></td></tr><tr><td><p>│                   │  Python (CPython│                            │</p></td></tr><tr><td><p>│                   │  interpreter)  │                            │</p></td></tr><tr><td><p>│                   └────────┬───────┘                            │</p></td></tr><tr><td><p>│                            ▼                                    │</p></td></tr><tr><td><p>│                   ┌────────────────┐                            │</p></td></tr><tr><td><p>│                   │  Operační sys. │                            │</p></td></tr><tr><td><p>│                   │  (Windows/Mac/ │                            │</p></td></tr><tr><td><p>│                   │   Linux)       │                            │</p></td></tr><tr><td><p>│                   └────────────────┘                            │</p></td></tr><tr><td><p>└─────────────────────────────────────────────────────────────────┘</p></td></tr></table><h2><strong>Instalace Pythonu</strong></h2><p>1. Přejděte na <a href="https://www.python.org/downloads/" target="_blank" rel="noopener noreferrer">https://www.python.org/downloads/</a></p><p>2. Stáhněte nejnovější verzi (Python 3.x)</p><p>3. Při instalaci zaškrtněte ✓ Add Python to PATH</p><p>4. Ověřte instalaci v příkazovém řádku:</p><pre><code><strong>Příklad — ověření instalace v terminálu</strong>
+python --version
+# Python 3.12.0
+ 
+python -c "print('Hello, World!')"
+# Hello, World!</code></pre>
+<h2><strong>Jak spustit Python</strong></h2><table><thead><tr><th><p><strong>Způsob</strong></p></th><th><p><strong>Popis</strong></p></th><th><p><strong>Jak spustit</strong></p></th></tr></thead><tbody><tr><td><p>Interaktivní interpret</p></td><td><p>REPL — píšete příkazy přímo</p></td><td><p>python  (v terminálu)</p></td></tr><tr><td><p>Skript (.py soubor)</p></td><td><p>Spustíte celý soubor</p></td><td><p>python muj_skript.py</p></td></tr><tr><td><p>IDLE</p></td><td><p>Vestavěné IDE Pythonu</p></td><td><p>Spustit aplikaci IDLE</p></td></tr><tr><td><p>VS Code / PyCharm</p></td><td><p>Profesionální IDE</p></td><td><p>Otevřít projekt, Run</p></td></tr><tr><td><p>Jupyter Notebook</p></td><td><p>Interaktivní sešit (data science)</p></td><td><p>jupyter notebook</p></td></tr></tbody></table><h2><strong>První program — Hello, World!</strong></h2><pre><code><strong>Příklad</strong>
+print("Hello, World!")</code></pre>
+<pre><code><strong>Výstup</strong>
+# Hello, World!</code></pre>
+<h1><strong>2. Základy syntaxe</strong></h1><p>Python používá odsazení (indentation) místo složených závorek k vymezení bloků kódu. To je zásadní rozdíl od jazyků jako Java nebo C#.</p><h2><strong>Odsazení (Indentation)</strong></h2><p>Standardem jsou 4 mezery (nebo 1 tabulátor) pro každou úroveň vnoření. Nekonzistentní odsazení způsobí chybu IndentationError.</p><pre><code><strong>Příklad — správné odsazení</strong>
+if True:
+    print("Toto je uvnitř bloku if")
+    print("Toto také")
+print("Toto je mimo blok")</code></pre>
+<pre><code><strong>Příklad — chybné odsazení (způsobí chybu!)</strong>
+if True:
+print("Chybí odsazení!")  # IndentationError</code></pre>
+<h2><strong>Komentáře</strong></h2><pre><code><strong>Příklad</strong>
+# Toto je jednořádkový komentář
+ 
+x = 5  # Komentář na konci řádku
+ 
+"""
+Toto je víceřádkový řetězec (docstring).
+Používá se pro dokumentaci funkcí a tříd.
+"""</code></pre>
+<h2><strong>Proměnné a přiřazení</strong></h2><p>Python je dynamicky typovaný jazyk — typ proměnné se určuje automaticky podle přiřazené hodnoty. Nemusíte deklarovat typ.</p><pre><code><strong>Příklad</strong>
+jmeno = "Alice"          # str
+vek = 25                 # int
+vyska = 1.75             # float
+je_student = True        # bool
+ 
+# Vícenásobné přiřazení
+a, b, c = 1, 2, 3
+ 
+# Přiřazení stejné hodnoty více proměnným
+x = y = z = 0
+ 
+# Výměna hodnot (Python idiom)
+a, b = b, a</code></pre>
+<h2><strong>Funkce print()</strong></h2><pre><code><strong>Příklad</strong>
+print("Hello, World!")
+print("Jméno:", "Alice", "Věk:", 25)
+print("Oddělovač:", 1, 2, 3, sep=" - ")  # 1 - 2 - 3
+print("Konec řádku", end="!")             # Konec řádku!
+print()  # Prázdný řádek</code></pre>
+<h1><strong>3. Datové typy</strong></h1><p>Python má několik základních (primitivních) datových typů. Vše v Pythonu je objekt.</p><h2><strong>Přehled základních typů</strong></h2><pre><code>┌─────────────────────────────────────────────────────────────────┐
+│                    PYTHON DATOVÉ TYPY                           │
+├────────────────────┬────────────────────────────────────────────┤
+│  Číselné (Numeric) │  int       42, -7, 0                       │
+│                    │  float     3.14, -0.5, 1e10                │
+│                    │  complex   2+3j                             │
+├────────────────────┼────────────────────────────────────────────┤
+│  Text              │  str       "Hello", 'World'                │
+├────────────────────┼────────────────────────────────────────────┤
+│  Logický           │  bool      True, False                     │
+├────────────────────┼────────────────────────────────────────────┤
+│  Prázdná hodnota   │  NoneType  None                            │
+├────────────────────┼────────────────────────────────────────────┤
+│  Kolekce           │  list, tuple, set, dict, range             │
+└────────────────────┴────────────────────────────────────────────┘</code></pre>
+<h2><strong>Zjištění typu — type() a isinstance()</strong></h2><pre><code><strong>Příklad</strong>
+x = 42
+print(type(x))           # &lt;class 'int'&gt;
+ 
+y = 3.14
+print(type(y))           # &lt;class 'float'&gt;
+ 
+z = "Python"
+print(type(z))           # &lt;class 'str'&gt;
+ 
+print(isinstance(x, int))    # True
+print(isinstance(x, float))  # False</code></pre>
+<h2><strong>Přetypování (Casting)</strong></h2><pre><code><strong>Příklad</strong>
+x = int("42")        # str -&gt; int  =&gt; 42
+y = float("3.14")    # str -&gt; float =&gt; 3.14
+z = str(100)         # int -&gt; str  =&gt; "100"
+b = bool(0)          # int -&gt; bool =&gt; False
+b2 = bool(5)         # int -&gt; bool =&gt; True
+ 
+# Pozor na chybné přetypování:
+# int("ahoj")  =&gt; ValueError!</code></pre>
+<h2><strong>Operátory</strong></h2><h3><strong>Aritmetické operátory</strong></h3><table><thead><tr><th><p><strong>Operátor</strong></p></th><th><p><strong>Popis</strong></p></th><th><p><strong>Příklad</strong></p></th><th><p><strong>Výsledek</strong></p></th></tr></thead><tbody><tr><td><p>+</p></td><td><p>Sčítání</p></td><td><p>5 + 3</p></td><td><p>8</p></td></tr><tr><td><p>-</p></td><td><p>Odčítání</p></td><td><p>5 - 3</p></td><td><p>2</p></td></tr><tr><td><p>*</p></td><td><p>Násobení</p></td><td><p>5 * 3</p></td><td><p>15</p></td></tr><tr><td><p>/</p></td><td><p>Dělení (float)</p></td><td><p>7 / 2</p></td><td><p>3.5</p></td></tr><tr><td><p>//</p></td><td><p>Celočíselné dělení</p></td><td><p>7 // 2</p></td><td><p>3</p></td></tr><tr><td><p>%</p></td><td><p>Zbytek (modulo)</p></td><td><p>7 % 2</p></td><td><p>1</p></td></tr><tr><td><p>**</p></td><td><p>Mocnina</p></td><td><p>2 ** 10</p></td><td><p>1024</p></td></tr></tbody></table><h3><strong>Porovnávací a logické operátory</strong></h3><table><thead><tr><th><p><strong>Operátor</strong></p></th><th><p><strong>Popis</strong></p></th><th><p><strong>Příklad</strong></p></th></tr></thead><tbody><tr><td><p>==</p></td><td><p>Rovná se</p></td><td><p>x == 5</p></td></tr><tr><td><p>!=</p></td><td><p>Nerovná se</p></td><td><p>x != 5</p></td></tr><tr><td><p>&gt;</p></td><td><p>Větší než</p></td><td><p>x &gt; 3</p></td></tr><tr><td><p>&lt;</p></td><td><p>Menší než</p></td><td><p>x &lt; 10</p></td></tr><tr><td><p>&gt;=</p></td><td><p>Větší nebo rovno</p></td><td><p>x &gt;= 5</p></td></tr><tr><td><p>&lt;=</p></td><td><p>Menší nebo rovno</p></td><td><p>x &lt;= 5</p></td></tr><tr><td><p>and</p></td><td><p>Logické A</p></td><td><p>x &gt; 0 and x &lt; 10</p></td></tr><tr><td><p>or</p></td><td><p>Logické NEBO</p></td><td><p>x &lt; 0 or x &gt; 10</p></td></tr><tr><td><p>not</p></td><td><p>Logická negace</p></td><td><p>not True =&gt; False</p></td></tr><tr><td><p>in</p></td><td><p>Obsaženo v</p></td><td><p>"a" in "ahoj" =&gt; True</p></td></tr><tr><td><p>is</p></td><td><p>Totožná reference</p></td><td><p>x is None</p></td></tr></tbody></table><h1><strong>4. Řetězce (Strings)</strong></h1><p>Řetězce jsou sekvence znaků uzavřené do jednoduchých nebo dvojitých uvozovek. Jsou neměnné (immutable) — po vytvoření je nelze modifikovat na místě.</p><h2><strong>Vytváření, indexování a slicing</strong></h2><pre><code><strong>Příklad</strong>
+s = "Python"
+ 
+# Indexování (začíná od 0)
+print(s[0])      # P
+print(s[-1])     # n  (záporný index = od konce)
+ 
+# Slicing [start:stop:krok]
+print(s[0:3])    # Pyt
+print(s[2:])     # thon
+print(s[:4])     # Pyth
+print(s[::-1])   # nohtyP  (obrácení)
+print(len(s))    # 6</code></pre>
+<h2><strong>Metody řetězců</strong></h2><table><thead><tr><th><p><strong>Metoda</strong></p></th><th><p><strong>Popis</strong></p></th><th><p><strong>Příklad</strong></p></th></tr></thead><tbody><tr><td><p>upper()</p></td><td><p>Velká písmena</p></td><td><p>"ahoj".upper() =&gt; "AHOJ"</p></td></tr><tr><td><p>lower()</p></td><td><p>Malá písmena</p></td><td><p>"AHOJ".lower() =&gt; "ahoj"</p></td></tr><tr><td><p>strip()</p></td><td><p>Odstraní mezery na okrajích</p></td><td><p>"  hi  ".strip() =&gt; "hi"</p></td></tr><tr><td><p>split(sep)</p></td><td><p>Rozdělí na seznam</p></td><td><p>"a,b,c".split(",") =&gt; ['a','b','c']</p></td></tr><tr><td><p>join(lst)</p></td><td><p>Spojí seznam do řetězce</p></td><td><p>",".join(['a','b']) =&gt; "a,b"</p></td></tr><tr><td><p>replace(old,new)</p></td><td><p>Nahradí podřetězec</p></td><td><p>"abc".replace("b","X") =&gt; "aXc"</p></td></tr><tr><td><p>find(sub)</p></td><td><p>Pozice podřetězce</p></td><td><p>"ahoj".find("ho") =&gt; 1</p></td></tr><tr><td><p>startswith(s)</p></td><td><p>Začíná řetězcem</p></td><td><p>"Python".startswith("Py") =&gt; True</p></td></tr><tr><td><p>endswith(s)</p></td><td><p>Končí řetězcem</p></td><td><p>"test.py".endswith(".py") =&gt; True</p></td></tr><tr><td><p>count(sub)</p></td><td><p>Počet výskytů</p></td><td><p>"banana".count("a") =&gt; 3</p></td></tr></tbody></table><h2><strong>f-strings (formátování řetězců)</strong></h2><pre><code><strong>Příklad</strong>
+jmeno = "Alice"
+vek = 25
+ 
+# f-string (Python 3.6+)
+zprava = f"Jméno: {jmeno}, Věk: {vek}"
+print(zprava)  # Jméno: Alice, Věk: 25
+ 
+# Výrazy uvnitř f-stringu
+print(f"2 + 2 = {2 + 2}")        # 2 + 2 = 4
+print(f"Pi = {3.14159:.2f}")     # Pi = 3.14
+print(f"{"ahoj":&gt;10}")           # Zarovnání vpravo na 10 znaků</code></pre>
+<h2><strong>Víceřádkové řetězce</strong></h2><pre><code><strong>Příklad</strong>
+text = """
+Toto je
+víceřádkový
+řetězec.
+"""
+print(text)
+ 
+# Nebo s trojitými jednoduchými uvozovkami
+haiku = '''Starý rybník —
+Žába skočí do vody,
+Ticho narušeno.'''</code></pre>
+<h1><strong>5. Kolekce (Collections)</strong></h1><table><tr><td><p>┌─────────────────────────────────────────────────────────────────┐</p></td></tr><tr><td><p>│                    PYTHON KOLEKCE                               │</p></td></tr><tr><td><p>├──────────────┬────────────┬───────────────┬─────────────────────┤</p></td></tr><tr><td><p>│     list     │   tuple    │     set       │       dict          │</p></td></tr><tr><td><p>│  [1, 2, 3]   │  (1, 2, 3) │  {1, 2, 3}    │  {"k": "v"}         │</p></td></tr><tr><td><p>│  ─────────   │  ────────  │  ──────────   │  ──────────────     │</p></td></tr><tr><td><p>│  Měnitelný   │  Neměnný   │  Neuspořádaný │  Klíč: Hodnota      │</p></td></tr><tr><td><p>│  Uspořádaný  │  Uspořádaný│  Bez duplikátů│  Měnitelný          │</p></td></tr><tr><td><p>│  Indexování  │  Indexování│  Rychlé hledání│ Rychlé hledání      │</p></td></tr><tr><td><p>└──────────────┴────────────┴───────────────┴─────────────────────┘</p></td></tr></table><h2><strong>List (seznam)</strong></h2><pre><code><strong>Příklad — základní operace</strong>
+ovoce = ["jablko", "banán", "třešeň"]
+ 
+# Přístup a přidávání
+print(ovoce[0])         # jablko
+ovoce.append("mango")   # přidá na konec
+ovoce.insert(1, "hruška") # vloží na pozici 1
+ 
+# Odebrání
+ovoce.remove("banán")   # odstraní dle hodnoty
+popped = ovoce.pop()    # odstraní a vrátí poslední
+ 
+# Slicing
+print(ovoce[1:3])       # ["hruška", "třešeň"]
+ 
+# Délka a třídění
+print(len(ovoce))       # počet prvků
+ovoce.sort()            # třídí na místě
+sorted_list = sorted(ovoce)  # vrátí nový setříděný seznam</code></pre>
+<h2><strong>List comprehension</strong></h2><pre><code><strong>Příklad</strong>
+# Tradiční způsob
+druhe_mocniny = []
+for x in range(10):
+    druhe_mocniny.append(x ** 2)
+ 
+# List comprehension (Pythonic způsob)
+druhe_mocniny = [x ** 2 for x in range(10)]
+print(druhe_mocniny)  # [0, 1, 4, 9, 16, 25, 36, 49, 64, 81]
+ 
+# S podmínkou
+suda = [x for x in range(20) if x % 2 == 0]
+print(suda)  # [0, 2, 4, 6, 8, 10, 12, 14, 16, 18]</code></pre>
+<h2><strong>Tuple</strong></h2><pre><code><strong>Příklad</strong>
+# Tuple — neměnná kolekce
+souradnice = (10, 20)
+rgb = (255, 128, 0)
+ 
+print(souradnice[0])   # 10
+print(len(rgb))        # 3
+ 
+# Unpacking
+x, y = souradnice
+print(f"x={x}, y={y}")  # x=10, y=20
+ 
+# Tuple jako klíč slovníku (list nelze)
+pozice = {(0, 0): "start", (1, 2): "cíl"}</code></pre>
+<h2><strong>Set (množina)</strong></h2><pre><code><strong>Příklad</strong>
+a = {1, 2, 3, 4, 5}
+b = {3, 4, 5, 6, 7}
+ 
+print(a | b)   # sjednocení:  {1, 2, 3, 4, 5, 6, 7}
+print(a &amp; b)   # průnik:      {3, 4, 5}
+print(a - b)   # rozdíl:      {1, 2}
+print(a ^ b)   # sym. rozdíl: {1, 2, 6, 7}
+ 
+# Kontrola příslušnosti — O(1)
+print(3 in a)  # True
+ 
+# Odstranění duplikátů ze seznamu
+seznam = [1, 2, 2, 3, 3, 3]
+unikatni = list(set(seznam))  # [1, 2, 3]</code></pre>
+<h2><strong>Dictionary (slovník)</strong></h2><pre><code><strong>Příklad</strong>
+osoba = {"jmeno": "Alice", "vek": 25, "mesto": "Praha"}
+ 
+# Přístup
+print(osoba["jmeno"])           # Alice
+print(osoba.get("vek", 0))     # 25  (s výchozí hodnotou)
+ 
+# Přidání a úprava
+osoba["email"] = "alice@example.com"
+osoba["vek"] = 26
+ 
+# Iterace
+for klic, hodnota in osoba.items():
+    print(f"{klic}: {hodnota}")
+ 
+# Dict comprehension
+druhe_mocniny = {x: x**2 for x in range(5)}
+# {0: 0, 1: 1, 2: 4, 3: 9, 4: 16}</code></pre>
+<h1><strong>6. Řídící struktury (Control Flow)</strong></h1><h2><strong>Podmínky: if / elif / else</strong></h2><table><tr><td><p>              ┌─────────────┐</p></td></tr><tr><td><p>              │  Podmínka 1 │</p></td></tr><tr><td><p>              │  (if)       │</p></td></tr><tr><td><p>              └──────┬──────┘</p></td></tr><tr><td><p>             Ano     │    Ne</p></td></tr><tr><td><p>        ┌────────────┤</p></td></tr><tr><td><p>        ▼            ▼</p></td></tr><tr><td><p>   ┌─────────┐  ┌─────────────┐</p></td></tr><tr><td><p>   │ Blok if │  │  Podmínka 2 │</p></td></tr><tr><td><p>   └─────────┘  │  (elif)     │</p></td></tr><tr><td><p>                └──────┬──────┘</p></td></tr><tr><td><p>               Ano     │    Ne</p></td></tr><tr><td><p>          ┌────────────┤</p></td></tr><tr><td><p>          ▼            ▼</p></td></tr><tr><td><p>     ┌─────────┐  ┌──────────┐</p></td></tr><tr><td><p>     │Blok elif│  │Blok else │</p></td></tr><tr><td><p>     └─────────┘  └──────────┘</p></td></tr></table><pre><code><strong>Příklad</strong>
+vek = 20
+ 
+if vek &lt; 13:
+    print("Dítě")
+elif vek &lt; 18:
+    print("Teenager")
+elif vek &lt; 65:
+    print("Dospělý")
+else:
+    print("Senior")
+ 
+# Ternární operátor (inline if)
+stav = "plnoletý" if vek &gt;= 18 else "nezletilý"</code></pre>
+<h2><strong>Cyklus for</strong></h2><pre><code><strong>Příklad</strong>
+# Iterace přes seznam
+ovoce = ["jablko", "banán", "třešeň"]
+for item in ovoce:
+    print(item)
+ 
+# Iterace přes range
+for i in range(5):        # 0, 1, 2, 3, 4
+    print(i)
+ 
+for i in range(2, 8, 2):  # 2, 4, 6
+    print(i)
+ 
+# enumerate — index + hodnota
+for i, item in enumerate(ovoce, start=1):
+    print(f"{i}. {item}")
+ 
+# zip — iterace přes dvě kolekce najednou
+jmena = ["Alice", "Bob"]
+skore = [95, 87]
+for jmeno, s in zip(jmena, skore):
+    print(f"{jmeno}: {s}")</code></pre>
+<h2><strong>Cyklus while</strong></h2><pre><code><strong>Příklad</strong>
+pocitadlo = 0
+while pocitadlo &lt; 5:
+    print(pocitadlo)
+    pocitadlo += 1
+ 
+# while s else (else se spustí pokud podmínka skončí normálně)
+n = 0
+while n &lt; 3:
+    print(n)
+    n += 1
+else:
+    print("Hotovo!")</code></pre>
+<h2><strong>break, continue, pass</strong></h2><pre><code><strong>Příklad</strong>
+# break — ukončí cyklus
+for i in range(10):
+    if i == 5:
+        break      # zastaví na i=5
+    print(i)
+ 
+# continue — přeskočí aktuální iteraci
+for i in range(10):
+    if i % 2 == 0:
+        continue   # přeskočí sudá čísla
+    print(i)       # vypíše 1, 3, 5, 7, 9
+ 
+# pass — prázdný blok (placeholder)
+if True:
+    pass  # TODO: doplnit kód</code></pre>
+<h1><strong>7. Funkce (Functions)</strong></h1><p>Funkce jsou bloky kódu, které se dají opakovaně volat. Pomáhají strukturovat kód a zabránit opakování (DRY — Don't Repeat Yourself).</p><h2><strong>Definice funkce</strong></h2><pre><code><strong>Příklad</strong>
+def pozdrav(jmeno):
+    """Vrátí pozdrav pro zadané jméno."""
+    return f"Ahoj, {jmeno}!"
+ 
+zprava = pozdrav("Alice")
+print(zprava)  # Ahoj, Alice!</code></pre>
+<h2><strong>Typy parametrů</strong></h2><pre><code><strong>Příklad</strong>
+# Výchozí hodnota parametru
+def info(jmeno, vek=18):
+    print(f"{jmeno}, věk: {vek}")
+ 
+info("Alice")       # Alice, věk: 18
+info("Bob", 25)     # Bob, věk: 25
+ 
+# Keyword argumenty
+info(vek=30, jmeno="Charlie")
+ 
+# *args — libovolný počet poziční argumentů
+def soucet(*cisla):
+    return sum(cisla)
+ 
+print(soucet(1, 2, 3))       # 6
+print(soucet(1, 2, 3, 4, 5)) # 15
+ 
+# **kwargs — libovolný počet keyword argumentů
+def zobraz(**info):
+    for klic, hodnota in info.items():
+        print(f"{klic} = {hodnota}")
+ 
+zobraz(jmeno="Alice", mesto="Praha", vek=25)</code></pre>
+<h2><strong>Zásobník volání funkcí (Call Stack)</strong></h2><table><tr><td><p>┌─────────────────────────────────────────────────────────────────┐</p></td></tr><tr><td><p>│                      CALL STACK                                 │</p></td></tr><tr><td><p>│                                                                  │</p></td></tr><tr><td><p>│  def main():              │  Zásobník při volání:               │</p></td></tr><tr><td><p>│      vysledek = soucet(5) │                                      │</p></td></tr><tr><td><p>│      print(vysledek)      │  ┌─────────────────────┐           │</p></td></tr><tr><td><p>│                           │  │  zdvojnasob(5)       │ ← vrchol  │</p></td></tr><tr><td><p>│  def soucet(x):           │  │  return x * 2        │           │</p></td></tr><tr><td><p>│      return zdvojnasob(x) │  ├─────────────────────┤           │</p></td></tr><tr><td><p>│                           │  │  soucet(5)           │           │</p></td></tr><tr><td><p>│  def zdvojnasob(x):       │  │  return zdvojnasob(x)│           │</p></td></tr><tr><td><p>│      return x * 2         │  ├─────────────────────┤           │</p></td></tr><tr><td><p>│                           │  │  main()              │           │</p></td></tr><tr><td><p>│  main()                   │  │  vysledek = soucet(5)│           │</p></td></tr><tr><td><p>│                           │  └─────────────────────┘           │</p></td></tr><tr><td><p>└─────────────────────────────────────────────────────────────────┘</p></td></tr></table><h2><strong>Lambda funkce</strong></h2><pre><code><strong>Příklad</strong>
+# Lambda — anonymní funkce
+druha_mocnina = lambda x: x ** 2
+print(druha_mocnina(5))  # 25
+ 
+# Použití s sorted()
+lidi = [("Alice", 25), ("Bob", 20), ("Charlie", 30)]
+serazeni = sorted(lidi, key=lambda x: x[1])
+# [("Bob", 20), ("Alice", 25), ("Charlie", 30)]
+ 
+# Použití s map() a filter()
+cisla = [1, 2, 3, 4, 5]
+mocniny = list(map(lambda x: x**2, cisla))
+suda = list(filter(lambda x: x % 2 == 0, cisla))</code></pre>
+<h2><strong>Přehled vestavěných funkcí</strong></h2><table><thead><tr><th><p><strong>Funkce</strong></p></th><th><p><strong>Popis</strong></p></th><th><p><strong>Příklad</strong></p></th></tr></thead><tbody><tr><td><p>len(x)</p></td><td><p>Délka kolekce</p></td><td><p>len([1,2,3]) =&gt; 3</p></td></tr><tr><td><p>range(n)</p></td><td><p>Sekvence čísel</p></td><td><p>list(range(5)) =&gt; [0,1,2,3,4]</p></td></tr><tr><td><p>type(x)</p></td><td><p>Typ objektu</p></td><td><p>type(42) =&gt; &lt;class 'int'&gt;</p></td></tr><tr><td><p>print(*args)</p></td><td><p>Výpis na výstup</p></td><td><p>print("Hello")</p></td></tr><tr><td><p>input(prompt)</p></td><td><p>Vstup od uživatele</p></td><td><p>x = input("Zadej: ")</p></td></tr><tr><td><p>int(), float(), str()</p></td><td><p>Přetypování</p></td><td><p>int("42") =&gt; 42</p></td></tr><tr><td><p>abs(x)</p></td><td><p>Absolutní hodnota</p></td><td><p>abs(-5) =&gt; 5</p></td></tr><tr><td><p>max(), min()</p></td><td><p>Maximum / minimum</p></td><td><p>max(1,5,3) =&gt; 5</p></td></tr><tr><td><p>sum(iterable)</p></td><td><p>Součet</p></td><td><p>sum([1,2,3]) =&gt; 6</p></td></tr><tr><td><p>sorted(iterable)</p></td><td><p>Setřídit (nový seznam)</p></td><td><p>sorted([3,1,2]) =&gt; [1,2,3]</p></td></tr><tr><td><p>enumerate(it)</p></td><td><p>Index + hodnota</p></td><td><p>for i,v in enumerate(lst)</p></td></tr><tr><td><p>zip(*iterables)</p></td><td><p>Sloučení kolekcí</p></td><td><p>zip([1,2],['a','b'])</p></td></tr><tr><td><p>map(fn, it)</p></td><td><p>Aplikuje funkci</p></td><td><p>map(str, [1,2,3])</p></td></tr><tr><td><p>filter(fn, it)</p></td><td><p>Filtruje kolekci</p></td><td><p>filter(lambda x: x&gt;0, lst)</p></td></tr></tbody></table><h1><strong>8. Moduly a balíčky</strong></h1><p>Modul je soubor .py obsahující funkce, třídy a proměnné. Balíček je adresář s více moduly. Python má bohatou standardní knihovnu a přes 400 000 balíčků na PyPI.</p><h2><strong>Import modulů</strong></h2><pre><code><strong>Příklad</strong>
+import math
+print(math.pi)          # 3.141592...
+print(math.sqrt(16))    # 4.0
+ 
+# Import konkrétní funkce
+from math import sqrt, pi
+print(sqrt(25))         # 5.0
+ 
+# Alias
+import numpy as np      # konvence
+import pandas as pd     # konvence
+ 
+# Import všeho (nedoporučeno)
+from math import *</code></pre>
+<h2><strong>Systém modulů</strong></h2><table><tr><td><p>┌─────────────────────────────────────────────────────────────────┐</p></td></tr><tr><td><p>│                   PYTHON MODUL SYSTÉM                           │</p></td></tr><tr><td><p>│                                                                  │</p></td></tr><tr><td><p>│  muj_projekt/                                                    │</p></td></tr><tr><td><p>│  ├── main.py              ← hlavní skript                       │</p></td></tr><tr><td><p>│  ├── utils.py             ← váš vlastní modul                   │</p></td></tr><tr><td><p>│  └── balicek/             ← balíček (adresář)                   │</p></td></tr><tr><td><p>│      ├── __init__.py      ← označuje adresář jako balíček       │</p></td></tr><tr><td><p>│      ├── modul_a.py                                              │</p></td></tr><tr><td><p>│      └── modul_b.py                                              │</p></td></tr><tr><td><p>│                                                                  │</p></td></tr><tr><td><p>│  # V main.py:                                                    │</p></td></tr><tr><td><p>│  import utils                     # vlastní modul                │</p></td></tr><tr><td><p>│  from balicek import modul_a      # z balíčku                   │</p></td></tr><tr><td><p>│  from balicek.modul_b import foo  # konkrétní funkce            │</p></td></tr><tr><td><p>└─────────────────────────────────────────────────────────────────┘</p></td></tr></table><h2><strong>Standardní knihovna — přehled</strong></h2><table><thead><tr><th><p><strong>Modul</strong></p></th><th><p><strong>Účel</strong></p></th><th><p><strong>Příklad</strong></p></th></tr></thead><tbody><tr><td><p>os</p></td><td><p>Práce s OS a soubory</p></td><td><p>os.path.join("a","b")</p></td></tr><tr><td><p>sys</p></td><td><p>Systémové parametry</p></td><td><p>sys.argv, sys.exit()</p></td></tr><tr><td><p>math</p></td><td><p>Matematické funkce</p></td><td><p>math.sqrt(2), math.pi</p></td></tr><tr><td><p>random</p></td><td><p>Náhodná čísla</p></td><td><p>random.randint(1,10)</p></td></tr><tr><td><p>datetime</p></td><td><p>Datum a čas</p></td><td><p>datetime.datetime.now()</p></td></tr><tr><td><p>json</p></td><td><p>Práce s JSON</p></td><td><p>json.dumps(), json.loads()</p></td></tr><tr><td><p>re</p></td><td><p>Regulární výrazy</p></td><td><p>re.search(r"\d+", text)</p></td></tr><tr><td><p>collections</p></td><td><p>Rozšířené kolekce</p></td><td><p>Counter, defaultdict</p></td></tr><tr><td><p>pathlib</p></td><td><p>Moderní práce se soubory</p></td><td><p>Path("dir") / "file.txt"</p></td></tr><tr><td><p>time</p></td><td><p>Měření času, sleep</p></td><td><p>time.sleep(1)</p></td></tr></tbody></table><h2><strong>pip — správce balíčků</strong></h2><pre><code><strong>Příklad — příkazy v terminálu</strong>
+# Instalace balíčku
+pip install requests
+ 
+# Instalace konkrétní verze
+pip install requests==2.31.0
+ 
+# Aktualizace balíčku
+pip install --upgrade requests
+ 
+# Odinstalace
+pip uninstall requests
+ 
+# Výpis nainstalovaných balíčků
+pip list
+ 
+# Uložení závislostí
+pip freeze &gt; requirements.txt
+ 
+# Instalace ze souboru
+pip install -r requirements.txt</code></pre>
+<h2><strong>Virtuální prostředí (venv)</strong></h2><pre><code><strong>Příklad</strong>
+# Vytvoření virtuálního prostředí
+python -m venv moje_prostredi
+ 
+# Aktivace (Windows)
+moje_prostredi\Scripts\activate
+ 
+# Aktivace (Mac/Linux)
+source moje_prostredi/bin/activate
+ 
+# Deaktivace
+deactivate</code></pre>
+<h1><strong>9. Objektově orientované programování (OOP)</strong></h1><p>OOP je programovací paradigma, které organizuje kód do tříd a objektů. Python plně podporuje OOP, ale není na něj omezen — lze psát i funkcionálně nebo procedurálně.</p><h2><strong>Třída a objekt</strong></h2><pre><code><strong>Příklad</strong>
+class Auto:
+    """Třída reprezentující automobil."""
+ 
+    # Atribut třídy (sdílený všemi instancemi)
+    pocet_kol = 4
+ 
+    def __init__(self, znacka, model, rok):
+        """Inicializační metoda (konstruktor)."""
+        self.znacka = znacka   # atribut instance
+        self.model = model
+        self.rok = rok
+        self._rychlost = 0     # privátní konvence
+ 
+    def zrychlit(self, o_kolik):
+        self._rychlost += o_kolik
+        print(f"Rychlost: {self._rychlost} km/h")
+ 
+    def __str__(self):
+        return f"{self.znacka} {self.model} ({self.rok})"
+ 
+    def __repr__(self):
+        return f"Auto('{self.znacka}', '{self.model}', {self.rok})"
+ 
+ 
+# Vytvoření instance (objektu)
+moje_auto = Auto("Škoda", "Octavia", 2022)
+print(moje_auto)          # Škoda Octavia (2022)
+moje_auto.zrychlit(50)    # Rychlost: 50 km/h</code></pre>
+<h2><strong>Dědičnost (Inheritance)</strong></h2><table><tr><td><p>┌─────────────────────────────────────────────────────────────────┐</p></td></tr><tr><td><p>│                    HIERARCHIE TŘÍD                              │</p></td></tr><tr><td><p>│                                                                  │</p></td></tr><tr><td><p>│               ┌─────────────────┐                              │</p></td></tr><tr><td><p>│               │    Vozidlo      │   ← Rodičovská třída         │</p></td></tr><tr><td><p>│               │  (znacka, rok)  │     (base class)             │</p></td></tr><tr><td><p>│               │  pohyb()        │                              │</p></td></tr><tr><td><p>│               └────────┬────────┘                              │</p></td></tr><tr><td><p>│                        │  dědí                                  │</p></td></tr><tr><td><p>│            ┌───────────┼────────────┐                          │</p></td></tr><tr><td><p>│            ▼           ▼            ▼                          │</p></td></tr><tr><td><p>│       ┌────────┐  ┌────────┐  ┌──────────┐                    │</p></td></tr><tr><td><p>│       │  Auto  │  │  Kolo  │  │  Vlak    │  ← Potomci         │</p></td></tr><tr><td><p>│       │ motor  │  │ pedaly │  │ vagony   │    (child classes)  │</p></td></tr><tr><td><p>│       └────────┘  └────────┘  └──────────┘                    │</p></td></tr><tr><td><p>└─────────────────────────────────────────────────────────────────┘</p></td></tr></table><pre><code><strong>Příklad</strong>
+class Vozidlo:
+    def __init__(self, znacka, rok):
+        self.znacka = znacka
+        self.rok = rok
+ 
+    def pohyb(self):
+        return f"{self.znacka} se pohybuje"
+ 
+ 
+class ElektrickeAuto(Vozidlo):  # dědí od Vozidlo
+    def __init__(self, znacka, rok, kapacita_baterie):
+        super().__init__(znacka, rok)  # volá rodičovský __init__
+        self.kapacita_baterie = kapacita_baterie
+ 
+    def pohyb(self):  # přepis (override)
+        return f"{self.znacka} jede tiše na elektřinu"
+ 
+ 
+tesla = ElektrickeAuto("Tesla", 2023, 100)
+print(tesla.pohyb())  # Tesla jede tiše na elektřinu
+print(tesla.rok)      # 2023  (zděděno)</code></pre>
+<h2><strong>Speciální metody (__dunder__ metody)</strong></h2><table><thead><tr><th><p><strong>Metoda</strong></p></th><th><p><strong>Volána při</strong></p></th><th><p><strong>Příklad využití</strong></p></th></tr></thead><tbody><tr><td><p>__init__(self, ...)</p></td><td><p>Vytvoření instance</p></td><td><p>Konstruktor třídy</p></td></tr><tr><td><p>__str__(self)</p></td><td><p>str(obj), print(obj)</p></td><td><p>Lidsky čitelný výpis</p></td></tr><tr><td><p>__repr__(self)</p></td><td><p>repr(obj)</p></td><td><p>Technický výpis pro debug</p></td></tr><tr><td><p>__len__(self)</p></td><td><p>len(obj)</p></td><td><p>Délka vlastní kolekce</p></td></tr><tr><td><p>__eq__(self, other)</p></td><td><p>obj1 == obj2</p></td><td><p>Porovnání objektů</p></td></tr><tr><td><p>__lt__(self, other)</p></td><td><p>obj1 &lt; obj2</p></td><td><p>Třídění objektů</p></td></tr><tr><td><p>__add__(self, other)</p></td><td><p>obj1 + obj2</p></td><td><p>Přetížení operátoru +</p></td></tr><tr><td><p>__getitem__(self, key)</p></td><td><p>obj[key]</p></td><td><p>Indexování</p></td></tr><tr><td><p>__iter__(self)</p></td><td><p>for x in obj</p></td><td><p>Iterovatelný objekt</p></td></tr></tbody></table><h1><strong>10. Práce se soubory (File I/O)</strong></h1><h2><strong>Režimy otevření souboru</strong></h2><table><tr><td><p>┌───────┬────────────────────────────────────────────────────────┐</p></td></tr><tr><td><p>│ Režim │ Popis                                                   │</p></td></tr><tr><td><p>├───────┼────────────────────────────────────────────────────────┤</p></td></tr><tr><td><p>│  "r"  │ Čtení (výchozí). Soubor musí existovat.                │</p></td></tr><tr><td><p>│  "w"  │ Zápis. Vytvoří nový / přepíše existující.              │</p></td></tr><tr><td><p>│  "a"  │ Připojení (append). Přidává na konec souboru.          │</p></td></tr><tr><td><p>│  "x"  │ Vytvoření. Selže pokud soubor již existuje.            │</p></td></tr><tr><td><p>│  "r+" │ Čtení i zápis. Soubor musí existovat.                  │</p></td></tr><tr><td><p>│  "rb" │ Binární čtení (obrázky, PDF, ...).                     │</p></td></tr><tr><td><p>│  "wb" │ Binární zápis.                                          │</p></td></tr><tr><td><p>└───────┴────────────────────────────────────────────────────────┘</p></td></tr></table><h2><strong>Čtení a zápis souborů</strong></h2><pre><code><strong>Příklad — zápis do souboru</strong>
+# Doporučený způsob — context manager (with)
+with open("test.txt", "w", encoding="utf-8") as f:
+    f.write("První řádek\n")
+    f.write("Druhý řádek\n")
+ 
+# Zápis více řádků najednou
+radky = ["Alfa\n", "Beta\n", "Gamma\n"]
+with open("test.txt", "w", encoding="utf-8") as f:
+    f.writelines(radky)</code></pre>
+<pre><code><strong>Příklad — čtení souboru</strong>
+# Čtení celého souboru
+with open("test.txt", "r", encoding="utf-8") as f:
+    obsah = f.read()
+    print(obsah)
+ 
+# Čtení řádek po řádku
+with open("test.txt", "r", encoding="utf-8") as f:
+    for radek in f:
+        print(radek.strip())
+ 
+# Čtení do seznamu řádků
+with open("test.txt", "r", encoding="utf-8") as f:
+    radky = f.readlines()</code></pre>
+<h2><strong>Práce s JSON</strong></h2><pre><code><strong>Příklad</strong>
+import json
+ 
+# Zápis JSON do souboru
+data = {
+    "jmeno": "Alice",
+    "vek": 25,
+    "konicsky": ["Python", "čtení"]
+}
+with open("data.json", "w", encoding="utf-8") as f:
+    json.dump(data, f, indent=4, ensure_ascii=False)
+ 
+# Čtení JSON ze souboru
+with open("data.json", "r", encoding="utf-8") as f:
+    nactena_data = json.load(f)
+print(nactena_data["jmeno"])  # Alice
+ 
+# Konverze Python ↔ JSON string
+json_str = json.dumps(data)
+python_obj = json.loads(json_str)</code></pre>
+<h1><strong>11. Zpracování výjimek (Exception Handling)</strong></h1><p>Výjimky jsou události, které nastávají za běhu programu a narušují normální tok. Python používá mechanismus try/except pro jejich zachytání a zpracování.</p><table><tr><td><p>┌─────────────────────────────────────────────────────────────────┐</p></td></tr><tr><td><p>│                   TOK ZPRACOVÁNÍ VÝJIMEK                        │</p></td></tr><tr><td><p>│                                                                  │</p></td></tr><tr><td><p>│  ┌─────────────┐                                               │</p></td></tr><tr><td><p>│  │  try blok   │ ─── kód se provede normálně ──► else blok     │</p></td></tr><tr><td><p>│  └──────┬──────┘                                               │</p></td></tr><tr><td><p>│         │ výjimka!                                              │</p></td></tr><tr><td><p>│         ▼                                                       │</p></td></tr><tr><td><p>│  ┌──────────────┐                                              │</p></td></tr><tr><td><p>│  │ except blok  │ ─── zachytí výjimku, zpracuje ji             │</p></td></tr><tr><td><p>│  └──────────────┘                                              │</p></td></tr><tr><td><p>│         │                                                       │</p></td></tr><tr><td><p>│         ▼ (vždy)                                               │</p></td></tr><tr><td><p>│  ┌──────────────┐                                              │</p></td></tr><tr><td><p>│  │ finally blok │ ─── spustí se vždy (úklid, zavření souborů) │</p></td></tr><tr><td><p>│  └──────────────┘                                              │</p></td></tr><tr><td><p>└─────────────────────────────────────────────────────────────────┘</p></td></tr></table><pre><code><strong>Příklad — try/except/else/finally</strong>
+try:
+    cislo = int(input("Zadej číslo: "))
+    vysledek = 100 / cislo
+except ValueError:
+    print("Chyba: Zadej platné číslo!")
+except ZeroDivisionError:
+    print("Chyba: Dělení nulou!")
+except Exception as e:
+    print(f"Neočekávaná chyba: {e}")
+else:
+    print(f"Výsledek: {vysledek}")  # spustí se jen bez chyby
+finally:
+    print("Toto se spustí vždy.")</code></pre>
+<h2><strong>Nejčastější výjimky</strong></h2><table><thead><tr><th><p><strong>Výjimka</strong></p></th><th><p><strong>Příčina</strong></p></th><th><p><strong>Příklad</strong></p></th></tr></thead><tbody><tr><td><p>TypeError</p></td><td><p>Nesprávný typ operandu</p></td><td><p>"a" + 1</p></td></tr><tr><td><p>ValueError</p></td><td><p>Správný typ, nesprávná hodnota</p></td><td><p>int("abc")</p></td></tr><tr><td><p>KeyError</p></td><td><p>Klíč neexistuje ve slovníku</p></td><td><p>d["neexistuje"]</p></td></tr><tr><td><p>IndexError</p></td><td><p>Index mimo rozsah</p></td><td><p>[1,2][5]</p></td></tr><tr><td><p>AttributeError</p></td><td><p>Atribut neexistuje</p></td><td><p>None.split()</p></td></tr><tr><td><p>FileNotFoundError</p></td><td><p>Soubor nenalezen</p></td><td><p>open("x.txt")</p></td></tr><tr><td><p>ZeroDivisionError</p></td><td><p>Dělení nulou</p></td><td><p>5 / 0</p></td></tr><tr><td><p>ImportError</p></td><td><p>Modul nelze importovat</p></td><td><p>import neexistuje</p></td></tr><tr><td><p>NameError</p></td><td><p>Proměnná není definována</p></td><td><p>print(nedef_var)</p></td></tr><tr><td><p>StopIteration</p></td><td><p>Iterátor nemá další prvek</p></td><td><p>next(iter([]))</p></td></tr></tbody></table><h2><strong>Vlastní výjimky</strong></h2><pre><code><strong>Příklad</strong>
+class ZaporneHodnotaError(ValueError):
+    """Výjimka pro záporné hodnoty."""
+    pass
+ 
+ 
+def odmocnina(x):
+    if x &lt; 0:
+        raise ZaporneHodnotaError(f"Odmocnina ze záporného čísla: {x}")
+    return x ** 0.5
+ 
+ 
+try:
+    print(odmocnina(-4))
+except ZaporneHodnotaError as e:
+    print(f"Chyba: {e}")</code></pre>
+<h1><strong>12. Oblíbené knihovny pro začátečníky</strong></h1><h2><strong>Přehled knihoven</strong></h2><table><thead><tr><th><p><strong>Knihovna</strong></p></th><th><p><strong>Účel</strong></p></th><th><p><strong>Instalace</strong></p></th><th><p><strong>Příklad použití</strong></p></th></tr></thead><tbody><tr><td><p>requests</p></td><td><p>HTTP volání (GET, POST, ...)</p></td><td><p>pip install requests</p></td><td><p>requests.get(url)</p></td></tr><tr><td><p>pathlib</p></td><td><p>Moderní práce se soubory</p></td><td><p>Standardní knihovna</p></td><td><p>Path("dir") / "file"</p></td></tr><tr><td><p>datetime</p></td><td><p>Datum a čas</p></td><td><p>Standardní knihovna</p></td><td><p>datetime.now()</p></td></tr><tr><td><p>random</p></td><td><p>Generátor náhody</p></td><td><p>Standardní knihovna</p></td><td><p>random.randint(1,100)</p></td></tr><tr><td><p>math</p></td><td><p>Matematické funkce</p></td><td><p>Standardní knihovna</p></td><td><p>math.sqrt(2)</p></td></tr><tr><td><p>os</p></td><td><p>Operační systém, soubory</p></td><td><p>Standardní knihovna</p></td><td><p>os.listdir(".")</p></td></tr><tr><td><p>json</p></td><td><p>Serializace JSON</p></td><td><p>Standardní knihovna</p></td><td><p>json.loads(text)</p></td></tr><tr><td><p>csv</p></td><td><p>Práce s CSV soubory</p></td><td><p>Standardní knihovna</p></td><td><p>csv.reader(f)</p></td></tr><tr><td><p>re</p></td><td><p>Regulární výrazy</p></td><td><p>Standardní knihovna</p></td><td><p>re.findall(r"\d+",s)</p></td></tr></tbody></table><h2><strong>requests — HTTP volání</strong></h2><pre><code><strong>Příklad</strong>
+import requests
+ 
+# GET požadavek
+response = requests.get("<a href="https://api.github.com" target="_blank" rel="noopener noreferrer">https://api.github.com</a>")
+print(response.status_code)    # 200
+print(response.json())         # Python dict z JSON
+ 
+# POST požadavek
+data = {"key": "value"}
+response = requests.post("<a href="https://httpbin.org/post" target="_blank" rel="noopener noreferrer">https://httpbin.org/post</a>", json=data)
+ 
+# Hlavičky a parametry
+params = {"q": "python", "sort": "stars"}
+headers = {"Accept": "application/json"}
+r = requests.get("<a href="https://api.github.com/search/repos" target="_blank" rel="noopener noreferrer">https://api.github.com/search/repos</a>",
+                  params=params, headers=headers)</code></pre>
+<h2><strong>datetime — práce s datem a časem</strong></h2><pre><code><strong>Příklad</strong>
+from datetime import datetime, date, timedelta
+ 
+# Aktuální datum a čas
+ted = datetime.now()
+print(ted)                      # 2026-06-11 14:30:00.123456
+print(ted.strftime("%d.%m.%Y")) # 11.06.2026
+ 
+# Operace s datem
+narozeniny = date(1990, 5, 15)
+dnes = date.today()
+vek = (dnes - narozeniny).days // 365
+print(f"Věk: {vek} let")
+ 
+# timedelta — interval
+za_tyden = dnes + timedelta(days=7)
+print(f"Za týden: {za_tyden}")</code></pre>
+<h1><strong>13. Tipy a Best Practices</strong></h1><h2><strong>PEP 8 — styl kódu</strong></h2><p>PEP 8 je oficiální průvodce stylem kódu v Pythonu. Dodržování PEP 8 zlepšuje čitelnost a usnadňuje spolupráci.</p><table><thead><tr><th><p><strong>Pravidlo</strong></p></th><th><p><strong>Špatně</strong></p></th><th><p><strong>Správně</strong></p></th></tr></thead><tbody><tr><td><p>Odsazení: 4 mezery</p></td><td><p>if x:
+  print(x)</p></td><td><p>if x:
+    print(x)</p></td></tr><tr><td><p>Délka řádku max. 79 znaků</p></td><td><p>velice_dlouha_funkce(arg1, arg2, arg3, arg4)</p></td><td><p>velice_dlouha_funkce(
+    arg1, arg2)</p></td></tr><tr><td><p>Pojmenování proměnných</p></td><td><p>myVariable, MyVar</p></td><td><p>my_variable (snake_case)</p></td></tr><tr><td><p>Pojmenování tříd</p></td><td><p>my_class, myClass</p></td><td><p>MyClass (PascalCase)</p></td></tr><tr><td><p>Pojmenování konstant</p></td><td><p>maxValue = 100</p></td><td><p>MAX_VALUE = 100</p></td></tr><tr><td><p>2 prázdné řádky mezi funkcemi</p></td><td><p>...def foo():...def bar():</p></td><td><p>...\n\ndef foo():\n\n\ndef bar():</p></td></tr><tr><td><p>Import na začátku souboru</p></td><td><p>Importy uvnitř funkcí</p></td><td><p>import math na začátku</p></td></tr></tbody></table><h2><strong>Python Zen (import this)</strong></h2><table><tr><td><p>┌─────────────────────────────────────────────────────────────────┐</p></td></tr><tr><td><p>│                  THE ZEN OF PYTHON (PEP 20)                     │</p></td></tr><tr><td><p>│                                                                  │</p></td></tr><tr><td><p>│  Krásné je lepší než ošklivé.                                   │</p></td></tr><tr><td><p>│  Explicitní je lepší než implicitní.                            │</p></td></tr><tr><td><p>│  Jednoduché je lepší než komplexní.                             │</p></td></tr><tr><td><p>│  Komplexní je lepší než komplikované.                           │</p></td></tr><tr><td><p>│  Ploché je lepší než vnořené.                                   │</p></td></tr><tr><td><p>│  Řídké je lepší než husté.                                      │</p></td></tr><tr><td><p>│  Čitelnost se počítá.                                           │</p></td></tr><tr><td><p>│  Speciální případy nejsou dost speciální na porušení pravidel.  │</p></td></tr><tr><td><p>│  Chyby by nikdy neměly projít potichu.                          │</p></td></tr><tr><td><p>│  Měl by existovat jeden zřejmý způsob, jak to udělat.          │</p></td></tr><tr><td><p>│  Teď je lepší než nikdy.                                        │</p></td></tr><tr><td><p>│                                                                  │</p></td></tr><tr><td><p>│  (Celý zen: python -c "import this")                            │</p></td></tr><tr><td><p>└─────────────────────────────────────────────────────────────────┘</p></td></tr></table><h2><strong>Časté chyby začátečníků</strong></h2><ul><li>Záměna = (přiřazení) a == (porovnání)</li><li>Chybějící odsazení nebo nekonzistentní odsazení</li><li>Modifikace seznamu během iterace přes něj</li><li>Záměna is a == při porovnávání (is porovnává reference, == hodnoty)</li><li>Zapomenuté volání funkce — psaní len bez závorek místo len()</li><li>Práce se soubory bez context manageru (zapomenuté zavření)</li><li>Ignorování výjimek pomocí prázdného except: pass</li><li>Použití měnitelného objektu (list, dict) jako výchozí hodnoty parametru</li></ul><pre><code><strong>Příklad — zákeřná chyba s výchozím parametrem</strong>
+# ŠPATNĚ — výchozí seznam je sdílen mezi všemi voláními!
+def pridej(hodnota, seznam=[]):
+    seznam.append(hodnota)
+    return seznam
+ 
+print(pridej(1))  # [1]
+print(pridej(2))  # [1, 2] !!! neočekáváno
+ 
+# SPRÁVNĚ — použijte None jako výchozí hodnotu
+def pridej(hodnota, seznam=None):
+    if seznam is None:
+        seznam = []
+    seznam.append(hodnota)
+    return seznam</code></pre>
+<h2><strong>Doporučené zdroje</strong></h2><table><thead><tr><th><p><strong>Zdroj</strong></p></th><th><p><strong>URL</strong></p></th><th><p><strong>Typ</strong></p></th><th><p><strong>Popis</strong></p></th></tr></thead><tbody><tr><td><p>python.org</p></td><td><p><a href="https://www.python.org" target="_blank" rel="noopener noreferrer">https://www.python.org</a></p></td><td><p>Oficiální</p></td><td><p>Dokumentace, novinky, stažení</p></td></tr><tr><td><p>docs.python.org</p></td><td><p><a href="https://docs.python.org/3" target="_blank" rel="noopener noreferrer">https://docs.python.org/3</a></p></td><td><p>Dokumentace</p></td><td><p>Kompletní reference</p></td></tr><tr><td><p>W3Schools Python</p></td><td><p><a href="https://www.w3schools.com/python" target="_blank" rel="noopener noreferrer">https://www.w3schools.com/python</a></p></td><td><p>Tutoriál</p></td><td><p>Interaktivní lekce, příklady</p></td></tr><tr><td><p>Real Python</p></td><td><p><a href="https://realpython.com" target="_blank" rel="noopener noreferrer">https://realpython.com</a></p></td><td><p>Tutoriály</p></td><td><p>Praktické články a video kurzy</p></td></tr><tr><td><p>PyPI</p></td><td><p><a href="https://pypi.org" target="_blank" rel="noopener noreferrer">https://pypi.org</a></p></td><td><p>Balíčky</p></td><td><p>Repozitář Python balíčků</p></td></tr><tr><td><p>CS50P (Harvard)</p></td><td><p><a href="https://cs50.harvard.edu/python" target="_blank" rel="noopener noreferrer">https://cs50.harvard.edu/python</a></p></td><td><p>Kurz</p></td><td><p>Zdarma, certifikát, videa</p></td></tr><tr><td><p>Automate the Boring Stuff</p></td><td><p><a href="https://automatetheboringstuff.com" target="_blank" rel="noopener noreferrer">https://automatetheboringstuff.com</a></p></td><td><p>Kniha</p></td><td><p>Zdarma online, praktické projekty</p></td></tr></tbody></table><p>Přejeme hodně úspěchů při studiu Pythonu!</p>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>
+    
+    document.querySelectorAll('pre code').forEach(function(el){ hljs.highlightElement(el); });
+  </script>
+  <script>(function () {
+    var marks = [];
+    var idx = -1;
+
+    function clearMarks() {
+        marks.forEach(function (m) {
+            var p = m.parentNode;
+            if (p) { p.replaceChild(document.createTextNode(m.textContent), m); p.normalize(); }
+        });
+        marks = [];
+        idx = -1;
+    }
+
+    function markText(query) {
+        var results = [];
+        var lower = query.toLowerCase();
+        var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null);
+        var nodes = [];
+        var n;
+        while ((n = walker.nextNode())) {
+            if (n.nodeValue.toLowerCase().includes(lower)) nodes.push(n);
+        }
+        nodes.forEach(function (textNode) {
+            var text  = textNode.nodeValue;
+            var ltext = text.toLowerCase();
+            var par   = textNode.parentNode;
+            if (!par) return;
+            var frag = document.createDocumentFragment();
+            var last = 0, i;
+            while ((i = ltext.indexOf(lower, last)) !== -1) {
+                if (i > last) frag.appendChild(document.createTextNode(text.slice(last, i)));
+                var m = document.createElement('mark');
+                m.className = 'dsm';
+                m.style.cssText = 'background:#ffe066;color:inherit;border-radius:2px;';
+                m.textContent = text.slice(i, i + query.length);
+                frag.appendChild(m);
+                results.push(m);
+                last = i + query.length;
+            }
+            if (last < text.length) frag.appendChild(document.createTextNode(text.slice(last)));
+            par.replaceChild(frag, textNode);
+        });
+        return results;
+    }
+
+    function highlight() {
+        marks.forEach(function (m, i) {
+            m.style.background = i === idx ? '#ff9900' : '#ffe066';
+            m.style.outline    = i === idx ? '2px solid #e65c00' : 'none';
+        });
+        if (marks[idx]) marks[idx].scrollIntoView({ block: 'center' });
+    }
+
+    function reply(src) {
+        src.postMessage({ type: 'searchResult', count: marks.length, current: idx }, '*');
+    }
+
+    window.addEventListener('message', function (e) {
+        var d = e.data;
+        if (!d || !d.type) return;
+        if (d.type === 'search') {
+            clearMarks();
+            if (d.query) {
+                marks = markText(d.query);
+                if (marks.length) idx = 0;
+                highlight();
+            }
+            reply(e.source);
+        } else if (d.type === 'searchNav') {
+            if (!marks.length) return;
+            idx = d.dir === 'next'
+                ? (idx + 1) % marks.length
+                : (idx - 1 + marks.length) % marks.length;
+            highlight();
+            reply(e.source);
+        } else if (d.type === 'searchClear') {
+            clearMarks();
+        }
+    });
+})();</script>
+</body>
+</html>
